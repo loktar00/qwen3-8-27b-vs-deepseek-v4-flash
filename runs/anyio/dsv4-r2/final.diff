@@ -1,0 +1,121 @@
+diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py
+index bc7e6ab..54af9d1 100644
+--- a/src/anyio/_backends/_asyncio.py
++++ b/src/anyio/_backends/_asyncio.py
+@@ -2075,10 +2075,13 @@ class CapacityLimiter(BaseCapacityLimiter):
+         waiters_to_notify = max(value - self._total_tokens, 0)
+         self._total_tokens = value
+ 
+-        # Notify waiting tasks that they have acquired the limiter
++        # Notify waiting tasks that they have acquired the limiter, reserving a token
++        # for each woken waiter so it cannot be claimed by a synchronous acquirer in the
++        # meantime
+         while self._wait_queue and waiters_to_notify:
+-            event = self._wait_queue.popitem(last=False)[1]
++            borrower, event = self._wait_queue.popitem(last=False)
+             event.set()
++            self._borrowers.add(borrower)
+             waiters_to_notify -= 1
+ 
+     @property
+@@ -2092,9 +2095,14 @@ class CapacityLimiter(BaseCapacityLimiter):
+     def _notify_next_waiter(self) -> None:
+         """Notify the next task in line if this limiter has free capacity now."""
+         if self._wait_queue and len(self._borrowers) < self._total_tokens:
+-            event = self._wait_queue.popitem(last=False)[1]
++            borrower, event = self._wait_queue.popitem(last=False)
+             event.set()
+ 
++            # Reserve the token for the woken waiter right away, so a synchronous
++            # acquire issued before it resumes cannot steal it (mirrors the
++            # Semaphore/Lock hand-off)
++            self._borrowers.add(borrower)
++
+     def acquire_nowait(self) -> None:
+         self.acquire_on_behalf_of_nowait(current_task())
+ 
+@@ -2124,11 +2132,14 @@ class CapacityLimiter(BaseCapacityLimiter):
+             except BaseException:
+                 self._wait_queue.pop(borrower, None)
+                 if event.is_set():
++                    # The token was reserved for this waiter at notify time, so give
++                    # it back to the next one in line
++                    self._borrowers.discard(borrower)
+                     self._notify_next_waiter()
+ 
+                 raise
+ 
+-            self._borrowers.add(borrower)
++            # The token was already reserved for this waiter when it was notified
+         else:
+             try:
+                 await AsyncIOBackend.cancel_shielded_checkpoint()
+diff --git a/tests/test_synchronization.py b/tests/test_synchronization.py
+index 3ead3c2..a48dc4a 100644
+--- a/tests/test_synchronization.py
++++ b/tests/test_synchronization.py
+@@ -993,3 +993,64 @@ class TestCapacityLimiter:
+         limiter.acquire_on_behalf_of_nowait(borrower1)
+         with pytest.raises(WouldBlock):
+             limiter.acquire_on_behalf_of_nowait(borrower2)
++
++    async def test_nowait_acquire_does_not_steal_reserved_token(self) -> None:
++        """A nowait acquire must not take the token reserved for a woken waiter.
++
++        Regression test for the window between a waiter being notified of an available
++        token and actually resuming, during which the wait queue is empty and the
++        waiter is not yet counted as a borrower. The freed token is committed to the
++        woken waiter, so a synchronous acquire must raise ``WouldBlock``.
++
++        """
++        limiter = CapacityLimiter(1)
++        limiter.acquire_on_behalf_of_nowait("A")
++
++        async with create_task_group() as tg:
++            async def waiter() -> None:
++                await limiter.acquire_on_behalf_of("B")
++
++            tg.start_soon(waiter)
++
++            while limiter.statistics().tasks_waiting != 1:
++                await checkpoint()
++
++            limiter.release_on_behalf_of("A")
++            # B has been notified but has not resumed yet (this task has not
++            # yielded), so the freed token is reserved for B
++            with pytest.raises(WouldBlock):
++                limiter.acquire_on_behalf_of_nowait("X")
++
++        assert limiter.borrowed_tokens == 1
++        assert limiter.available_tokens == 0
++        assert limiter.statistics().borrowers == ("B",)
++
++    async def test_raise_tokens_does_not_overgrant_before_waiters_resume(self) -> None:
++        """Raising total_tokens must not make a freed token available twice.
++
++        When the total number of tokens is raised, each new token is reserved for a
++        woken waiter at notify time, so a synchronous acquire issued before those
++        waiters resume must still raise ``WouldBlock``.
++
++        """
++        limiter = CapacityLimiter(1)
++        limiter.acquire_on_behalf_of_nowait("A")
++
++        async with create_task_group() as tg:
++            async def waiter() -> None:
++                await limiter.acquire_on_behalf_of("B")
++
++            tg.start_soon(waiter)
++
++            while limiter.statistics().tasks_waiting != 1:
++                await checkpoint()
++
++            # The extra token is reserved for B, who has been notified but has not
++            # resumed yet (this task has not yielded)
++            limiter.total_tokens = 2
++            with pytest.raises(WouldBlock):
++                limiter.acquire_on_behalf_of_nowait("X")
++
++        assert limiter.borrowed_tokens == 2
++        assert limiter.available_tokens == 0
++        assert sorted(limiter.statistics().borrowers) == ["A", "B"]

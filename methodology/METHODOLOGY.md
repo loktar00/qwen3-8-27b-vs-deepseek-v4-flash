@@ -185,7 +185,48 @@ reported, including harness-forced ones); no editing briefs or scripted turns be
 model's run and the other's; no scoring by Claude alone — every rubric score is Jason's, given
 blind, with an optional third-model judge reported as an extra column, never as the verdict.
 
-## 8. How to reproduce this
+## 8. Amendments made during the run (all pre-verdict, all logged)
+
+A pre-registered spec doesn't mean nothing changes once runs start — it means every change is
+dated, explained, and applied evenly. Every item below is logged in
+[`SCORING.md`](./SCORING.md)'s change log under the same 2026-08-20 date; all of them landed
+before any verdict was drawn, and none were applied to only some of a task's runs.
+
+1. **Scorer execution bug.** The scoring script initially failed to launch anyio's virtualenv
+   Python from cmd.exe (`.venv/Scripts/python` wasn't resolving), which wrongly marked one anyio
+   run FAIL. Once the launch bug was found and fixed, *all* anyio runs were re-scored on the
+   corrected scorer — not just the one that looked wrong.
+2. **chessground #322's frozen test made design-agnostic.** The first frozen repro test assumed
+   a fix would reuse chessground's existing `eraseOnMovablePieceClick` flag. A model's fix used a
+   different, equally correct new flag instead, and the original test penalized it for that. The
+   test was rewritten to check the actual required behavior — any erase-related drawable flag set
+   false must prevent erase on an empty-square click, and defaults must still erase — rather than
+   one specific implementation.
+3. **HATETRIS #301's P1 switched from the upstream PR's test file to a frozen behavioral test.**
+   The upstream fix's own tests turned out to be coupled to an unrelated button-testid refactor
+   shipped in the same PR, so copying them in verbatim would fail on a model's tree even with a
+   correct fix, for reasons unrelated to the soft-lock bug itself. We wrote a frozen behavioral
+   test instead and validated it the way every hidden-reference test is validated — it fails on
+   the base commit and passes on the upstream fix — plus one more check specific to this
+   amendment: it also passes on several alternative correct fixes we hand-wrote, not just the
+   upstream one.
+4. **Qwen re-served with official MTP speculative decoding**, for parity with DeepSeek's bundled
+   DSpark draft model (see §2).
+5. **Project-level `AGENTS.md`/`CLAUDE.md`/`.cursorrules` removed from every model's worktree in
+   every lane.** Only one task repo (anyio) shipped one of these files; leaving it in place would
+   have given that lane's runs extra unscripted instructions no other task got. Removed
+   everywhere so every harness lane sees identical instructions.
+6. **Calibration item 5's wording aligned across harnesses**, so the recover-from-error task in
+   [`calibration.md`](./calibration.md) reads identically whether it's driven through OMP or
+   OpenCode.
+
+The principle behind all six: a frozen check has to pass on *any* correct fix, not just the one
+particular design the test author happened to imagine when writing it. When a check turns out to
+be too narrow, or a script has a bug, that's a defect in our scaffolding, not evidence about a
+model — so it gets fixed, dated, logged here and in `SCORING.md`, and reapplied to every run of
+that task. Never quietly patched for a subset.
+
+## 9. How to reproduce this
 
 You'll need two models behind OpenAI-compatible endpoints (we used a rented multi-GPU cloud pod
 tunnelled to localhost — substitute your own hardware/provider) and a local clone of the target

@@ -1,0 +1,63 @@
+diff --git a/src/api.ts b/src/api.ts
+index 366779d..1d87a1e 100644
+--- a/src/api.ts
++++ b/src/api.ts
+@@ -181,6 +181,7 @@ export function start(state: State, redrawAll: cg.Redraw): Api {
+     destroy(): void {
+       board.stop(state);
+       state.dom.unbind?.();
++      state.dom.resizeObserver?.disconnect();
+       state.dom.destroyed = true;
+     },
+   };
+diff --git a/src/chessground.ts b/src/chessground.ts
+index bece308..1c23c10 100644
+--- a/src/chessground.ts
++++ b/src/chessground.ts
+@@ -18,7 +18,8 @@ export function Chessground(element: HTMLElement, config?: Config): Api {
+   configure(maybeState, config || {});
+ 
+   function redrawAll(): State {
+-    const prevUnbind = 'dom' in maybeState ? maybeState.dom.unbind : undefined;
++    const prevDom = 'dom' in maybeState ? maybeState.dom : undefined;
++    const prevUnbind = prevDom?.unbind;
+     // compute bounds from existing board element if possible
+     // this allows non-square boards from CSS to be handled (for 3D)
+     const elements = renderWrap(element, maybeState),
+@@ -40,6 +41,7 @@ export function Chessground(element: HTMLElement, config?: Config): Api {
+       redraw: debounceRedraw(redrawNow),
+       redrawNow,
+       unbind: prevUnbind,
++      resizeObserver: prevDom?.resizeObserver,
+     };
+     state.drawable.prevSvgHash = '';
+     updateBounds(state);
+diff --git a/src/events.ts b/src/events.ts
+index 756dd50..2f8c2de 100644
+--- a/src/events.ts
++++ b/src/events.ts
+@@ -11,7 +11,11 @@ type StateMouchBind = (d: State, e: cg.MouchEvent) => void;
+ export function bindBoard(s: State, onResize: () => void): void {
+   const boardEl = s.dom.elements.board;
+ 
+-  if ('ResizeObserver' in window) new ResizeObserver(onResize).observe(s.dom.elements.wrap);
++  if ('ResizeObserver' in window) {
++    s.dom.resizeObserver?.disconnect();
++    s.dom.resizeObserver = new ResizeObserver(onResize);
++    s.dom.resizeObserver.observe(s.dom.elements.wrap);
++  }
+ 
+   if (s.disableContextMenu || s.drawable.enabled) {
+     boardEl.addEventListener('contextmenu', e => e.preventDefault());
+diff --git a/src/types.ts b/src/types.ts
+index ebbee42..bf69d83 100644
+--- a/src/types.ts
++++ b/src/types.ts
+@@ -53,6 +53,7 @@ export interface Dom {
+   redraw: () => void;
+   redrawNow: (skipSvg?: boolean) => void;
+   unbind?: Unbind;
++  resizeObserver?: ResizeObserver;
+   destroyed?: boolean;
+ }
+ export interface Exploding {

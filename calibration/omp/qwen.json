@@ -1,0 +1,14 @@
+{
+  "harness": "omp",
+  "label": "qwen",
+  "model": "pod-qwen/qwen3.8-27b-bf16",
+  "items": [
+    {"id": 1, "pass": true, "detail": "answer='beta gamma'", "tool_calls": 1, "parse_errors": 0, "wall_s": 15},
+    {"id": 2, "pass": true, "detail": "calc.py on disk now returns a+b (verified); correct diff shown", "tool_calls": 4, "parse_errors": 0, "wall_s": 35},
+    {"id": 3, "pass": true, "detail": "answer contains '5'", "tool_calls": 2, "parse_errors": 0, "wall_s": 29},
+    {"id": 4, "pass": true, "detail": "count.txt on disk == '4'; answer states 4 with a full breakdown", "tool_calls": 3, "parse_errors": 0, "wall_s": 40},
+    {"id": 5, "pass": true, "detail": "sum.js fixed on disk (verified: node sum.js 1 2 -> 3); answer contains '3'", "tool_calls": 4, "parse_errors": 0, "wall_s": 18}
+  ],
+  "gate_pass": true,
+  "notes": "5/5 pass, zero parse/malformed-tool-call errors. Ran at OMP's shipped default effort (no suffix). Ran after the mid-run Qwen server restart to enable MTP speculative decoding, in a fresh scratch dir (scratch-run label 'qwen-v2' internally; this is the canonical qwen row). Item-1 prompt_tokens=17685, used as the baseline for the effort-passthrough check against the qwen-medium row (see qwen-medium.json notes)."
+}

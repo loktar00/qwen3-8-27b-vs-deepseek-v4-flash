@@ -1,0 +1,39 @@
+# Append under `providers:` in ~/.omp/agent/models.yml AT RESUME (back the file up first:
+#   cp ~/.omp/agent/models.yml ~/.omp/agent/models.yml.bak-YYYYMMDD-ab).
+# Shape cloned from Jason's existing llama-swap-* entries (api: openai-completions, auth: none,
+# discovery from /v1/models, per-model overrides). Tunnel must be up: localhost:8001 -> pod:8000 (Qwen),
+# localhost:8002 -> pod:8002 (DSV4).
+  pod-qwen:
+    baseUrl: http://localhost:8001/v1
+    api: openai-completions
+    auth: none
+    discovery:
+      type: openai-models-list
+    modelOverrides:
+      qwen3.8-27b-bf16:
+        name: Qwen3.8-27B BF16 (pod H200, vision on)
+        input: [text, image]
+        contextWindow: 131072
+        maxTokens: 32768
+        reasoning: true
+  pod-dsv4:
+    baseUrl: http://localhost:8002/v1
+    api: openai-completions
+    auth: none
+    discovery:
+      type: openai-models-list
+    modelOverrides:
+      deepseek-v4-flash-0731:
+        name: DeepSeek V4 Flash 0731 (pod 2xH200, Max baked)
+        contextWindow: 393216
+        maxTokens: 65536
+        reasoning: true
+# Model refs for runs:  pod-dsv4/deepseek-v4-flash-0731   pod-qwen/qwen3.8-27b-bf16   pod-qwen/qwen3.8-27b-bf16:medium
+# VERIFY at resume that the ":medium" suffix actually reaches vLLM (prompt_tokens render diff: ~55 default vs ~13 medium);
+# if OMP sends it as top-level reasoning_effort and vLLM ignores it for Qwen, fall back to the lane-C style
+# chat_template_kwargs via a tiny local proxy on :8003.
+# Run flags for A/B (vanilla, reproducible):
+#   omp --profile ab --no-extensions --no-skills --no-rules --approval-mode yolo --mode json \
+#       --session-dir D:\dev\ab-runs\sessions\<task>\<model> --cwd D:\dev\ab-tasks\<task>\<model> \
+#       --model pod-dsv4/deepseek-v4-flash-0731 --max-time 2h -p "@brief.md"
+#   (config overlay: --config ab-overlay.yml  with  bash: {enabled: true})

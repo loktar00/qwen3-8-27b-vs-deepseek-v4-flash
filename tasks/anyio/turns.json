@@ -1,0 +1,10 @@
+{
+  "repo": "D:\\dev\\ab-tasks\\anyio",
+  "test_cmd": ".venv/Scripts/python -m pytest tests/test_synchronization.py -q",
+  "turns": [
+    "Run tests/test_synchronization.py and paste the summary.",
+    "Does your fix also hold when total_tokens is raised while tasks are waiting? Add a test for that path.",
+    "Explain in two sentences why the original ordering allowed the over-grant."
+  ],
+  "install": "python -m venv .venv && ./.venv/Scripts/python -m pip install -q --upgrade pip && ./.venv/Scripts/python -m pip install -q --group test -e ."
+}

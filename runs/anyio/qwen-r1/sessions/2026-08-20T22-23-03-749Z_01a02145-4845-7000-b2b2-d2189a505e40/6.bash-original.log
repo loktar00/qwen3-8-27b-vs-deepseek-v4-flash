@@ -1,0 +1,81 @@
+Saved working directory and index state WIP on (no branch): 6f82b25 Refactored TestTLSStream.test_receive_invalid_max_bytes() to be less flaky
+FFFs                                                                                                                                                                                                                                                                                                    [100%]
+================================================================================================================================================== FAILURES ==================================================================================================================================================
+____________________________________________________________________________________________________________________ TestCapacityLimiter.test_acquire_nowait_with_reserved_token[asyncio] ____________________________________________________________________________________________________________________
+  + Exception Group Traceback (most recent call last):
+  |   File "D:\dev\ab-tasks\anyio-qwen-r1\tests\test_synchronization.py", line 1009, in test_acquire_nowait_with_reserved_token
+  |     async with create_task_group() as tg:
+  |                ^^^^^^^^^^^^^^^^^^^
+  |   File "D:\dev\ab-tasks\anyio-qwen-r1\src\anyio\_backends\_asyncio.py", line 811, in __aexit__
+  |     raise BaseExceptionGroup(
+  | BaseExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "D:\dev\ab-tasks\anyio-qwen-r1\tests\test_synchronization.py", line 1017, in test_acquire_nowait_with_reserved_token
+    |     with pytest.raises(WouldBlock):
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "D:\dev\ab-tasks\anyio-qwen-r1\.venv\Lib\site-packages\_pytest\raises.py", line 699, in __exit__
+    |     fail(f"DID NOT RAISE {self.expected_exceptions[0].__name__}")
+    |   File "D:\dev\ab-tasks\anyio-qwen-r1\.venv\Lib\site-packages\_pytest\outcomes.py", line 162, in __call__
+    |     raise Failed(msg=reason, pytrace=pytrace)
+    | Failed: DID NOT RAISE WouldBlock
+    +------------------------------------
+________________________________________________________________________________________________________________ TestCapacityLimiter.test_acquire_nowait_with_reserved_token[asyncio+winloop] ________________________________________________________________________________________________________________
+  + Exception Group Traceback (most recent call last):
+  |   File "D:\dev\ab-tasks\anyio-qwen-r1\tests\test_synchronization.py", line 1009, in test_acquire_nowait_with_reserved_token
+  |     async with create_task_group() as tg:
+  |                ^^^^^^^^^^^^^^^^^^^
+  |   File "D:\dev\ab-tasks\anyio-qwen-r1\src\anyio\_backends\_asyncio.py", line 811, in __aexit__
+  |     raise BaseExceptionGroup(
+  | BaseExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "D:\dev\ab-tasks\anyio-qwen-r1\tests\test_synchronization.py", line 1017, in test_acquire_nowait_with_reserved_token
+    |     with pytest.raises(WouldBlock):
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "D:\dev\ab-tasks\anyio-qwen-r1\.venv\Lib\site-packages\_pytest\raises.py", line 699, in __exit__
+    |     fail(f"DID NOT RAISE {self.expected_exceptions[0].__name__}")
+    |   File "D:\dev\ab-tasks\anyio-qwen-r1\.venv\Lib\site-packages\_pytest\outcomes.py", line 162, in __call__
+    |     raise Failed(msg=reason, pytrace=pytrace)
+    | Failed: DID NOT RAISE WouldBlock
+    +------------------------------------
+_________________________________________________________________________________________________________________ TestCapacityLimiter.test_acquire_nowait_with_reserved_token[asyncio+eager] _________________________________________________________________________________________________________________
+  + Exception Group Traceback (most recent call last):
+  |   File "D:\dev\ab-tasks\anyio-qwen-r1\tests\test_synchronization.py", line 1009, in test_acquire_nowait_with_reserved_token
+  |     async with create_task_group() as tg:
+  |                ^^^^^^^^^^^^^^^^^^^
+  |   File "D:\dev\ab-tasks\anyio-qwen-r1\src\anyio\_backends\_asyncio.py", line 811, in __aexit__
+  |     raise BaseExceptionGroup(
+  | BaseExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "D:\dev\ab-tasks\anyio-qwen-r1\tests\test_synchronization.py", line 1017, in test_acquire_nowait_with_reserved_token
+    |     with pytest.raises(WouldBlock):
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "D:\dev\ab-tasks\anyio-qwen-r1\.venv\Lib\site-packages\_pytest\raises.py", line 699, in __exit__
+    |     fail(f"DID NOT RAISE {self.expected_exceptions[0].__name__}")
+    |   File "D:\dev\ab-tasks\anyio-qwen-r1\.venv\Lib\site-packages\_pytest\outcomes.py", line 162, in __call__
+    |     raise Failed(msg=reason, pytrace=pytrace)
+    | Failed: DID NOT RAISE WouldBlock
+    +------------------------------------
+========================================================================================================================================== short test summary info ===========================================================================================================================================
+SKIPPED [1] tests\test_synchronization.py:997: trio is not available
+FAILED tests/test_synchronization.py::TestCapacityLimiter::test_acquire_nowait_with_reserved_token[asyncio] - DID NOT RAISE WouldBlock [single exception in BaseExceptionGroup]
+FAILED tests/test_synchronization.py::TestCapacityLimiter::test_acquire_nowait_with_reserved_token[asyncio+winloop] - DID NOT RAISE WouldBlock [single exception in BaseExceptionGroup]
+FAILED tests/test_synchronization.py::TestCapacityLimiter::test_acquire_nowait_with_reserved_token[asyncio+eager] - DID NOT RAISE WouldBlock [single exception in BaseExceptionGroup]
+3 failed, 1 skipped in 0.32s
+Not currently on any branch.
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	deleted:    AGENTS.md
+	deleted:    CLAUDE.md
+	modified:   src/anyio/_backends/_asyncio.py
+	modified:   tests/test_synchronization.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.venv/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (509035cf7258e77f97400cc72b9d3dd6780cb955)

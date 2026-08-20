@@ -1,0 +1,26 @@
+ M packages/react/compose-refs/src/compose-refs.tsx
+ M packages/react/slot/src/slot.test.tsx
+ M packages/react/slot/src/slot.tsx
+?? .changeset/loud-cups-repeat.md
+=== compose-refs diff ===
+diff --git a/packages/react/compose-refs/src/compose-refs.tsx b/packages/react/compose-refs/src/compose-refs.tsx
+index 667f459a..69769f5d 100644
+--- a/packages/react/compose-refs/src/compose-refs.tsx
++++ b/packages/react/compose-refs/src/compose-refs.tsx
+@@ -53,8 +53,14 @@ function composeRefs<T>(...refs: PossibleRef<T>[]): React.RefCallback<T> {
+  * Accepts callback refs and RefObject(s)
+  */
+ function useComposedRefs<T>(...refs: PossibleRef<T>[]): React.RefCallback<T> {
+-  // eslint-disable-next-line react-hooks/exhaustive-deps
+-  return React.useCallback(composeRefs(...refs), refs);
++  // Keep the latest refs in a ref so the returned callback can have a stable
++  // identity. In React 19 a callback ref is torn down (cleanup run) and
++  // re-attached whenever its identity changes, which can trigger state updates
++  // and an infinite loop. Returning a stable callback that reads the latest
++  // refs from a ref avoids that while preserving cleanup semantics.
++  const refsRef = React.useRef(refs);
++  refsRef.current = refs;
++  return React.useCallback((node: T) => composeRefs(...refsRef.current)(node), []);
+ }
+ 
+ export { composeRefs, useComposedRefs };

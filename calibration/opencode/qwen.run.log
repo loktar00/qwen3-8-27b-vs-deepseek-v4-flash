@@ -1,0 +1,37 @@
+[18:06:29] calibrating pod-qwen/qwen3.8-27b-bf16 (label=qwen) in /d/dev/ab-tasks/_calib_runs/qwen-oc
+[18:06:29] item 1 prompt: What is on line 2 of notes.txt?
+[18:09:12] item 1: FAIL -- no session id, harness/config error (rc=0, see turn-1.err)
+[18:09:12] item FAIL: 1-READ -- answer mentions 'beta gamma': 0 (tool calls: 0); raw answer in /d/dev/ab-tasks/_calib_runs/qwen-oc/answer-1.txt
+[18:09:12] item 2 prompt: calc.py's add() is wrong; fix it and show the diff.
+grep: /d/dev/ab-tasks/_calib_runs/qwen-oc/turn-2.json: No such file or directory
+[18:09:44] item 2: FAIL -- no session id, harness/config error (rc=0, see turn-2.err)
+[18:09:44] item FAIL: 2-EDIT -- python calc.py now prints 'C:\Users\lokta\AppData\Local\Programs\Python\Python312\python.exe: can't open file 'D:\\dev\\ab-tasks\\_calib_runs\\qwen-oc\\calc.py': [Errno 2] No such file or directory' (want 5); tool calls: 0
+[18:09:44] item 3 prompt: Run `python calc.py` (prints add(2,3)) and tell me the output.
+[18:10:02] item FAIL: 3-RUN+READ -- answer mentions '5': 0; raw answer in /d/dev/ab-tasks/_calib_runs/qwen-oc/answer-3.txt
+[18:10:02] item 4 prompt: Count the valid rows in data.csv, write the count to count.txt, then read it back.
+Traceback (most recent call last):
+  File "D:\dev\style-pilot\labs\qwen38-day0\ab\opencode_calib_check.py", line 44, in <module>
+    print("\n".join(text_chunks))
+  File "C:\Users\lokta\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2192' in position 1225: character maps to <undefined>
+[18:13:36] item PASS: 4-CHAIN -- count.txt contains '4' (want 4); tool calls: 14 (expect >=3)
+[18:13:36] item 5 prompt: Run `node sum.js 1 2`
+[18:14:26] item FAIL: 5-RECOVER -- fixed sum.js now prints 'D:\dev\ab-tasks\_calib_runs\qwen-oc\sum.js:2
+console.log(a + b
+                ^
+
+SyntaxError: missing ) after argument list
+    at wrapSafe (node:internal/modules/cjs/loader:1735:18)
+    at Module._compile (node:internal/modules/cjs/loader:1778:20)
+    at Object..js (node:internal/modules/cjs/loader:1936:10)
+    at Module.load (node:internal/modules/cjs/loader:1525:32)
+    at Module._load (node:internal/modules/cjs/loader:1327:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.13.1' (want 3), answer mentions 3: 1
+[18:14:26] RESULT: 1/5 -- FAIL (see /d/dev/ab-tasks/_calib_runs/qwen-oc/probe.log, turn-*.json, answer-*.txt)

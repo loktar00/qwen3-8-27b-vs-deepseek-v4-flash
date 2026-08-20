@@ -1,0 +1,57 @@
+diff --git a/packages/react/compose-refs/CHANGELOG.md b/packages/react/compose-refs/CHANGELOG.md
+deleted file mode 100644
+index ab32a83a..00000000
+--- a/packages/react/compose-refs/CHANGELOG.md
++++ /dev/null
+@@ -1,13 +0,0 @@
+-# @radix-ui/react-compose-refs
+-
+-## 1.1.5
+-
+-- Reverted breaking changes that caused compatibility issues with React Server Components.
+-
+-## 1.1.4
+-
+-- Republish through CI to attach provenance attestations. The previous versions of these packages were published manually outside of CI and therefore shipped without provenance; this patch re-releases the same code through the CI pipeline so every package includes an attestation.
+-
+-## 1.1.3
+-
+-- Added repository.directory to all package.json files
+diff --git a/packages/react/compose-refs/package.json b/packages/react/compose-refs/package.json
+index 6c823c5d..123b50d9 100644
+--- a/packages/react/compose-refs/package.json
++++ b/packages/react/compose-refs/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@radix-ui/react-compose-refs",
+-  "version": "1.1.5",
++  "version": "1.1.2",
+   "license": "MIT",
+   "source": "./src/index.ts",
+   "main": "./src/index.ts",
+@@ -37,10 +37,10 @@
+   "devDependencies": {
+     "@repo/builder": "workspace:*",
+     "@repo/typescript-config": "workspace:*",
+-    "@types/react": "^19.2.17",
+-    "@types/react-dom": "^19.2.3",
+-    "react": "^19.2.8",
+-    "react-dom": "^19.2.8",
++    "@types/react": "^19.2.2",
++    "@types/react-dom": "^19.2.2",
++    "react": "^19.2.0",
++    "react-dom": "^19.2.0",
+     "typescript": "^5.9.3"
+   },
+   "peerDependencies": {
+@@ -55,8 +55,7 @@
+   "homepage": "https://radix-ui.com/primitives",
+   "repository": {
+     "type": "git",
+-    "url": "git+https://github.com/radix-ui/primitives.git",
+-    "directory": "packages/react/compose-refs"
++    "url": "git+https://github.com/radix-ui/primitives.git"
+   },
+   "bugs": {
+     "url": "https://github.com/radix-ui/primitives/issues"
+===NO DIFF ABOVE MEANS IDENTICAL===

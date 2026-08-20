@@ -1,0 +1,94 @@
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+index 98bbb70a1..d75278c54 100644
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -27,6 +27,13 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+   ``CapacityLimiter.acquire_nowait_on_behalf_of()`` raising ``trio.WouldBlock`` instead
+   of ``anyio.WouldBlock`` on the ``trio`` backend when there are no tokens available
+   (`#1218 <https://github.com/agronholm/anyio/pull/1218>`_)
++- Fixed ``CapacityLimiter`` on the asyncio backend over-granting tokens
++  (``borrowed_tokens`` exceeding ``total_tokens`` and ``available_tokens`` going
++  negative) when a non-blocking acquire was made in the window between a token
++  being released and the notified waiter resuming. The freed token is now
++  reserved for the woken waiter right away, so the non-blocking acquire correctly
++  raises ``WouldBlock``
++  (`#1170 <https://github.com/agronholm/anyio/issues/1170>`_; PR by @gaoflow)
+ 
+ **4.14.1**
+ 
+diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py
+index bc7e6ab38..d4d3db32b 100644
+--- a/src/anyio/_backends/_asyncio.py
++++ b/src/anyio/_backends/_asyncio.py
+@@ -2077,7 +2077,8 @@ def total_tokens(self, value: float) -> None:
+ 
+         # Notify waiting tasks that they have acquired the limiter
+         while self._wait_queue and waiters_to_notify:
+-            event = self._wait_queue.popitem(last=False)[1]
++            borrower, event = self._wait_queue.popitem(last=False)
++            self._borrowers.add(borrower)
+             event.set()
+             waiters_to_notify -= 1
+ 
+@@ -2090,9 +2091,10 @@ def available_tokens(self) -> float:
+         return self._total_tokens - len(self._borrowers)
+ 
+     def _notify_next_waiter(self) -> None:
+-        """Notify the next task in line if this limiter has free capacity now."""
++        """Hand a free token to the next task in line, if any."""
+         if self._wait_queue and len(self._borrowers) < self._total_tokens:
+-            event = self._wait_queue.popitem(last=False)[1]
++            borrower, event = self._wait_queue.popitem(last=False)
++            self._borrowers.add(borrower)
+             event.set()
+ 
+     def acquire_nowait(self) -> None:
+@@ -2124,11 +2126,10 @@ async def acquire_on_behalf_of(self, borrower: object) -> None:
+             except BaseException:
+                 self._wait_queue.pop(borrower, None)
+                 if event.is_set():
++                    self._borrowers.discard(borrower)
+                     self._notify_next_waiter()
+ 
+                 raise
+-
+-            self._borrowers.add(borrower)
+         else:
+             try:
+                 await AsyncIOBackend.cancel_shielded_checkpoint()
+diff --git a/tests/test_synchronization.py b/tests/test_synchronization.py
+index 3ead3c25b..6a668598c 100644
+--- a/tests/test_synchronization.py
++++ b/tests/test_synchronization.py
+@@ -993,3 +993,31 @@ async def test_acquire_on_behalf_of_nowait(self) -> None:
+         limiter.acquire_on_behalf_of_nowait(borrower1)
+         with pytest.raises(WouldBlock):
+             limiter.acquire_on_behalf_of_nowait(borrower2)
++
++    async def test_nowait_acquire_after_release_does_not_oversubscribe(self) -> None:
++        # Regression test for #1170: a non-blocking acquire issued in the window
++        # between releasing a token (which notifies the next waiter) and that
++        # waiter actually resuming must not slip through, as the freed token is
++        # already reserved for the woken waiter. The over-granting bug was
++        # specific to the asyncio backend, but the invariant holds on both.
++        limiter = CapacityLimiter(1)
++        limiter.acquire_on_behalf_of_nowait("A")
++
++        async def waiter() -> None:
++            await limiter.acquire_on_behalf_of("B")
++
++        async with create_task_group() as tg:
++            tg.start_soon(waiter)
++            await wait_all_tasks_blocked()
++            assert limiter.statistics().tasks_waiting == 1
++
++            # Frees the only token and reserves it for the still-parked "B"; no
++            # token is available, so the nowait acquire must raise WouldBlock.
++            limiter.release_on_behalf_of("A")
++            with pytest.raises(WouldBlock):
++                limiter.acquire_on_behalf_of_nowait("X")
++
++        assert limiter.borrowed_tokens <= limiter.total_tokens
++        assert limiter.available_tokens >= 0
++        assert limiter.statistics().borrowers == ("B",)
++        limiter.release_on_behalf_of("B")

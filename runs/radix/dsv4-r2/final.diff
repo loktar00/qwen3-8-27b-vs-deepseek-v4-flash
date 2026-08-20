@@ -1,0 +1,93 @@
+diff --git a/packages/react/slot/src/slot.test.tsx b/packages/react/slot/src/slot.test.tsx
+index 7beb9bbd..da43cd1e 100644
+--- a/packages/react/slot/src/slot.test.tsx
++++ b/packages/react/slot/src/slot.test.tsx
+@@ -529,6 +529,88 @@ describe('nested (render-prop) Slottable', () => {
+   });
+ });
+ 
++/* -------------------------------------------------------------------------------------------------
++ * React 19 ref callback cleanup
++ *
++ * Regression guard for https://github.com/radix-ui/primitives/issues (React 19 "Maximum update depth
++ * exceeded"). In React 19 a callback ref may return a cleanup function. `composeRefs` must forward that
++ * cleanup to React so it runs on unmount; otherwise the composed ref callback returns nothing and React
++ * cannot detach the ref, which (combined with re-renders from fast state updates, e.g. typing in a
++ * Slate/Plate editor) surfaced as an infinite update loop in `setRef`.
++ * -----------------------------------------------------------------------------------------------*/
++
++describe('React 19 ref callback cleanup support', () => {
++  afterEach(cleanup);
++
++  it('runs the cleanup returned by a composed ref callback on unmount without infinite loops', () => {
++    const slotRef = vi.fn();
++    const childCleanup = vi.fn();
++    const childRef = vi.fn(() => childCleanup);
++
++    const { unmount } = render(
++      <Slot ref={slotRef}>
++        <button ref={childRef} type="button">
++          hi
++        </button>
++      </Slot>,
++    );
++
++    const button = screen.getByRole('button');
++    // Both the Slot ref and the child ref attach to the same node.
++    expect(slotRef).toHaveBeenCalledWith(button);
++    expect(childRef).toHaveBeenCalledWith(button);
++    // Attaching must not trigger re-renders (no "Maximum update depth exceeded").
++    expect(slotRef).toHaveBeenCalledTimes(1);
++
++    // React 19 calls the cleanup returned by the composed ref on unmount.
++    unmount();
++    expect(childCleanup).toHaveBeenCalledTimes(1);
++  });
++
++  it('leaves behavior unchanged when no forwardedRef is passed (child ref used directly)', () => {
++    const childCleanup = vi.fn();
++    const childRef = vi.fn(() => childCleanup);
++
++    const { unmount } = render(
++      <Slot>
++        <button ref={childRef} type="button">
++          hi
++        </button>
++      </Slot>,
++    );
++
++    const button = screen.getByRole('button');
++    // Without a forwardedRef, Slot forwards the child's own ref without composing, so it is
++    // attached exactly once and its cleanup is still honored on unmount.
++    expect(childRef).toHaveBeenCalledTimes(1);
++    expect(childRef).toHaveBeenCalledWith(button);
++
++    unmount();
++    expect(childCleanup).toHaveBeenCalledTimes(1);
++  });
++
++  it('attaches and detaches ref objects composed through Slot', () => {
++    const slotRef = React.createRef<HTMLElement>();
++    const childRef = React.createRef<HTMLElement>();
++
++    const { unmount } = render(
++      <Slot ref={slotRef}>
++        <button ref={childRef} type="button">
++          hi
++        </button>
++      </Slot>,
++    );
++
++    const button = screen.getByRole('button');
++    expect(slotRef.current).toBe(button);
++    expect(childRef.current).toBe(button);
++
++    unmount();
++    expect(slotRef.current).toBeNull();
++    expect(childRef.current).toBeNull();
++  });
++});
++
+ type TriggerProps = React.ComponentProps<'button'> & { as: React.ElementType };
+ 
+ const Trigger = ({ as: Comp = 'button', ...props }: TriggerProps) => <Comp {...props} />;

@@ -1,0 +1,81 @@
+{
+  "task": "anyio",
+  "label": "dsv4-r2",
+  "worktree": "D:\\dev\\ab-tasks\\anyio-dsv4-r2",
+  "run_dir": "D:\\dev\\ab-tasks\\_runs\\anyio\\dsv4-r2",
+  "overall_pass": false,
+  "P1": {
+    "status": "FAIL",
+    "files": [
+      "tests/zz-upstream-test_synchronization.py"
+    ],
+    "rc": 1,
+    "cmd": "./.venv/Scripts/python -m pytest \"tests/zz-upstream-test_synchronization.py\" -q",
+    "conflicts": [
+      "tests/zz-upstream-test_synchronization.py"
+    ],
+    "log_tail": "'.' is not recognized as an internal or external command,\noperable program or batch file.\n"
+  },
+  "P2": {
+    "status": "FAIL",
+    "rc": 1,
+    "cmd": ".venv/Scripts/python -m pytest tests/test_synchronization.py -q",
+    "log_tail": "'.venv' is not recognized as an internal or external command,\noperable program or batch file.\n"
+  },
+  "P3": {
+    "files": [
+      "tests/test_synchronization.py"
+    ],
+    "cmd": "./.venv/Scripts/python -m pytest \"tests/test_synchronization.py\" -q",
+    "model_worktree_pass": false,
+    "model_log_tail": "'.' is not recognized as an internal or external command,\noperable program or batch file.\n",
+    "base_worktree_fail_as_expected": true,
+    "base_sha": "6f82b25",
+    "base_log_tail": "'.' is not recognized as an internal or external command,\noperable program or batch file.\n",
+    "status": "FAIL",
+    "reason": "model's own test does not pass in the model's worktree"
+  },
+  "secondary": {
+    "loc_added": 69,
+    "loc_removed": 5,
+    "files_touched": [
+      "docs/versionhistory.rst",
+      "src/anyio/_backends/_asyncio.py",
+      "tests/test_synchronization.py"
+    ],
+    "files_touched_count": 3,
+    "non_test_files_touched": [
+      "docs/versionhistory.rst",
+      "src/anyio/_backends/_asyncio.py"
+    ],
+    "upstream_non_test_files": [
+      "docs/versionhistory.rst",
+      "src/anyio/_backends/_asyncio.py"
+    ],
+    "precision_subset_of_upstream": true
+  },
+  "events": {
+    "event_source": "turn-json",
+    "raw_ndjson_parse_errors": 0,
+    "tool_call_counts": {
+      "bash": 98,
+      "read": 37,
+      "glob": 4,
+      "grep": 8,
+      "web_search": 4,
+      "edit": 34
+    },
+    "tool_call_count_source": "toolCall-blocks",
+    "test_run_tool_calls": 32,
+    "reproduced_before_first_edit": false,
+    "harness_parse_errors": 0,
+    "total_tool_errors": 0,
+    "prompt_tokens_sum": null,
+    "completion_tokens_sum": null,
+    "reasoning_tokens_sum": null,
+    "cache_read_tokens_sum": null,
+    "cache_write_tokens_sum": null,
+    "assistant_turns": null
+  },
+  "wallclock_seconds": 203
+}

@@ -1,0 +1,14 @@
+{
+  "harness": "opencode",
+  "label": "qwen-medium",
+  "model": "pod-qwen-medium/qwen3.8-27b-bf16:medium (native OpenCode variant, provider baseURL unchanged at :8001)",
+  "items": [
+    {"id": 1, "pass": true, "detail": "answer='beta gamma'", "tool_calls": 1, "parse_errors": 0, "wall_s": 8},
+    {"id": 2, "pass": true, "detail": "calc.py on disk now returns a+b (verified); correct diff shown. Re-run after fixture-contamination was found and fixed (see notes) -- full row discarded and re-run clean.", "tool_calls": 2, "parse_errors": 0, "wall_s": 10},
+    {"id": 3, "pass": true, "detail": "answer contains '5'", "tool_calls": 3, "parse_errors": 0, "wall_s": 7},
+    {"id": 4, "pass": true, "detail": "count.txt on disk == '4'; tool calls: 3 (chain confirmed)", "tool_calls": 3, "parse_errors": 0, "wall_s": 13},
+    {"id": 5, "pass": true, "detail": "sum.js fixed on disk (verified: node sum.js 1 2 -> 3); answer='Fixed: `console.log(a + b` was missing a closing parenthesis... Output: `3`'. Re-run with item-5 prompt aligned to OMP's wording, fresh scratch dir (D:/dev/ab-tasks/_calib_runs/item5-redo-qwen-medium-oc), never touching the master _calib dir.", "tool_calls": 4, "parse_errors": 0, "wall_s": null}
+  ],
+  "gate_pass": true,
+  "notes": "5/5 pass, zero parse/malformed-tool-call errors. EFFORT-PASSTHROUGH VERDICT: OpenCode's native `variants.medium.reasoningEffort` (config's `pod-qwen-medium` provider, opencode.jsonc, baseURL left at :8001 -- no proxy needed) DOES reach vLLM for Qwen: a single-turn probe with the item-1 prompt showed input tokens 10316 (variant=medium) vs 10347 (default pod-qwen, same prompt) -- a real, reproducible ~31-token reduction consistent with a shorter effort preamble in the rendered chat template. This is the opposite verdict from the OMP lane, where the analogous `:medium` model-ref suffix produced no measurable token change and required the :8004 chat_template_kwargs proxy fallback (see omp/qwen-medium.json notes) -- OMP and OpenCode build the effort request differently, and only OMP needed the workaround. Item-5 originally failed the same way as the other OpenCode rows (bare prompt, no autonomous fix). Per team-lead's decision, calibration.md and opencode_probe.sh's item-5 prompt were both updated to match the OMP wording verbatim; item 5 was re-run in isolation with the new wording (fresh scratch copy of the fixture, not the master _calib dir) and now passes cleanly -- gate_pass flipped to true. Items 1-4 are unchanged from the prior clean re-run. FIXTURE-CONTAMINATION NOTE: an earlier attempt at this row inherited an already-fixed calc.py from a shared-fixture contamination event (see omp/qwen-medium.json notes for the full description); the master fixture was restored and this row was discarded and re-run from scratch in a fresh session before this item-5 realignment."
+}

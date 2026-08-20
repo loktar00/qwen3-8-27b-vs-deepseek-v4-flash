@@ -1,0 +1,36 @@
+diff --git a/packages/react/slot/src/slot.tsx b/packages/react/slot/src/slot.tsx
+index acb7e7bb..14927758 100644
+--- a/packages/react/slot/src/slot.tsx
++++ b/packages/react/slot/src/slot.tsx
+@@ -1,5 +1,5 @@
+ import * as React from 'react';
+-import { composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ 
+ declare module 'react' {
+   interface ReactElement {
+@@ -59,6 +59,11 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       slottableElement = children;
+     }
+ 
++    // Called unconditionally so hook order is stable even when a Slot toggles between
++    // empty (early return below) and populated children across renders.
++    const slottableElementRef = slottableElement ? getElementRef(slottableElement) : null;
++    const composedRefs = useComposedRefs(forwardedRef, slottableElementRef);
++
+     if (!slottableElement) {
+       // Empty/falsy children (`null`, `undefined`, `false`, no children, etc.) are valid and
+       // render nothing. Anything else is content we couldn't slot onto a single element, which
+@@ -71,8 +76,6 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       return children;
+     }
+ 
+-    const slottableElementRef = getElementRef(slottableElement);
+-    const composedRefs = composeRefs(forwardedRef, slottableElementRef);
+     const mergedProps = mergeProps(slotProps, slottableElement.props ?? {});
+ 
+     // do not pass ref to React.Fragment for React 19 compatibility
+=== status ===
+ M packages/react/slot/src/slot.test.tsx
+ M packages/react/slot/src/slot.tsx
+?? .changeset/loud-cups-repeat.md

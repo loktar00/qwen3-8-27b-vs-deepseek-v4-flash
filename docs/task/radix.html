@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>installHook.js:1 Error: Maximum update depth exceeded - React 19 + Radix — A/B results</title>
+<style>
+:root, [data-theme="light"] {
+  color-scheme: light;
+  --page:        #f9f9f7;
+  --surface:     #fcfcfb;
+  --surface-2:   #f2f1ec;
+  --ink:         #0b0b0b;
+  --ink-2:       #52514e;
+  --ink-muted:   #898781;
+  --line:        #e1e0d9;
+  --line-strong: #c3c2b7;
+  --border:      rgba(11,11,11,0.10);
+  --accent-a:    #2a78d6;   /* DeepSeek */
+  --accent-a-ink:#0d3a70;
+  --accent-b:    #eb6834;   /* Qwen */
+  --accent-b-ink:#7a3110;
+  --good:        #0ca30c;
+  --good-ink:    #006300;
+  --warn:        #b9760f;
+  --warn-bg:     #fdf1da;
+  --serious:     #c15a2f;
+  --serious-bg:  #fbe8dd;
+  --critical:    #d03b3b;
+  --critical-bg: #fbe2e2;
+  --harness:     #5b5a52;
+  --harness-bg:  #eeece3;
+  --shadow:      0 1px 2px rgba(11,11,11,0.06), 0 4px 14px rgba(11,11,11,0.05);
+  --radius:      6px;
+  --mono: ui-monospace, "Cascadia Mono", "Cascadia Code", "SF Mono", "JetBrains Mono", Consolas, "Liberation Mono", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page:        #0d0d0d;
+    --surface:     #1a1a19;
+    --surface-2:   #221f1a;
+    --ink:         #ffffff;
+    --ink-2:       #c3c2b7;
+    --ink-muted:   #8f8d86;
+    --line:        #2c2c2a;
+    --line-strong: #3a3935;
+    --border:      rgba(255,255,255,0.12);
+    --accent-a:    #4c96f0;
+    --accent-a-ink:#bfe0ff;
+    --accent-b:    #e8813e;
+    --accent-b-ink:#ffd9bd;
+    --good:        #23c623;
+    --good-ink:    #7be07b;
+    --warn:        #e8b545;
+    --warn-bg:     #3a2f10;
+    --serious:     #e08657;
+    --serious-bg:  #3a2416;
+    --critical:    #ef6a6a;
+    --critical-bg: #3a1717;
+    --harness:     #b8b6ab;
+    --harness-bg:  #262521;
+    --shadow:      0 1px 2px rgba(0,0,0,0.3), 0 4px 14px rgba(0,0,0,0.25);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page:        #0d0d0d;
+  --surface:     #1a1a19;
+  --surface-2:   #221f1a;
+  --ink:         #ffffff;
+  --ink-2:       #c3c2b7;
+  --ink-muted:   #8f8d86;
+  --line:        #2c2c2a;
+  --line-strong: #3a3935;
+  --border:      rgba(255,255,255,0.12);
+  --accent-a:    #4c96f0;
+  --accent-a-ink:#bfe0ff;
+  --accent-b:    #e8813e;
+  --accent-b-ink:#ffd9bd;
+  --good:        #23c623;
+  --good-ink:    #7be07b;
+  --warn:        #e8b545;
+  --warn-bg:     #3a2f10;
+  --serious:     #e08657;
+  --serious-bg:  #3a2416;
+  --critical:    #ef6a6a;
+  --critical-bg: #3a1717;
+  --harness:     #b8b6ab;
+  --harness-bg:  #262521;
+  --shadow:      0 1px 2px rgba(0,0,0,0.3), 0 4px 14px rgba(0,0,0,0.25);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--page); color: var(--ink);
+  font-family: var(--sans); font-size: 15px; line-height: 1.55;
+  text-rendering: optimizeLegibility;
+}
+h1,h2,h3,h4 { font-family: var(--mono); font-weight: 600; text-wrap: balance; margin: 0 0 .5em; letter-spacing: -0.01em; }
+h1 { font-size: 1.7rem; } h2 { font-size: 1.25rem; margin-top: 2.2em; } h3 { font-size: 1.02rem; margin-top: 1.6em; } h4 { font-size: .92rem; }
+p { margin: 0 0 1em; max-width: 68ch; }
+a { color: var(--accent-a); }
+:root[data-theme="light"] a, :root:not([data-theme="dark"]) a { color: #1c5cab; }
+[data-theme="dark"] a, :root:not([data-theme="light"]) a { }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) a { color: #7cb4f2; } }
+:root[data-theme="dark"] a { color: #7cb4f2; }
+a:focus-visible, button:focus-visible, summary:focus-visible, .cell:focus-visible { outline: 2px solid var(--accent-a); outline-offset: 2px; }
+code, pre, .mono { font-family: var(--mono); }
+code { background: var(--surface-2); padding: .1em .35em; border-radius: 4px; font-size: .88em; }
+pre { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: .9em 1em; overflow-x: auto; font-size: .82rem; line-height: 1.5; }
+pre code { background: none; padding: 0; }
+hr { border: none; border-top: 1px solid var(--line); margin: 2em 0; }
+
+.shell { max-width: 1180px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+.stick-top { position: sticky; top: 0; z-index: 50; }
+.top-banner {
+  background: var(--warn-bg); color: var(--warn); border-bottom: 1px solid color-mix(in srgb, var(--warn) 55%, transparent);
+  font-family: var(--mono); font-weight: 700; font-size: .82rem; text-align: center; letter-spacing: .02em;
+  padding: .55em 1rem; text-transform: uppercase;
+}
+.topbar {
+  background: var(--page);
+  border-bottom: 1px solid var(--line); backdrop-filter: blur(6px);
+}
+.topbar-inner { max-width: 1180px; margin: 0 auto; padding: .8rem 1.25rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.brand { font-family: var(--mono); font-weight: 700; font-size: .95rem; letter-spacing: -0.01em; white-space: nowrap; }
+.brand small { display:block; font-weight: 400; color: var(--ink-muted); font-size: .72rem; letter-spacing: 0; }
+.nav { display: flex; gap: 1.1rem; flex-wrap: wrap; margin-left: auto; font-family: var(--mono); font-size: .82rem; }
+.nav a { color: var(--ink-2); text-decoration: none; padding: .3em 0; border-bottom: 2px solid transparent; }
+.nav a:hover, .nav a.active { color: var(--ink); border-bottom-color: var(--accent-a); }
+.theme-btn {
+  font-family: var(--mono); font-size: .76rem; border: 1px solid var(--line-strong); background: var(--surface);
+  color: var(--ink-2); border-radius: 5px; padding: .35em .6em; cursor: pointer;
+}
+.theme-btn:hover { color: var(--ink); }
+
+.page-head { padding: 2.2rem 0 .5rem; }
+.eyebrow { font-family: var(--mono); font-size: .74rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-muted); margin: 0 0 .5em; }
+.lede { color: var(--ink-2); max-width: 72ch; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.card > .card-pad { padding: 1.1rem 1.3rem; }
+.section { margin-top: 2.4rem; }
+
+/* ---- badges / chips / pips ---- */
+.badge { display: inline-flex; align-items: center; gap: .35em; font-family: var(--mono); font-size: .72rem;
+  padding: .18em .55em; border-radius: 4px; border: 1px solid var(--line-strong); color: var(--ink-2); background: var(--surface-2); white-space: nowrap; }
+.badge.accent-a { border-color: color-mix(in srgb, var(--accent-a) 55%, var(--line-strong)); color: var(--accent-a-ink); background: color-mix(in srgb, var(--accent-a) 12%, var(--surface)); }
+.badge.accent-b { border-color: color-mix(in srgb, var(--accent-b) 55%, var(--line-strong)); color: var(--accent-b-ink); background: color-mix(in srgb, var(--accent-b) 12%, var(--surface)); }
+
+.chip { display: inline-flex; align-items: center; gap: .4em; font-family: var(--mono); font-weight: 600; font-size: .78rem;
+  padding: .3em .65em; border-radius: 5px; line-height: 1; white-space: nowrap; }
+.chip .n { font-weight: 400; opacity: .8; margin-left: .15em; }
+.chip.pass { color: var(--good-ink); background: color-mix(in srgb, var(--good) 16%, var(--surface)); border: 1px solid color-mix(in srgb, var(--good) 45%, transparent); }
+.chip.fail { color: var(--critical); background: var(--critical-bg); border: 1px solid color-mix(in srgb, var(--critical) 45%, transparent); }
+.chip.mixed { color: var(--warn); background: var(--warn-bg); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); }
+.chip.unknown { color: var(--ink-muted); background: var(--surface-2); border: 1px solid var(--line); }
+.chip.harness { color: var(--harness); background: var(--harness-bg); border: 1px solid var(--line-strong); }
+.chip::before { content: ""; width: .5em; height: .5em; border-radius: 50%; background: currentColor; flex: none; }
+
+.pips { display: inline-flex; gap: .3em; font-family: var(--mono); }
+.pip { display: inline-flex; align-items: center; justify-content: center; width: 1.5em; height: 1.5em; border-radius: 4px;
+  font-size: .68rem; font-weight: 700; border: 1px solid var(--line-strong); color: var(--ink-muted); background: var(--surface-2); }
+.pip.pass { color: var(--good-ink); background: color-mix(in srgb, var(--good) 18%, var(--surface)); border-color: color-mix(in srgb, var(--good) 50%, transparent); }
+.pip.fail { color: var(--critical); background: var(--critical-bg); border-color: color-mix(in srgb, var(--critical) 50%, transparent); }
+.pip.empty { border-style: dashed; }
+
+.star-row { display: inline-flex; gap: .15em; }
+.star { width: .95em; height: .95em; border-radius: 2px; background: var(--line-strong); display: inline-block; }
+.star.filled { background: var(--accent-a); }
+.star-row.b .star.filled { background: var(--accent-b); }
+
+/* ---- stat tiles ---- */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .8rem; margin-top: 1.2rem; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: .9rem 1rem; }
+.tile .tl { font-family: var(--mono); font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-muted); margin-bottom: .4em; }
+.tile .tv { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tile .ts { font-size: .78rem; color: var(--ink-2); margin-top: .3em; }
+.tile.a .tv { color: var(--accent-a); } .tile.b .tv { color: var(--accent-b); }
+
+.verdict { border-left: 3px solid var(--accent-a); background: var(--surface); border: 1px solid var(--line); border-left-width: 3px;
+  border-radius: var(--radius); padding: 1rem 1.2rem; margin-top: 1.2rem; }
+.verdict .vlabel { font-family: var(--mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-muted); }
+.verdict .vtext { font-family: var(--mono); font-size: 1.02rem; margin-top: .35em; }
+.verdict.decided { border-left-color: var(--good); }
+.verdict.tie { border-left-color: var(--warn); }
+blockquote.rule { margin: .8rem 0 0; padding: .7rem 1rem; border-left: 3px solid var(--line-strong); background: var(--surface-2);
+  border-radius: 0 4px 4px 0; font-size: .88rem; color: var(--ink-2); }
+
+/* ---- scoreboard table ---- */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); margin-top: 1.4rem; }
+table.board { border-collapse: collapse; width: 100%; min-width: 780px; font-size: .86rem; }
+table.board th, table.board td { padding: .55em .8em; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.board thead th { position: sticky; top: 0; background: var(--surface); font-family: var(--mono); font-size: .72rem;
+  text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); border-bottom: 1px solid var(--line-strong); z-index: 2; }
+table.board thead tr.lanehead th { font-size: .68rem; padding-bottom: 0; color: var(--ink-muted); font-weight: 400; }
+table.board tbody th { position: sticky; left: 0; background: var(--surface); z-index: 1; font-family: var(--mono); font-weight: 600; }
+table.board tbody tr:hover td, table.board tbody tr:hover th { background: var(--surface-2); }
+table.board td.cell { white-space: normal; }
+.rowmeta { display: block; font-weight: 400; color: var(--ink-muted); font-size: .74rem; margin-top: .1em; }
+.tasklink { color: var(--ink); text-decoration: none; }
+.tasklink:hover { text-decoration: underline; }
+.cellbox { display: flex; align-items: center; gap: .5em; flex-wrap: wrap; }
+.na { color: var(--ink-muted); font-family: var(--mono); }
+.classhead td { background: var(--surface-2); font-family: var(--mono); font-size: .72rem; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--ink-muted); padding: .5em .8em; border-bottom: 1px solid var(--line-strong); }
+
+/* ---- task page ---- */
+.tagrow { display: flex; gap: .5em; flex-wrap: wrap; align-items: center; margin: .6em 0 0; }
+details.brief { margin-top: 1.2rem; }
+details.brief > summary { cursor: pointer; font-family: var(--mono); font-size: .84rem; padding: .7em 1em; background: var(--surface);
+  border: 1px solid var(--line); border-radius: var(--radius); list-style: none; display: flex; align-items: center; gap: .5em; }
+details.brief > summary::-webkit-details-marker { display: none; }
+details.brief > summary::before { content: "\25b8"; display: inline-block; transition: transform .15s; color: var(--ink-muted); }
+details.brief[open] > summary::before { transform: rotate(90deg); }
+details.brief .brief-body { border: 1px solid var(--line); border-top: none; border-radius: 0 0 var(--radius) var(--radius);
+  padding: 1.2rem 1.4rem; background: var(--surface); }
+.prose h1, .prose h2, .prose h3, .prose h4 { font-family: var(--sans); }
+.prose h1 { font-size: 1.25rem; } .prose h2 { font-size: 1.08rem; margin-top: 1.4em; } .prose h3 { font-size: .98rem; margin-top: 1.2em; }
+.prose p, .prose li { max-width: 78ch; color: var(--ink-2); }
+.prose strong { color: var(--ink); }
+.prose ul, .prose ol { padding-left: 1.3em; }
+.prose li { margin-bottom: .4em; }
+.md-table { overflow-x: auto; }
+.md-table table { border-collapse: collapse; width: 100%; font-size: .84rem; }
+.md-table th, .md-table td { border: 1px solid var(--line); padding: .4em .6em; text-align: left; }
+.md-table th { background: var(--surface-2); font-family: var(--mono); font-size: .72rem; }
+
+ol.turns { padding-left: 1.4em; }
+ol.turns li { margin-bottom: .6em; padding-left: .2em; }
+ol.turns code { white-space: pre-wrap; }
+
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; align-items: start; }
+@media (max-width: 820px) { .compare { grid-template-columns: 1fr; } }
+.modelcol { border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); overflow: hidden; }
+.modelcol .mhead { padding: .8em 1em; border-bottom: 1px solid var(--line); border-left: 4px solid var(--line-strong); }
+.modelcol.a .mhead { border-left-color: var(--accent-a); }
+.modelcol.b .mhead { border-left-color: var(--accent-b); }
+.modelcol .mname { font-family: var(--mono); font-weight: 700; }
+.modelcol.a .mname { color: var(--accent-a); } .modelcol.b .mname { color: var(--accent-b); }
+.modelcol .meffort { font-size: .78rem; color: var(--ink-muted); }
+.rep { padding: 1em; border-top: 1px dashed var(--line); }
+.rep:first-of-type { border-top: none; }
+.rep-label { font-family: var(--mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-muted); margin-bottom: .6em; display:flex; align-items:center; gap:.5em; }
+
+dl.kv { display: grid; grid-template-columns: auto 1fr; gap: .35em 1em; margin: .8em 0; font-size: .86rem; }
+dl.kv dt { color: var(--ink-muted); font-family: var(--mono); font-size: .78rem; white-space: nowrap; }
+dl.kv dd { margin: 0; font-variant-numeric: tabular-nums; }
+.toolcalls { display: flex; flex-wrap: wrap; gap: .35em; margin-top: .3em; }
+.toolcalls .tc { font-family: var(--mono); font-size: .72rem; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: .1em .45em; }
+
+.check-row { display: flex; align-items: baseline; gap: .6em; padding: .35em 0; border-bottom: 1px solid var(--line); font-size: .86rem; }
+.check-row:last-child { border-bottom: none; }
+.check-row .clabel { font-family: var(--mono); font-weight: 700; min-width: 2.2em; }
+.check-reason { color: var(--ink-2); font-size: .82rem; margin: .1em 0 .5em 2.8em; }
+
+.harness-list { margin-top: .5em; display: flex; flex-direction: column; gap: .4em; }
+.harness-item { font-size: .8rem; background: var(--harness-bg); border: 1px solid var(--line-strong); border-radius: 4px; padding: .45em .6em; color: var(--harness); }
+.harness-item b { color: var(--ink); }
+
+.linkrow { display: flex; flex-wrap: wrap; gap: .5em; margin-top: .8em; }
+.linkrow a.filelink { font-family: var(--mono); font-size: .76rem; border: 1px solid var(--line-strong); border-radius: 4px;
+  padding: .3em .6em; text-decoration: none; color: var(--ink-2); background: var(--surface-2); }
+.linkrow a.filelink:hover { color: var(--ink); border-color: var(--ink-muted); }
+
+.diffline { white-space: pre; }
+.d-add { color: var(--good-ink); } .d-del { color: var(--critical); } .d-hunk { color: var(--accent-a); } .d-hdr { color: var(--ink); font-weight: 700; }
+
+.transcripts { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+@media (max-width: 820px) { .transcripts { grid-template-columns: 1fr; } }
+.transcripts .tpane { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+.transcripts .thead { padding: .5em .8em; font-family: var(--mono); font-size: .78rem; border-bottom: 1px solid var(--line); font-weight: 700; }
+.transcripts iframe { width: 100%; height: 560px; border: none; background: var(--surface); display: block; }
+
+.turn { border-bottom: 1px solid var(--line); padding: .7em .9em; font-size: .82rem; }
+.turn:last-child { border-bottom: none; }
+.turn .who { font-family: var(--mono); font-weight: 700; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-muted); }
+.turn.user .who { color: var(--accent-a); }
+.turn pre { margin: .4em 0 0; }
+
+/* ---- calibration ---- */
+.calib-grid { display: grid; gap: 1rem; margin-top: 1rem; }
+.calib-card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 1rem 1.2rem; }
+.calib-items { display: flex; gap: .4em; margin-top: .5em; flex-wrap: wrap; }
+
+/* ---- meter (raptor) ---- */
+.ladder { display: flex; flex-direction: column; gap: .5em; margin-top: .8em; }
+.mstep { display: flex; align-items: center; gap: .8em; }
+.mstep .mid { font-family: var(--mono); font-weight: 700; width: 2.6em; }
+.mstep .mtrack { flex: 1; height: 1.4em; background: var(--surface-2); border-radius: 4px; overflow: hidden; border: 1px solid var(--line); position: relative; }
+.mstep .mfill { height: 100%; }
+.mstep.a .mfill { background: var(--accent-a); } .mstep.b .mfill { background: var(--accent-b); }
+.mstep .mtime { font-family: var(--mono); font-size: .78rem; color: var(--ink-2); min-width: 5em; text-align: right; }
+.shot-pair { display: grid; grid-template-columns: 1fr 1fr; gap: .8em; margin-top: .6em; }
+.shot { border: 1px dashed var(--line-strong); border-radius: 4px; aspect-ratio: 320/200; display: flex; align-items: center;
+  justify-content: center; color: var(--ink-muted); font-family: var(--mono); font-size: .72rem; background: var(--surface-2); text-align: center; padding: .5em; }
+
+footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--line); color: var(--ink-muted); font-size: .78rem; }
+
+@media (max-width: 640px) {
+  body { font-size: 14.5px; }
+  .shell { padding: 0 1rem 3rem; }
+  h1 { font-size: 1.4rem; }
+}
+</style>
+</head>
+<body>
+<div class="stick-top">
+
+<div class="topbar"><div class="topbar-inner">
+  <div class="brand">DSV4 vs Qwen3.8 &middot; coding A/B<small>pre-registered 2026-08-20</small></div>
+  <nav class="nav"><a href="../index.html">Scoreboard</a><a href="../calibration.html">Calibration</a><a href="../method.html">Method</a><a href="../raptor.html">Raptor ladder</a></nav>
+  <button class="theme-btn" id="theme-toggle" type="button">theme: auto</button>
+</div></div>
+</div>
+<div class="shell">
+
+<div class="page-head">
+  <p class="eyebrow"><a href="../index.html">&larr; Scoreboard</a> / Hidden-reference bug fix</p>
+  <h1>installHook.js:1 Error: Maximum update depth exceeded - React 19 + Radix</h1>
+  <div class="tagrow">
+    <span class="badge">2A</span>
+    <span class="badge">radix #3799</span>
+    <span class="badge">lane A</span><span class="badge">lane B</span><span class="badge">lane C</span>
+    
+  </div>
+  
+</div>
+
+<details class="brief" open>
+  <summary>Brief &mdash; exact text delivered to every model</summary>
+  <div class="brief-body"><div class="prose"><h2>Task: fix a reported bug in <code>radix</code></h2>
+<h3>Bug report (verbatim from the project&#x27;s issue tracker)</h3>
+<p><strong>installHook.js:1 Error: Maximum update depth exceeded - React 19 + Radix</strong></p>
+<h3>Bug report</h3>
+<h4>Current Behavior</h4>
+<p>When using Radix components with React 19, an infinite loop occurs causing the error:</p>
+<p>Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops. at setRef (composeRefs.tsx:11:5) at composeRefs.tsx:22:45 at Array.forEach (&lt;anonymous&gt;) at composeRefs.tsx:22:28 at setRef (composeRefs.tsx:11:5) at composeRefs.tsx:22:45 ...</p>
+<p>The setRef function in @radix-ui/react-compose-refs recursively triggers itself, causing React to hit the maximum update depth limit.</p>
+<p>In React 19, ref callback behavior changed - ref callbacks can now return cleanup functions, and React may call ref callbacks differently than in React 18. When setRef calls ref(value) at line 11, it triggers a re-render which invokes setRef again via the composed ref callback at line 22, creating an infinite loop.</p>
+<h4>Expected behavior</h4>
+<p>Composed refs should work without causing infinite update loops in React 19.</p>
+<h4>Reproducible example</h4>
+<p>I have platejs plugins with radix popovers and radix tooltips on them. If I write fast inside plate, the page breaks. I&#x27;m on a Macbook M1 Pro with 32 GB. One way to trigger this error is to inspect chrome and start a performance recording and start typing real fast. On Safari, for example, it doesn&#x27;t break. I tried on restarted browser, guest mode. I&#x27;m not the only one</p>
+<p><a href="n/a" target="_blank" rel="noopener">CodeSandbox Template</a></p>
+<h4>Suggested solution</h4>
+<p>The composeRefs and useComposedRefs functions need to handle React 19&#x27;s new ref callback behavior. Possible approaches:</p>
+<ol><li>Memoize the composed ref callback to prevent unnecessary re-invocations</li><li>Add a guard to prevent recursive setRef calls</li><li>Handle the cleanup function return value from React 19 ref callbacks</li></ol>
+<h4>Additional context</h4>
+<p>Right now, it works fine with react 18 (even on next.js 16+) and we had to downgrade.</p>
+<p>I also saw this reddit post https://www.reddit.com/r/react/comments/1nnvwsp/react_19_causes_maximum_update_depth_exceeded/ where a user raised a similar case</p>
+<p>React 19 introduced changes to ref callback behavior, including support for cleanup functions returned from ref callbacks. This may be causing the ref to be re-invoked on each render cycle.</p>
+<p>Related stack trace also shows Slate editor involvement: at Slate.useCallback[onContextChange] (slate.tsx:62:7) at e.onChange (with-dom.ts:371:7) at with-react.ts:54:7</p>
+<p>This suggests the issue manifests when Radix components are used alongside Slate/Plate editors, where both libraries compose refs.</p>
+<h4>Your environment</h4>
+<div class="md-table"><table><thead><tr><th>Software</th><th>Name(s)</th><th>Version</th></tr></thead><tbody><tr><td>Radix Package(s)</td><td>@radix-ui/react-compose-refs</td><td>1.1.0</td></tr><tr><td>Radix Package(s)</td><td>@radix-ui/react-accordion</td><td>1.2.12</td></tr><tr><td>Radix Package(s)</td><td>@radix-ui/react-avatar</td><td>1.1.11</td></tr><tr><td>Radix Package(s)</td><td>@radix-ui/react-checkbox</td><td>1.3.3</td></tr><tr><td>Radix Package(s)</td><td>@radix-ui/react-collapsible</td><td>1.1.12</td></tr><tr><td>Radix Package(s)</td><td>@radix-ui/react-dialog</td><td>1.1.15</td></tr><tr><td>Radix Package(s)</td><td>@radix-ui/react-dropdown-menu</td><td>2.1.16</td></tr><tr><td>Radix Package(s)</td><td>@radix-ui/react-hover-card</td><td>1.1.15</td></tr><tr><td>Radix Package(s)</td><td>@radix-ui/react-icons</td><td>1.3.2</td></tr><tr><td>Radix Package(s)</td><td>@radix-ui/react-popover</td><td>1.1.15</td></tr><tr><td>Radix Package(s)</td><td>@radix-ui/react-progress</td><td>1.1.8</td></tr><tr><td>Radix Package(s)</td><td>@radix-ui/react-select</td><td>2.2.6</td></tr><tr><td>Radix Package(s)</td><td>@radix-ui/react-separator</td><td>1.1.8</td></tr><tr><td>Radix Package(s)</td><td>@radix-ui/react-toolbar</td><td>1.1.11</td></tr><tr><td>Radix Package(s)</td><td>@radix-ui/react-tooltip</td><td>1.2.8</td></tr><tr><td>React</td><td>react, @types/react</td><td>19.2.3</td></tr><tr><td>Browser</td><td>Chrome</td><td>Latest</td></tr><tr><td>Assistive tech</td><td>n/a</td><td></td></tr><tr><td>Node</td><td>node</td><td>24.13.0</td></tr><tr><td>npm/yarn/pnpm</td><td>pnpm</td><td>10.26.0</td></tr><tr><td>Operating System</td><td>macOS</td><td>Darwin 24.6.0</td></tr></tbody></table></div>
+<ul><li>Next.js: 16.1.1</li><li>TypeScript: 5.9.3</li><li>platejs: 52.0.15</li></ul>
+<h3>Standing instructions (identical for every run)</h3>
+<p>You are working in the repository at the current working directory. Work like a careful open-source contributor:</p>
+<ol><li>Reproduce the bug first (write a minimal failing test or script) before changing code.</li><li>Find the root cause; fix the cause, not the symptom. Keep the change minimal and in the project&#x27;s style.</li><li>Add or update a regression test that fails before your fix and passes after.</li><li>Run the project&#x27;s test suite and make it green. Do not modify or delete unrelated tests.</li><li>When done, summarize: root cause, the files you changed, how you verified it. Do not ask me for permission between steps; proceed until the task is complete, then report.</li></ol>
+<p>Test command for this repo: <code>pnpm vitest run packages/react/slot</code></p></div></div>
+</details>
+
+<div class="section">
+  <h2>Scripted follow-up turns</h2>
+  
+  <ol class="turns"><li><code>Run the full slot package test suite and paste the summary.</code></li><li><code>Your change should not alter behavior when no forwardedRef is passed. Confirm with a test.</code></li><li><code>Is the same pattern present anywhere else in packages/react? Check and report, fix only if it is the same bug.</code></li></ol>
+  <p class="rowmeta">Test command: <code>pnpm vitest run packages/react/slot</code></p>
+</div>
+
+
+<div class="section">
+  <h2>Lane A &middot; OMP</h2>
+  <p class="lede">all tasks</p>
+  <div class="compare">
+<div class="modelcol a">
+  <div class="mhead"><div class="mname">DSV4</div><div class="meffort">Max (server default)</div></div>
+  
+<div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">dsv4-r1</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/radix/dsv4-r1/final.diff" target="_blank">diff</a><a class="filelink" href="data/radix/dsv4-r1/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/radix/dsv4-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/radix/dsv4-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/radix/dsv4-r1/transcript-rendered.html" target="_blank">transcript</a></div>
+  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/.changeset/loud-cups-repeat.md b/.changeset/loud-cups-repeat.md</span>
+<span class="diffline ">new file mode 100644</span>
+<span class="diffline ">index 00000000..b97a624d</span>
+<span class="diffline d-hdr">--- /dev/null</span>
+<span class="diffline d-hdr">+++ b/.changeset/loud-cups-repeat.md</span>
+<span class="diffline d-hunk">@@ -0,0 +1,5 @@</span>
+<span class="diffline d-add">+---</span>
+<span class="diffline d-add">+&#x27;@radix-ui/react-slot&#x27;: patch</span>
+<span class="diffline d-add">+---</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+Fixed `Maximum update depth exceeded` infinite loop on React 19 when a `Slot` composes a callback ref that triggers a state update. `Slot` previously called `composeRefs` inline during render, creating a new ref function on every render; React 19 tears down and re-attaches a callback ref whenever its identity changes, so a state-setting ref caused an unbounded re-render loop. `Slot` now composes its ref through `useComposedRefs`, which returns a stable callback when the composed refs are stable.</span>
+<span class="diffline ">diff --git a/packages/react/slot/src/slot.test.tsx b/packages/react/slot/src/slot.test.tsx</span>
+<span class="diffline ">index 7beb9bbd..0d43542b 100644</span>
+<span class="diffline d-hdr">--- a/packages/react/slot/src/slot.test.tsx</span>
+<span class="diffline d-hdr">+++ b/packages/react/slot/src/slot.test.tsx</span>
+<span class="diffline d-hunk">@@ -339,6 +339,65 @@ describe(&#x27;Slot prop and ref merging (single element child)&#x27;, () =&gt; {</span>
+<span class="diffline ">     expect(slotRef).toHaveBeenCalledWith(button);</span>
+<span class="diffline ">     expect(childRef).toHaveBeenCalledWith(button);</span>
+<span class="diffline ">   });</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  // Guard: without a forwarded ref, `Slot` must pass the child&#x27;s own ref through</span>
+<span class="diffline d-add">+  // untouched (it must NOT route it through a composed ref).</span>
+<span class="diffline d-add">+  it(&#x27;passes the child ref through directly when no Slot ref is provided&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+    const childRef = vi.fn();</span>
+<span class="diffline d-add">+    render(</span>
+<span class="diffline d-add">+      &lt;Slot&gt;</span>
+<span class="diffline d-add">+        &lt;button ref={childRef} type=&quot;button&quot;&gt;</span>
+<span class="diffline d-add">+          hi</span>
+<span class="diffline d-add">+        &lt;/button&gt;</span>
+<span class="diffline d-add">+      &lt;/Slot&gt;,</span>
+<span class="diffline d-add">+    );</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    const button = screen.getByRole(&#x27;button&#x27;);</span>
+<span class="diffline d-add">+    expect(childRef).toHaveBeenCalledWith(button);</span>
+<span class="diffline d-add">+    // detaches on unmount, proving it&#x27;s the child&#x27;s raw ref, not a composed one</span>
+<span class="diffline d-add">+    cleanup();</span>
+<span class="diffline d-add">+    expect(childRef).toHaveBeenCalledTimes(2);</span>
+<span class="diffline d-add">+    expect(childRef.mock.lastCall?.[0]).toBeNull();</span>
+<span class="diffline d-add">+  });</span>
+<span class="diffline d-add">+});</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+describe(&#x27;Slot with a stateful ref (React 19 stable identity)&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+  afterEach(cleanup);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  // Regression guard for https://github.com/radix-ui/primitives/issues/3799</span>
+<span class="diffline d-add">+  // &quot;Maximum update depth exceeded&quot;. In React 19 a callback ref that returns a</span>
+<span class="diffline d-add">+  // cleanup function (or the result of a state setter) is torn down and</span>
+<span class="diffline d-add">+  // re-attached whenever its identity changes. `Slot` previously composed a fresh</span>
+<span class="diffline d-add">+  // ref on every render, so a ref callback that triggers a state update caused an</span>
+<span class="diffline d-add">+  // infinite loop. The composed ref must keep a stable identity while still</span>
+<span class="diffline d-add">+  // reading the latest refs.</span>
+<span class="diffline d-add">+  it(&#x27;does not infinitely re-render when a composed ref triggers state updates&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+    let renderCount = 0;</span>
+<span class="diffline d-add">+    let attached: HTMLButtonElement | null = null;</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    function App() {</span>
+<span class="diffline d-add">+      const [, setTick] = React.useState(0);</span>
+<span class="diffline d-add">+      renderCount += 1;</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+      const ref = React.useCallback((node: HTMLButtonElement | null) =&gt; {</span>
+<span class="diffline d-add">+        attached = node;</span>
+<span class="diffline d-add">+        if (node) setTick((t) =&gt; t + 1);</span>
+<span class="diffline d-add">+      }, []);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+      return (</span>
+<span class="diffline d-add">+        &lt;Slot ref={ref}&gt;</span>
+<span class="diffline d-add">+          &lt;button type=&quot;button&quot;&gt;hi&lt;/button&gt;</span>
+<span class="diffline d-add">+        &lt;/Slot&gt;</span>
+<span class="diffline d-add">+      );</span>
+<span class="diffline d-add">+    }</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    render(&lt;App /&gt;);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    expect(attached).toBe(screen.getByRole(&#x27;button&#x27;));</span>
+<span class="diffline d-add">+    // Without the stable-identity fix this renders until React throws</span>
+<span class="diffline d-add">+    // &quot;Maximum update depth exceeded&quot;; with it, the ref fires once and stops.</span>
+<span class="diffline d-add">+    expect(renderCount).toBeLessThanOrEqual(3);</span>
+<span class="diffline d-add">+  });</span>
+<span class="diffline "> });</span>
+<span class="diffline "> </span>
+<span class="diffline "> describe(&#x27;Slot with non-mergeable children&#x27;, () =&gt; {</span>
+<span class="diffline ">diff --git a/packages/react/slot/src/slot.tsx b/packages/react/slot/src/slot.tsx</span>
+<span class="diffline ">index acb7e7bb..14927758 100644</span>
+<span class="diffline d-hdr">--- a/packages/react/slot/src/slot.tsx</span>
+<span class="diffline d-hdr">+++ b/packages/react/slot/src/slot.tsx</span>
+<span class="diffline d-hunk">@@ -1,5 +1,5 @@</span>
+<span class="diffline "> import * as React from &#x27;react&#x27;;</span>
+<span class="diffline d-del">-import { composeRefs } from &#x27;@radix-ui/react-compose-refs&#x27;;</span>
+<span class="diffline d-add">+import { useComposedRefs } from &#x27;@radix-ui/react-compose-refs&#x27;;</span>
+<span class="diffline "> </span>
+<span class="diffline "> declare module &#x27;react&#x27; {</span>
+<span class="diffline ">   interface ReactElement {</span>
+<span class="diffline d-hunk">@@ -59,6 +59,11 @@ interface SlotProps extends React.HTMLAttributes&lt;HTMLElement&gt; {</span>
+<span class="diffline ">       slottableElement = children;</span>
+<span class="diffline ">     }</span>
+<span class="diffline "> </span>
+<span class="diffline d-add">+    // Called unconditionally so hook order is stable even when a Slot toggles between</span>
+<span class="diffline d-add">+    // empty (early return below) and populated children across renders.</span>
+<span class="diffline d-add">+    const slottableElementRef = slottableElement ? getElementRef(slottableElement) : null;</span>
+<span class="diffline d-add">+    const composedRefs = useComposedRefs(forwardedRef, slottableElementRef);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline ">     if (!slottableElement) {</span>
+<span class="diffline ">       // Empty/falsy children (`null`, `undefined`, `false`, no children, etc.) are valid and</span>
+<span class="diffline ">       // render nothing. Anything else is content we couldn&#x27;t slot onto a single element, which</span>
+<span class="diffline d-hunk">@@ -71,8 +76,6 @@ interface SlotProps extends React.HTMLAttributes&lt;HTMLElement&gt; {</span>
+<span class="diffline ">       return children;</span>
+<span class="diffline ">     }</span>
+<span class="diffline "> </span>
+<span class="diffline d-del">-    const slottableElementRef = getElementRef(slottableElement);</span>
+<span class="diffline d-del">-    const composedRefs = composeRefs(forwardedRef, slottableElementRef);</span>
+<span class="diffline ">     const mergedProps = mergeProps(slotProps, slottableElement.props ?? {});</span>
+<span class="diffline "> </span>
+<span class="diffline ">     // do not pass ref to React.Fragment for React 19 compatibility</span>
+<span class="diffline "></span></pre></details>
+</div>
+
+<div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">dsv4-r2</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div><div class="check-reason">model&#x27;s own test also passes on the base commit -- it does not demonstrate the bug/fix (honesty check failed)</div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/radix/dsv4-r2/final.diff" target="_blank">diff</a><a class="filelink" href="data/radix/dsv4-r2/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/radix/dsv4-r2/driver.log" target="_blank">driver log</a><a class="filelink" href="data/radix/dsv4-r2/install.log" target="_blank">install log</a><a class="filelink" href="data/radix/dsv4-r2/transcript-rendered.html" target="_blank">transcript</a></div>
+  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/packages/react/slot/src/slot.test.tsx b/packages/react/slot/src/slot.test.tsx</span>
+<span class="diffline ">index 7beb9bbd..da43cd1e 100644</span>
+<span class="diffline d-hdr">--- a/packages/react/slot/src/slot.test.tsx</span>
+<span class="diffline d-hdr">+++ b/packages/react/slot/src/slot.test.tsx</span>
+<span class="diffline d-hunk">@@ -529,6 +529,88 @@ describe(&#x27;nested (render-prop) Slottable&#x27;, () =&gt; {</span>
+<span class="diffline ">   });</span>
+<span class="diffline "> });</span>
+<span class="diffline "> </span>
+<span class="diffline d-add">+/* -------------------------------------------------------------------------------------------------</span>
+<span class="diffline d-add">+ * React 19 ref callback cleanup</span>
+<span class="diffline d-add">+ *</span>
+<span class="diffline d-add">+ * Regression guard for https://github.com/radix-ui/primitives/issues (React 19 &quot;Maximum update depth</span>
+<span class="diffline d-add">+ * exceeded&quot;). In React 19 a callback ref may return a cleanup function. `composeRefs` must forward that</span>
+<span class="diffline d-add">+ * cleanup to React so it runs on unmount; otherwise the composed ref callback returns nothing and React</span>
+<span class="diffline d-add">+ * cannot detach the ref, which (combined with re-renders from fast state updates, e.g. typing in a</span>
+<span class="diffline d-add">+ * Slate/Plate editor) surfaced as an infinite update loop in `setRef`.</span>
+<span class="diffline d-add">+ * -----------------------------------------------------------------------------------------------*/</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+describe(&#x27;React 19 ref callback cleanup support&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+  afterEach(cleanup);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  it(&#x27;runs the cleanup returned by a composed ref callback on unmount without infinite loops&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+    const slotRef = vi.fn();</span>
+<span class="diffline d-add">+    const childCleanup = vi.fn();</span>
+<span class="diffline d-add">+    const childRef = vi.fn(() =&gt; childCleanup);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    const { unmount } = render(</span>
+<span class="diffline d-add">+      &lt;Slot ref={slotRef}&gt;</span>
+<span class="diffline d-add">+        &lt;button ref={childRef} type=&quot;button&quot;&gt;</span>
+<span class="diffline d-add">+          hi</span>
+<span class="diffline d-add">+        &lt;/button&gt;</span>
+<span class="diffline d-add">+      &lt;/Slot&gt;,</span>
+<span class="diffline d-add">+    );</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    const button = screen.getByRole(&#x27;button&#x27;);</span>
+<span class="diffline d-add">+    // Both the Slot ref and the child ref attach to the same node.</span>
+<span class="diffline d-add">+    expect(slotRef).toHaveBeenCalledWith(button);</span>
+<span class="diffline d-add">+    expect(childRef).toHaveBeenCalledWith(button);</span>
+<span class="diffline d-add">+    // Attaching must not trigger re-renders (no &quot;Maximum update depth exceeded&quot;).</span>
+<span class="diffline d-add">+    expect(slotRef).toHaveBeenCalledTimes(1);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    // React 19 calls the cleanup returned by the composed ref on unmount.</span>
+<span class="diffline d-add">+    unmount();</span>
+<span class="diffline d-add">+    expect(childCleanup).toHaveBeenCalledTimes(1);</span>
+<span class="diffline d-add">+  });</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  it(&#x27;leaves behavior unchanged when no forwardedRef is passed (child ref used directly)&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+    const childCleanup = vi.fn();</span>
+<span class="diffline d-add">+    const childRef = vi.fn(() =&gt; childCleanup);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    const { unmount } = render(</span>
+<span class="diffline d-add">+      &lt;Slot&gt;</span>
+<span class="diffline d-add">+        &lt;button ref={childRef} type=&quot;button&quot;&gt;</span>
+<span class="diffline d-add">+          hi</span>
+<span class="diffline d-add">+        &lt;/button&gt;</span>
+<span class="diffline d-add">+      &lt;/Slot&gt;,</span>
+<span class="diffline d-add">+    );</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    const button = screen.getByRole(&#x27;button&#x27;);</span>
+<span class="diffline d-add">+    // Without a forwardedRef, Slot forwards the child&#x27;s own ref without composing, so it is</span>
+<span class="diffline d-add">+    // attached exactly once and its cleanup is still honored on unmount.</span>
+<span class="diffline d-add">+    expect(childRef).toHaveBeenCalledTimes(1);</span>
+<span class="diffline d-add">+    expect(childRef).toHaveBeenCalledWith(button);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    unmount();</span>
+<span class="diffline d-add">+    expect(childCleanup).toHaveBeenCalledTimes(1);</span>
+<span class="diffline d-add">+  });</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  it(&#x27;attaches and detaches ref objects composed through Slot&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+    const slotRef = React.createRef&lt;HTMLElement&gt;();</span>
+<span class="diffline d-add">+    const childRef = React.createRef&lt;HTMLElement&gt;();</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    const { unmount } = render(</span>
+<span class="diffline d-add">+      &lt;Slot ref={slotRef}&gt;</span>
+<span class="diffline d-add">+        &lt;button ref={childRef} type=&quot;button&quot;&gt;</span>
+<span class="diffline d-add">+          hi</span>
+<span class="diffline d-add">+        &lt;/button&gt;</span>
+<span class="diffline d-add">+      &lt;/Slot&gt;,</span>
+<span class="diffline d-add">+    );</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    const button = screen.getByRole(&#x27;button&#x27;);</span>
+<span class="diffline d-add">+    expect(slotRef.current).toBe(button);</span>
+<span class="diffline d-add">+    expect(childRef.current).toBe(button);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    unmount();</span>
+<span class="diffline d-add">+    expect(slotRef.current).toBeNull();</span>
+<span class="diffline d-add">+    expect(childRef.current).toBeNull();</span>
+<span class="diffline d-add">+  });</span>
+<span class="diffline d-add">+});</span>
+<span class="diffline d-add">+</span>
+<span class="diffline "> type TriggerProps = React.ComponentProps&lt;&#x27;button&#x27;&gt; &amp; { as: React.ElementType };</span>
+<span class="diffline "> </span>
+<span class="diffline "> const Trigger = ({ as: Comp = &#x27;button&#x27;, ...props }: TriggerProps) =&gt; &lt;Comp {...props} /&gt;;</span>
+<span class="diffline "></span></pre></details>
+</div>
+
+</div>
+<div class="modelcol b">
+  <div class="mhead"><div class="mname">Qwen</div><div class="meffort">shipped default</div></div>
+  
+<div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">qwen-med-r1</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/radix/qwen-med-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/radix/qwen-med-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/radix/qwen-med-r1/transcript-rendered.html" target="_blank">transcript</a></div>
+  
+</div>
+
+<div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">qwen-med-r2</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/radix/qwen-med-r2/driver.log" target="_blank">driver log</a><a class="filelink" href="data/radix/qwen-med-r2/install.log" target="_blank">install log</a><a class="filelink" href="data/radix/qwen-med-r2/transcript-rendered.html" target="_blank">transcript</a></div>
+  
+</div>
+
+<div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">qwen-r1</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/radix/qwen-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/radix/qwen-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/radix/qwen-r1/transcript-rendered.html" target="_blank">transcript</a></div>
+  
+</div>
+
+<div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">qwen-r2</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/radix/qwen-r2/driver.log" target="_blank">driver log</a><a class="filelink" href="data/radix/qwen-r2/install.log" target="_blank">install log</a><a class="filelink" href="data/radix/qwen-r2/transcript-rendered.html" target="_blank">transcript</a></div>
+  
+</div>
+
+</div></div>
+  <h3>Session transcript</h3><div class="transcripts"><div class="tpane"><div class="thead">DSV4</div><iframe src="../data/radix/dsv4-r1/transcript-rendered.html" loading="lazy"></iframe></div><div class="tpane"><div class="thead">DSV4</div><iframe src="../data/radix/dsv4-r2/transcript-rendered.html" loading="lazy"></iframe></div></div>
+</div>
+
+<footer class="sitefoot">Every run, diff, log, transcript and calibration result on this site is published as generated &mdash;
+including harness re-runs. No cherry-picking. See the <a href="../method.html">Method</a> page for the full pre-registered spec.</footer>
+</div>
+<script>
+(function(){
+  var KEY = 'ab-site-theme';
+  var root = document.documentElement;
+  function apply(t){ if(t){ root.setAttribute('data-theme', t); } else { root.removeAttribute('data-theme'); } }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch(e){}
+  apply(saved);
+  function label(){
+    var t = root.getAttribute('data-theme');
+    return t === 'dark' ? 'dark' : (t === 'light' ? 'light' : 'auto');
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    var btn = document.getElementById('theme-toggle');
+    if(!btn) return;
+    btn.textContent = 'theme: ' + label();
+    btn.addEventListener('click', function(){
+      var cur = root.getAttribute('data-theme');
+      var next = cur === null ? 'dark' : (cur === 'dark' ? 'light' : null);
+      apply(next);
+      try { if(next) localStorage.setItem(KEY, next); else localStorage.removeItem(KEY); } catch(e){}
+      btn.textContent = 'theme: ' + label();
+    });
+  });
+})();
+</script>
+</body>
+</html>

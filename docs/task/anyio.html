@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CapacityLimiter can over-grant tokens (`borrowed_tokens &gt; total_tokens`, `available_tokens` goes negative) — A/B results</title>
+<style>
+:root, [data-theme="light"] {
+  color-scheme: light;
+  --page:        #f9f9f7;
+  --surface:     #fcfcfb;
+  --surface-2:   #f2f1ec;
+  --ink:         #0b0b0b;
+  --ink-2:       #52514e;
+  --ink-muted:   #898781;
+  --line:        #e1e0d9;
+  --line-strong: #c3c2b7;
+  --border:      rgba(11,11,11,0.10);
+  --accent-a:    #2a78d6;   /* DeepSeek */
+  --accent-a-ink:#0d3a70;
+  --accent-b:    #eb6834;   /* Qwen */
+  --accent-b-ink:#7a3110;
+  --good:        #0ca30c;
+  --good-ink:    #006300;
+  --warn:        #b9760f;
+  --warn-bg:     #fdf1da;
+  --serious:     #c15a2f;
+  --serious-bg:  #fbe8dd;
+  --critical:    #d03b3b;
+  --critical-bg: #fbe2e2;
+  --harness:     #5b5a52;
+  --harness-bg:  #eeece3;
+  --shadow:      0 1px 2px rgba(11,11,11,0.06), 0 4px 14px rgba(11,11,11,0.05);
+  --radius:      6px;
+  --mono: ui-monospace, "Cascadia Mono", "Cascadia Code", "SF Mono", "JetBrains Mono", Consolas, "Liberation Mono", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page:        #0d0d0d;
+    --surface:     #1a1a19;
+    --surface-2:   #221f1a;
+    --ink:         #ffffff;
+    --ink-2:       #c3c2b7;
+    --ink-muted:   #8f8d86;
+    --line:        #2c2c2a;
+    --line-strong: #3a3935;
+    --border:      rgba(255,255,255,0.12);
+    --accent-a:    #4c96f0;
+    --accent-a-ink:#bfe0ff;
+    --accent-b:    #e8813e;
+    --accent-b-ink:#ffd9bd;
+    --good:        #23c623;
+    --good-ink:    #7be07b;
+    --warn:        #e8b545;
+    --warn-bg:     #3a2f10;
+    --serious:     #e08657;
+    --serious-bg:  #3a2416;
+    --critical:    #ef6a6a;
+    --critical-bg: #3a1717;
+    --harness:     #b8b6ab;
+    --harness-bg:  #262521;
+    --shadow:      0 1px 2px rgba(0,0,0,0.3), 0 4px 14px rgba(0,0,0,0.25);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page:        #0d0d0d;
+  --surface:     #1a1a19;
+  --surface-2:   #221f1a;
+  --ink:         #ffffff;
+  --ink-2:       #c3c2b7;
+  --ink-muted:   #8f8d86;
+  --line:        #2c2c2a;
+  --line-strong: #3a3935;
+  --border:      rgba(255,255,255,0.12);
+  --accent-a:    #4c96f0;
+  --accent-a-ink:#bfe0ff;
+  --accent-b:    #e8813e;
+  --accent-b-ink:#ffd9bd;
+  --good:        #23c623;
+  --good-ink:    #7be07b;
+  --warn:        #e8b545;
+  --warn-bg:     #3a2f10;
+  --serious:     #e08657;
+  --serious-bg:  #3a2416;
+  --critical:    #ef6a6a;
+  --critical-bg: #3a1717;
+  --harness:     #b8b6ab;
+  --harness-bg:  #262521;
+  --shadow:      0 1px 2px rgba(0,0,0,0.3), 0 4px 14px rgba(0,0,0,0.25);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--page); color: var(--ink);
+  font-family: var(--sans); font-size: 15px; line-height: 1.55;
+  text-rendering: optimizeLegibility;
+}
+h1,h2,h3,h4 { font-family: var(--mono); font-weight: 600; text-wrap: balance; margin: 0 0 .5em; letter-spacing: -0.01em; }
+h1 { font-size: 1.7rem; } h2 { font-size: 1.25rem; margin-top: 2.2em; } h3 { font-size: 1.02rem; margin-top: 1.6em; } h4 { font-size: .92rem; }
+p { margin: 0 0 1em; max-width: 68ch; }
+a { color: var(--accent-a); }
+:root[data-theme="light"] a, :root:not([data-theme="dark"]) a { color: #1c5cab; }
+[data-theme="dark"] a, :root:not([data-theme="light"]) a { }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) a { color: #7cb4f2; } }
+:root[data-theme="dark"] a { color: #7cb4f2; }
+a:focus-visible, button:focus-visible, summary:focus-visible, .cell:focus-visible { outline: 2px solid var(--accent-a); outline-offset: 2px; }
+code, pre, .mono { font-family: var(--mono); }
+code { background: var(--surface-2); padding: .1em .35em; border-radius: 4px; font-size: .88em; }
+pre { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: .9em 1em; overflow-x: auto; font-size: .82rem; line-height: 1.5; }
+pre code { background: none; padding: 0; }
+hr { border: none; border-top: 1px solid var(--line); margin: 2em 0; }
+
+.shell { max-width: 1180px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+.stick-top { position: sticky; top: 0; z-index: 50; }
+.top-banner {
+  background: var(--warn-bg); color: var(--warn); border-bottom: 1px solid color-mix(in srgb, var(--warn) 55%, transparent);
+  font-family: var(--mono); font-weight: 700; font-size: .82rem; text-align: center; letter-spacing: .02em;
+  padding: .55em 1rem; text-transform: uppercase;
+}
+.topbar {
+  background: var(--page);
+  border-bottom: 1px solid var(--line); backdrop-filter: blur(6px);
+}
+.topbar-inner { max-width: 1180px; margin: 0 auto; padding: .8rem 1.25rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.brand { font-family: var(--mono); font-weight: 700; font-size: .95rem; letter-spacing: -0.01em; white-space: nowrap; }
+.brand small { display:block; font-weight: 400; color: var(--ink-muted); font-size: .72rem; letter-spacing: 0; }
+.nav { display: flex; gap: 1.1rem; flex-wrap: wrap; margin-left: auto; font-family: var(--mono); font-size: .82rem; }
+.nav a { color: var(--ink-2); text-decoration: none; padding: .3em 0; border-bottom: 2px solid transparent; }
+.nav a:hover, .nav a.active { color: var(--ink); border-bottom-color: var(--accent-a); }
+.theme-btn {
+  font-family: var(--mono); font-size: .76rem; border: 1px solid var(--line-strong); background: var(--surface);
+  color: var(--ink-2); border-radius: 5px; padding: .35em .6em; cursor: pointer;
+}
+.theme-btn:hover { color: var(--ink); }
+
+.page-head { padding: 2.2rem 0 .5rem; }
+.eyebrow { font-family: var(--mono); font-size: .74rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-muted); margin: 0 0 .5em; }
+.lede { color: var(--ink-2); max-width: 72ch; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.card > .card-pad { padding: 1.1rem 1.3rem; }
+.section { margin-top: 2.4rem; }
+
+/* ---- badges / chips / pips ---- */
+.badge { display: inline-flex; align-items: center; gap: .35em; font-family: var(--mono); font-size: .72rem;
+  padding: .18em .55em; border-radius: 4px; border: 1px solid var(--line-strong); color: var(--ink-2); background: var(--surface-2); white-space: nowrap; }
+.badge.accent-a { border-color: color-mix(in srgb, var(--accent-a) 55%, var(--line-strong)); color: var(--accent-a-ink); background: color-mix(in srgb, var(--accent-a) 12%, var(--surface)); }
+.badge.accent-b { border-color: color-mix(in srgb, var(--accent-b) 55%, var(--line-strong)); color: var(--accent-b-ink); background: color-mix(in srgb, var(--accent-b) 12%, var(--surface)); }
+
+.chip { display: inline-flex; align-items: center; gap: .4em; font-family: var(--mono); font-weight: 600; font-size: .78rem;
+  padding: .3em .65em; border-radius: 5px; line-height: 1; white-space: nowrap; }
+.chip .n { font-weight: 400; opacity: .8; margin-left: .15em; }
+.chip.pass { color: var(--good-ink); background: color-mix(in srgb, var(--good) 16%, var(--surface)); border: 1px solid color-mix(in srgb, var(--good) 45%, transparent); }
+.chip.fail { color: var(--critical); background: var(--critical-bg); border: 1px solid color-mix(in srgb, var(--critical) 45%, transparent); }
+.chip.mixed { color: var(--warn); background: var(--warn-bg); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); }
+.chip.unknown { color: var(--ink-muted); background: var(--surface-2); border: 1px solid var(--line); }
+.chip.harness { color: var(--harness); background: var(--harness-bg); border: 1px solid var(--line-strong); }
+.chip::before { content: ""; width: .5em; height: .5em; border-radius: 50%; background: currentColor; flex: none; }
+
+.pips { display: inline-flex; gap: .3em; font-family: var(--mono); }
+.pip { display: inline-flex; align-items: center; justify-content: center; width: 1.5em; height: 1.5em; border-radius: 4px;
+  font-size: .68rem; font-weight: 700; border: 1px solid var(--line-strong); color: var(--ink-muted); background: var(--surface-2); }
+.pip.pass { color: var(--good-ink); background: color-mix(in srgb, var(--good) 18%, var(--surface)); border-color: color-mix(in srgb, var(--good) 50%, transparent); }
+.pip.fail { color: var(--critical); background: var(--critical-bg); border-color: color-mix(in srgb, var(--critical) 50%, transparent); }
+.pip.empty { border-style: dashed; }
+
+.star-row { display: inline-flex; gap: .15em; }
+.star { width: .95em; height: .95em; border-radius: 2px; background: var(--line-strong); display: inline-block; }
+.star.filled { background: var(--accent-a); }
+.star-row.b .star.filled { background: var(--accent-b); }
+
+/* ---- stat tiles ---- */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .8rem; margin-top: 1.2rem; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: .9rem 1rem; }
+.tile .tl { font-family: var(--mono); font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-muted); margin-bottom: .4em; }
+.tile .tv { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.tile .ts { font-size: .78rem; color: var(--ink-2); margin-top: .3em; }
+.tile.a .tv { color: var(--accent-a); } .tile.b .tv { color: var(--accent-b); }
+
+.verdict { border-left: 3px solid var(--accent-a); background: var(--surface); border: 1px solid var(--line); border-left-width: 3px;
+  border-radius: var(--radius); padding: 1rem 1.2rem; margin-top: 1.2rem; }
+.verdict .vlabel { font-family: var(--mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-muted); }
+.verdict .vtext { font-family: var(--mono); font-size: 1.02rem; margin-top: .35em; }
+.verdict.decided { border-left-color: var(--good); }
+.verdict.tie { border-left-color: var(--warn); }
+blockquote.rule { margin: .8rem 0 0; padding: .7rem 1rem; border-left: 3px solid var(--line-strong); background: var(--surface-2);
+  border-radius: 0 4px 4px 0; font-size: .88rem; color: var(--ink-2); }
+
+/* ---- scoreboard table ---- */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); margin-top: 1.4rem; }
+table.board { border-collapse: collapse; width: 100%; min-width: 780px; font-size: .86rem; }
+table.board th, table.board td { padding: .55em .8em; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.board thead th { position: sticky; top: 0; background: var(--surface); font-family: var(--mono); font-size: .72rem;
+  text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); border-bottom: 1px solid var(--line-strong); z-index: 2; }
+table.board thead tr.lanehead th { font-size: .68rem; padding-bottom: 0; color: var(--ink-muted); font-weight: 400; }
+table.board tbody th { position: sticky; left: 0; background: var(--surface); z-index: 1; font-family: var(--mono); font-weight: 600; }
+table.board tbody tr:hover td, table.board tbody tr:hover th { background: var(--surface-2); }
+table.board td.cell { white-space: normal; }
+.rowmeta { display: block; font-weight: 400; color: var(--ink-muted); font-size: .74rem; margin-top: .1em; }
+.tasklink { color: var(--ink); text-decoration: none; }
+.tasklink:hover { text-decoration: underline; }
+.cellbox { display: flex; align-items: center; gap: .5em; flex-wrap: wrap; }
+.na { color: var(--ink-muted); font-family: var(--mono); }
+.classhead td { background: var(--surface-2); font-family: var(--mono); font-size: .72rem; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--ink-muted); padding: .5em .8em; border-bottom: 1px solid var(--line-strong); }
+
+/* ---- task page ---- */
+.tagrow { display: flex; gap: .5em; flex-wrap: wrap; align-items: center; margin: .6em 0 0; }
+details.brief { margin-top: 1.2rem; }
+details.brief > summary { cursor: pointer; font-family: var(--mono); font-size: .84rem; padding: .7em 1em; background: var(--surface);
+  border: 1px solid var(--line); border-radius: var(--radius); list-style: none; display: flex; align-items: center; gap: .5em; }
+details.brief > summary::-webkit-details-marker { display: none; }
+details.brief > summary::before { content: "\25b8"; display: inline-block; transition: transform .15s; color: var(--ink-muted); }
+details.brief[open] > summary::before { transform: rotate(90deg); }
+details.brief .brief-body { border: 1px solid var(--line); border-top: none; border-radius: 0 0 var(--radius) var(--radius);
+  padding: 1.2rem 1.4rem; background: var(--surface); }
+.prose h1, .prose h2, .prose h3, .prose h4 { font-family: var(--sans); }
+.prose h1 { font-size: 1.25rem; } .prose h2 { font-size: 1.08rem; margin-top: 1.4em; } .prose h3 { font-size: .98rem; margin-top: 1.2em; }
+.prose p, .prose li { max-width: 78ch; color: var(--ink-2); }
+.prose strong { color: var(--ink); }
+.prose ul, .prose ol { padding-left: 1.3em; }
+.prose li { margin-bottom: .4em; }
+.md-table { overflow-x: auto; }
+.md-table table { border-collapse: collapse; width: 100%; font-size: .84rem; }
+.md-table th, .md-table td { border: 1px solid var(--line); padding: .4em .6em; text-align: left; }
+.md-table th { background: var(--surface-2); font-family: var(--mono); font-size: .72rem; }
+
+ol.turns { padding-left: 1.4em; }
+ol.turns li { margin-bottom: .6em; padding-left: .2em; }
+ol.turns code { white-space: pre-wrap; }
+
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; align-items: start; }
+@media (max-width: 820px) { .compare { grid-template-columns: 1fr; } }
+.modelcol { border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); overflow: hidden; }
+.modelcol .mhead { padding: .8em 1em; border-bottom: 1px solid var(--line); border-left: 4px solid var(--line-strong); }
+.modelcol.a .mhead { border-left-color: var(--accent-a); }
+.modelcol.b .mhead { border-left-color: var(--accent-b); }
+.modelcol .mname { font-family: var(--mono); font-weight: 700; }
+.modelcol.a .mname { color: var(--accent-a); } .modelcol.b .mname { color: var(--accent-b); }
+.modelcol .meffort { font-size: .78rem; color: var(--ink-muted); }
+.rep { padding: 1em; border-top: 1px dashed var(--line); }
+.rep:first-of-type { border-top: none; }
+.rep-label { font-family: var(--mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-muted); margin-bottom: .6em; display:flex; align-items:center; gap:.5em; }
+
+dl.kv { display: grid; grid-template-columns: auto 1fr; gap: .35em 1em; margin: .8em 0; font-size: .86rem; }
+dl.kv dt { color: var(--ink-muted); font-family: var(--mono); font-size: .78rem; white-space: nowrap; }
+dl.kv dd { margin: 0; font-variant-numeric: tabular-nums; }
+.toolcalls { display: flex; flex-wrap: wrap; gap: .35em; margin-top: .3em; }
+.toolcalls .tc { font-family: var(--mono); font-size: .72rem; background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: .1em .45em; }
+
+.check-row { display: flex; align-items: baseline; gap: .6em; padding: .35em 0; border-bottom: 1px solid var(--line); font-size: .86rem; }
+.check-row:last-child { border-bottom: none; }
+.check-row .clabel { font-family: var(--mono); font-weight: 700; min-width: 2.2em; }
+.check-reason { color: var(--ink-2); font-size: .82rem; margin: .1em 0 .5em 2.8em; }
+
+.harness-list { margin-top: .5em; display: flex; flex-direction: column; gap: .4em; }
+.harness-item { font-size: .8rem; background: var(--harness-bg); border: 1px solid var(--line-strong); border-radius: 4px; padding: .45em .6em; color: var(--harness); }
+.harness-item b { color: var(--ink); }
+
+.linkrow { display: flex; flex-wrap: wrap; gap: .5em; margin-top: .8em; }
+.linkrow a.filelink { font-family: var(--mono); font-size: .76rem; border: 1px solid var(--line-strong); border-radius: 4px;
+  padding: .3em .6em; text-decoration: none; color: var(--ink-2); background: var(--surface-2); }
+.linkrow a.filelink:hover { color: var(--ink); border-color: var(--ink-muted); }
+
+.diffline { white-space: pre; }
+.d-add { color: var(--good-ink); } .d-del { color: var(--critical); } .d-hunk { color: var(--accent-a); } .d-hdr { color: var(--ink); font-weight: 700; }
+
+.transcripts { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+@media (max-width: 820px) { .transcripts { grid-template-columns: 1fr; } }
+.transcripts .tpane { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface); }
+.transcripts .thead { padding: .5em .8em; font-family: var(--mono); font-size: .78rem; border-bottom: 1px solid var(--line); font-weight: 700; }
+.transcripts iframe { width: 100%; height: 560px; border: none; background: var(--surface); display: block; }
+
+.turn { border-bottom: 1px solid var(--line); padding: .7em .9em; font-size: .82rem; }
+.turn:last-child { border-bottom: none; }
+.turn .who { font-family: var(--mono); font-weight: 700; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-muted); }
+.turn.user .who { color: var(--accent-a); }
+.turn pre { margin: .4em 0 0; }
+
+/* ---- calibration ---- */
+.calib-grid { display: grid; gap: 1rem; margin-top: 1rem; }
+.calib-card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 1rem 1.2rem; }
+.calib-items { display: flex; gap: .4em; margin-top: .5em; flex-wrap: wrap; }
+
+/* ---- meter (raptor) ---- */
+.ladder { display: flex; flex-direction: column; gap: .5em; margin-top: .8em; }
+.mstep { display: flex; align-items: center; gap: .8em; }
+.mstep .mid { font-family: var(--mono); font-weight: 700; width: 2.6em; }
+.mstep .mtrack { flex: 1; height: 1.4em; background: var(--surface-2); border-radius: 4px; overflow: hidden; border: 1px solid var(--line); position: relative; }
+.mstep .mfill { height: 100%; }
+.mstep.a .mfill { background: var(--accent-a); } .mstep.b .mfill { background: var(--accent-b); }
+.mstep .mtime { font-family: var(--mono); font-size: .78rem; color: var(--ink-2); min-width: 5em; text-align: right; }
+.shot-pair { display: grid; grid-template-columns: 1fr 1fr; gap: .8em; margin-top: .6em; }
+.shot { border: 1px dashed var(--line-strong); border-radius: 4px; aspect-ratio: 320/200; display: flex; align-items: center;
+  justify-content: center; color: var(--ink-muted); font-family: var(--mono); font-size: .72rem; background: var(--surface-2); text-align: center; padding: .5em; }
+
+footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--line); color: var(--ink-muted); font-size: .78rem; }
+
+@media (max-width: 640px) {
+  body { font-size: 14.5px; }
+  .shell { padding: 0 1rem 3rem; }
+  h1 { font-size: 1.4rem; }
+}
+</style>
+</head>
+<body>
+<div class="stick-top">
+
+<div class="topbar"><div class="topbar-inner">
+  <div class="brand">DSV4 vs Qwen3.8 &middot; coding A/B<small>pre-registered 2026-08-20</small></div>
+  <nav class="nav"><a href="../index.html">Scoreboard</a><a href="../calibration.html">Calibration</a><a href="../method.html">Method</a><a href="../raptor.html">Raptor ladder</a></nav>
+  <button class="theme-btn" id="theme-toggle" type="button">theme: auto</button>
+</div></div>
+</div>
+<div class="shell">
+
+<div class="page-head">
+  <p class="eyebrow"><a href="../index.html">&larr; Scoreboard</a> / Hidden-reference bug fix</p>
+  <h1>CapacityLimiter can over-grant tokens (`borrowed_tokens &gt; total_tokens`, `available_tokens` goes negative)</h1>
+  <div class="tagrow">
+    <span class="badge">2A</span>
+    <span class="badge">anyio #1170</span>
+    <span class="badge">lane A</span><span class="badge">lane B</span>
+    
+  </div>
+  
+</div>
+
+<details class="brief" open>
+  <summary>Brief &mdash; exact text delivered to every model</summary>
+  <div class="brief-body"><div class="prose"><h2>Task: fix a reported bug in <code>anyio</code></h2>
+<h3>Bug report (verbatim from the project&#x27;s issue tracker)</h3>
+<p><strong>CapacityLimiter can over-grant tokens (<code>borrowed_tokens &gt; total_tokens</code>, <code>available_tokens</code> goes negative)</strong></p>
+<h4>Things to check first</h4>
+<ul><li>[x] I have searched the existing issues and didn&#x27;t find my bug already reported there</li></ul>
+<ul><li>[x] I have checked that my bug is still present in the latest release</li></ul>
+<h4>AnyIO version</h4>
+<p>4.13.0</p>
+<h4>Python version</h4>
+<p>3.12</p>
+<h4>What happened?</h4>
+<p>On the asyncio backend, a non-blocking acquire can succeed <em>while the just-freed token is already reserved for a woken waiter</em>, leaving the limiter with more borrowers than it has tokens. The state becomes:</p>
+<pre><code>borrowed_tokens  = 2
+total_tokens     = 1
+available_tokens = -1      # negative
+borrowers        = (&#x27;B&#x27;, &#x27;X&#x27;)</code></pre>
+<p>Two tasks then hold a single-token limiter concurrently — the exact condition the limiter exists to prevent — and <code>available_tokens</code> is negative.</p>
+<p>This violates the documented contract of <code>acquire_nowait</code> / <code>acquire_on_behalf_of_nowait</code>:</p>
+<p>&gt; :raises ~anyio.WouldBlock: if there are no tokens available for borrowing</p>
+<p>In the window below there is no token available (the freed one is earmarked for the woken waiter), yet the nowait acquire succeeds instead of raising <code>WouldBlock</code>.</p>
+<h4>How can we reproduce the bug?</h4>
+<p>Just anyio, no test framework: <code>python repro.py</code> prints the corrupt state and raises <code>AssertionError</code>:</p>
+<pre><code class="lang-python">import anyio
+from anyio import CapacityLimiter, WouldBlock
+
+async def main():
+    lim = CapacityLimiter(1)                       # capacity: exactly ONE token
+    lim.acquire_on_behalf_of_nowait(&quot;A&quot;)           # A borrows the only token
+
+    async with anyio.create_task_group() as tg:
+        async def b():
+            await lim.acquire_on_behalf_of(&quot;B&quot;)    # B waits for the token
+        tg.start_soon(b)
+
+        while lim.statistics().tasks_waiting != 1:  # wait until B is parked
+            await anyio.sleep(0)
+
+        lim.release_on_behalf_of(&quot;A&quot;)              # frees the token, notifies B
+        # B has been notified but has NOT resumed yet, so it is not in
+        # _borrowers and the wait queue is now empty. A non-blocking acquire
+        # in this window slips through:
+        try:
+            lim.acquire_on_behalf_of_nowait(&quot;X&quot;)  # expected: WouldBlock
+            print(&quot;X acquired without waiting (should have raised WouldBlock)&quot;)
+        except WouldBlock:
+            print(&quot;X correctly blocked&quot;)
+        # leaving the task group lets B resume and add itself to _borrowers
+
+    print(f&quot;borrowed_tokens  = {lim.borrowed_tokens}  (total_tokens = {lim.total_tokens})&quot;)
+    print(f&quot;available_tokens = {lim.available_tokens}&quot;)
+    print(f&quot;borrowers        = {lim.statistics().borrowers}&quot;)
+    assert lim.borrowed_tokens &lt;= lim.total_tokens, &quot;borrowed_tokens &gt; total_tokens&quot;
+
+anyio.run(main)</code></pre>
+<p>Output:</p>
+<pre><code>X acquired without waiting (should have raised WouldBlock)
+borrowed_tokens  = 2  (total_tokens = 1)
+available_tokens = -1
+borrowers        = (&#x27;B&#x27;, &#x27;X&#x27;)
+AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
+<h4>Cause</h4>
+<p>In <code>anyio/_backends/_asyncio.py</code>:</p>
+<ul><li><code>release_on_behalf_of</code> removes the borrower then calls <code>_notify_next_waiter()</code>, which <strong>pops</strong> the next waiter out of <code>_wait_queue</code> and does <code>event.set()</code>.</li><li>The woken waiter, in <code>acquire_on_behalf_of</code>, only adds itself to <code>_borrowers</code> <strong>after</strong> <code>await event.wait()</code> returns:</li></ul>
+<pre><code class="lang-python">  await event.wait()
+  ...
+  self._borrowers.add(borrower)   # runs only once the waiter resumes</code></pre>
+<ul><li>Between the <code>event.set()</code> and the waiter resuming, <code>_wait_queue</code> is empty and the waiter is not yet in <code>_borrowers</code>. So the nowait guard</li></ul>
+<pre><code class="lang-python">  if self._wait_queue or len(self._borrowers) &gt;= self._total_tokens:
+      raise WouldBlock</code></pre>
+<p>evaluates to <code>False</code> (empty queue, <code>0 &lt; 1</code>) and admits a second borrower for the one token.</p>
+<h4>Why <code>Semaphore</code> is not affected</h4>
+<p>The sibling <code>Semaphore</code> is immune under the identical scenario, a nowait acquire issued in the same window correctly raises <code>WouldBlock</code>, because its <code>release()</code> hands the freed slot to the woken waiter rather than leaving it generally available. <code>CapacityLimiter</code> is the one primitive whose freed-but-reserved token is briefly visible as &quot;available&quot; to a synchronous acquirer.</p>
+<p>A fix would close that window, e.g. by reserving the token for the woken waiter at notify time (add the borrower to <code>_borrowers</code> when <code>_notify_next_waiter</code> sets its event, rather than after it resumes), mirroring the Semaphore/Lock hand-off. The nowait guard would then correctly see no free token.</p>
+<h3>Standing instructions (identical for every run)</h3>
+<p>You are working in the repository at the current working directory. Work like a careful open-source contributor:</p>
+<ol><li>Reproduce the bug first (write a minimal failing test or script) before changing code.</li><li>Find the root cause; fix the cause, not the symptom. Keep the change minimal and in the project&#x27;s style.</li><li>Add or update a regression test that fails before your fix and passes after.</li><li>Run the project&#x27;s test suite and make it green. Do not modify or delete unrelated tests.</li><li>When done, summarize: root cause, the files you changed, how you verified it. Do not ask me for permission between steps; proceed until the task is complete, then report.</li></ol>
+<p>Test command for this repo: <code>.venv/Scripts/python -m pytest tests/test_synchronization.py -q</code></p></div></div>
+</details>
+
+<div class="section">
+  <h2>Scripted follow-up turns</h2>
+  
+  <ol class="turns"><li><code>Run tests/test_synchronization.py and paste the summary.</code></li><li><code>Does your fix also hold when total_tokens is raised while tasks are waiting? Add a test for that path.</code></li><li><code>Explain in two sentences why the original ordering allowed the over-grant.</code></li></ol>
+  <p class="rowmeta">Test command: <code>.venv/Scripts/python -m pytest tests/test_synchronization.py -q</code></p>
+</div>
+
+
+<div class="section">
+  <h2>Lane A &middot; OMP</h2>
+  <p class="lede">all tasks</p>
+  <div class="compare">
+<div class="modelcol a">
+  <div class="mhead"><div class="mname">DSV4</div><div class="meffort">Max (server default)</div></div>
+  
+<div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">dsv4-r1</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/anyio/dsv4-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/anyio/dsv4-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/anyio/dsv4-r1/transcript-rendered.html" target="_blank">transcript</a></div>
+  
+</div>
+
+<div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">dsv4-r2</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div><div class="check-reason">model&#x27;s own test does not pass in the model&#x27;s worktree</div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/anyio/dsv4-r2/final.diff" target="_blank">diff</a><a class="filelink" href="data/anyio/dsv4-r2/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/anyio/dsv4-r2/driver.log" target="_blank">driver log</a><a class="filelink" href="data/anyio/dsv4-r2/install.log" target="_blank">install log</a><a class="filelink" href="data/anyio/dsv4-r2/transcript-rendered.html" target="_blank">transcript</a></div>
+  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst</span>
+<span class="diffline ">index 98bbb70..d75278c 100644</span>
+<span class="diffline d-hdr">--- a/docs/versionhistory.rst</span>
+<span class="diffline d-hdr">+++ b/docs/versionhistory.rst</span>
+<span class="diffline d-hunk">@@ -27,6 +27,13 @@ This library adheres to `Semantic Versioning 2.0 &lt;http://semver.org/&gt;`_.</span>
+<span class="diffline ">   ``CapacityLimiter.acquire_nowait_on_behalf_of()`` raising ``trio.WouldBlock`` instead</span>
+<span class="diffline ">   of ``anyio.WouldBlock`` on the ``trio`` backend when there are no tokens available</span>
+<span class="diffline ">   (`#1218 &lt;https://github.com/agronholm/anyio/pull/1218&gt;`_)</span>
+<span class="diffline d-add">+- Fixed ``CapacityLimiter`` on the asyncio backend over-granting tokens</span>
+<span class="diffline d-add">+  (``borrowed_tokens`` exceeding ``total_tokens`` and ``available_tokens`` going</span>
+<span class="diffline d-add">+  negative) when a non-blocking acquire was made in the window between a token</span>
+<span class="diffline d-add">+  being released and the notified waiter resuming. The freed token is now</span>
+<span class="diffline d-add">+  reserved for the woken waiter right away, so the non-blocking acquire correctly</span>
+<span class="diffline d-add">+  raises ``WouldBlock``</span>
+<span class="diffline d-add">+  (`#1170 &lt;https://github.com/agronholm/anyio/issues/1170&gt;`_; PR by @gaoflow)</span>
+<span class="diffline "> </span>
+<span class="diffline "> **4.14.1**</span>
+<span class="diffline "> </span>
+<span class="diffline ">diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py</span>
+<span class="diffline ">index bc7e6ab..d4d3db3 100644</span>
+<span class="diffline d-hdr">--- a/src/anyio/_backends/_asyncio.py</span>
+<span class="diffline d-hdr">+++ b/src/anyio/_backends/_asyncio.py</span>
+<span class="diffline d-hunk">@@ -2077,7 +2077,8 @@ class CapacityLimiter(BaseCapacityLimiter):</span>
+<span class="diffline "> </span>
+<span class="diffline ">         # Notify waiting tasks that they have acquired the limiter</span>
+<span class="diffline ">         while self._wait_queue and waiters_to_notify:</span>
+<span class="diffline d-del">-            event = self._wait_queue.popitem(last=False)[1]</span>
+<span class="diffline d-add">+            borrower, event = self._wait_queue.popitem(last=False)</span>
+<span class="diffline d-add">+            self._borrowers.add(borrower)</span>
+<span class="diffline ">             event.set()</span>
+<span class="diffline ">             waiters_to_notify -= 1</span>
+<span class="diffline "> </span>
+<span class="diffline d-hunk">@@ -2090,9 +2091,10 @@ class CapacityLimiter(BaseCapacityLimiter):</span>
+<span class="diffline ">         return self._total_tokens - len(self._borrowers)</span>
+<span class="diffline "> </span>
+<span class="diffline ">     def _notify_next_waiter(self) -&gt; None:</span>
+<span class="diffline d-del">-        &quot;&quot;&quot;Notify the next task in line if this limiter has free capacity now.&quot;&quot;&quot;</span>
+<span class="diffline d-add">+        &quot;&quot;&quot;Hand a free token to the next task in line, if any.&quot;&quot;&quot;</span>
+<span class="diffline ">         if self._wait_queue and len(self._borrowers) &lt; self._total_tokens:</span>
+<span class="diffline d-del">-            event = self._wait_queue.popitem(last=False)[1]</span>
+<span class="diffline d-add">+            borrower, event = self._wait_queue.popitem(last=False)</span>
+<span class="diffline d-add">+            self._borrowers.add(borrower)</span>
+<span class="diffline ">             event.set()</span>
+<span class="diffline "> </span>
+<span class="diffline ">     def acquire_nowait(self) -&gt; None:</span>
+<span class="diffline d-hunk">@@ -2124,11 +2126,10 @@ class CapacityLimiter(BaseCapacityLimiter):</span>
+<span class="diffline ">             except BaseException:</span>
+<span class="diffline ">                 self._wait_queue.pop(borrower, None)</span>
+<span class="diffline ">                 if event.is_set():</span>
+<span class="diffline d-add">+                    self._borrowers.discard(borrower)</span>
+<span class="diffline ">                     self._notify_next_waiter()</span>
+<span class="diffline "> </span>
+<span class="diffline ">                 raise</span>
+<span class="diffline d-del">-</span>
+<span class="diffline d-del">-            self._borrowers.add(borrower)</span>
+<span class="diffline ">         else:</span>
+<span class="diffline ">             try:</span>
+<span class="diffline ">                 await AsyncIOBackend.cancel_shielded_checkpoint()</span>
+<span class="diffline ">diff --git a/tests/test_synchronization.py b/tests/test_synchronization.py</span>
+<span class="diffline ">index 3ead3c2..a583f6c 100644</span>
+<span class="diffline d-hdr">--- a/tests/test_synchronization.py</span>
+<span class="diffline d-hdr">+++ b/tests/test_synchronization.py</span>
+<span class="diffline d-hunk">@@ -993,3 +993,59 @@ class TestCapacityLimiter:</span>
+<span class="diffline ">         limiter.acquire_on_behalf_of_nowait(borrower1)</span>
+<span class="diffline ">         with pytest.raises(WouldBlock):</span>
+<span class="diffline ">             limiter.acquire_on_behalf_of_nowait(borrower2)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    async def test_nowait_acquire_after_release_does_not_oversubscribe(self) -&gt; None:</span>
+<span class="diffline d-add">+        # Regression test for #1170: a non-blocking acquire issued in the window</span>
+<span class="diffline d-add">+        # between releasing a token (which notifies the next waiter) and that</span>
+<span class="diffline d-add">+        # waiter actually resuming must not slip through, as the freed token is</span>
+<span class="diffline d-add">+        # already reserved for the woken waiter. The over-granting bug was</span>
+<span class="diffline d-add">+        # specific to the asyncio backend, but the invariant holds on both.</span>
+<span class="diffline d-add">+        limiter = CapacityLimiter(1)</span>
+<span class="diffline d-add">+        limiter.acquire_on_behalf_of_nowait(&quot;A&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        async def waiter() -&gt; None:</span>
+<span class="diffline d-add">+            await limiter.acquire_on_behalf_of(&quot;B&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        async with create_task_group() as tg:</span>
+<span class="diffline d-add">+            tg.start_soon(waiter)</span>
+<span class="diffline d-add">+            await wait_all_tasks_blocked()</span>
+<span class="diffline d-add">+            assert limiter.statistics().tasks_waiting == 1</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+            # Frees the only token and reserves it for the still-parked &quot;B&quot;; no</span>
+<span class="diffline d-add">+            # token is available, so the nowait acquire must raise WouldBlock.</span>
+<span class="diffline d-add">+            limiter.release_on_behalf_of(&quot;A&quot;)</span>
+<span class="diffline d-add">+            with pytest.raises(WouldBlock):</span>
+<span class="diffline d-add">+                limiter.acquire_on_behalf_of_nowait(&quot;X&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        assert limiter.borrowed_tokens &lt;= limiter.total_tokens</span>
+<span class="diffline d-add">+        assert limiter.available_tokens &gt;= 0</span>
+<span class="diffline d-add">+        assert limiter.statistics().borrowers == (&quot;B&quot;,)</span>
+<span class="diffline d-add">+        limiter.release_on_behalf_of(&quot;B&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    async def test_raise_total_tokens_reserves_token_for_waiting_task(self) -&gt; None:</span>
+<span class="diffline d-add">+        # Regression test for #1170 via the total_tokens setter: increasing the</span>
+<span class="diffline d-add">+        # limit hands the new token to a waiting task immediately (reserving it),</span>
+<span class="diffline d-add">+        # so a nowait acquire issued in the window before that waiter resumes must</span>
+<span class="diffline d-add">+        # raise WouldBlock rather than oversubscribe.</span>
+<span class="diffline d-add">+        limiter = CapacityLimiter(1)</span>
+<span class="diffline d-add">+        limiter.acquire_on_behalf_of_nowait(&quot;A&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        async def waiter() -&gt; None:</span>
+<span class="diffline d-add">+            await limiter.acquire_on_behalf_of(&quot;B&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        async with create_task_group() as tg:</span>
+<span class="diffline d-add">+            tg.start_soon(waiter)</span>
+<span class="diffline d-add">+            await wait_all_tasks_blocked()</span>
+<span class="diffline d-add">+            assert limiter.statistics().tasks_waiting == 1</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+            # B receives the newly added token immediately (it is reserved), so the</span>
+<span class="diffline d-add">+            # limiter is now fully subscribed and the nowait acquire must block.</span>
+<span class="diffline d-add">+            limiter.total_tokens = 2</span>
+<span class="diffline d-add">+            with pytest.raises(WouldBlock):</span>
+<span class="diffline d-add">+                limiter.acquire_on_behalf_of_nowait(&quot;X&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        assert limiter.borrowed_tokens &lt;= limiter.total_tokens</span>
+<span class="diffline d-add">+        assert limiter.available_tokens &gt;= 0</span>
+<span class="diffline d-add">+        assert set(limiter.statistics().borrowers) == {&quot;A&quot;, &quot;B&quot;}</span>
+<span class="diffline d-add">+        limiter.release_on_behalf_of(&quot;A&quot;)</span>
+<span class="diffline d-add">+        limiter.release_on_behalf_of(&quot;B&quot;)</span>
+<span class="diffline "></span></pre></details>
+</div>
+
+</div>
+<div class="modelcol b">
+  <div class="mhead"><div class="mname">Qwen</div><div class="meffort">shipped default</div></div>
+  
+<div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">qwen-med-r1</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/anyio/qwen-med-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/anyio/qwen-med-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/anyio/qwen-med-r1/transcript-rendered.html" target="_blank">transcript</a></div>
+  
+</div>
+
+<div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">qwen-r1</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/anyio/qwen-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/anyio/qwen-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/anyio/qwen-r1/transcript-rendered.html" target="_blank">transcript</a></div>
+  
+</div>
+
+</div></div>
+  <h3>Session transcript</h3><div class="transcripts"><div class="tpane"><div class="thead">DSV4</div><iframe src="../data/anyio/dsv4-r1/transcript-rendered.html" loading="lazy"></iframe></div><div class="tpane"><div class="thead">DSV4</div><iframe src="../data/anyio/dsv4-r2/transcript-rendered.html" loading="lazy"></iframe></div></div>
+</div>
+
+<footer class="sitefoot">Every run, diff, log, transcript and calibration result on this site is published as generated &mdash;
+including harness re-runs. No cherry-picking. See the <a href="../method.html">Method</a> page for the full pre-registered spec.</footer>
+</div>
+<script>
+(function(){
+  var KEY = 'ab-site-theme';
+  var root = document.documentElement;
+  function apply(t){ if(t){ root.setAttribute('data-theme', t); } else { root.removeAttribute('data-theme'); } }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch(e){}
+  apply(saved);
+  function label(){
+    var t = root.getAttribute('data-theme');
+    return t === 'dark' ? 'dark' : (t === 'light' ? 'light' : 'auto');
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    var btn = document.getElementById('theme-toggle');
+    if(!btn) return;
+    btn.textContent = 'theme: ' + label();
+    btn.addEventListener('click', function(){
+      var cur = root.getAttribute('data-theme');
+      var next = cur === null ? 'dark' : (cur === 'dark' ? 'light' : null);
+      apply(next);
+      try { if(next) localStorage.setItem(KEY, next); else localStorage.removeItem(KEY); } catch(e){}
+      btn.textContent = 'theme: ' + label();
+    });
+  });
+})();
+</script>
+</body>
+</html>

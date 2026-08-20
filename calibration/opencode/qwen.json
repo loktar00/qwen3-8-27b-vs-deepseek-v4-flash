@@ -1,0 +1,14 @@
+{
+  "harness": "opencode",
+  "label": "qwen",
+  "model": "pod-qwen/qwen3.8-27b-bf16",
+  "items": [
+    {"id": 1, "pass": true, "detail": "answer='beta gamma'", "tool_calls": 1, "parse_errors": 0, "wall_s": 17},
+    {"id": 2, "pass": true, "detail": "calc.py on disk now returns a+b (verified); correct diff shown", "tool_calls": 2, "parse_errors": 0, "wall_s": 31},
+    {"id": 3, "pass": true, "detail": "answer contains '5'", "tool_calls": 3, "parse_errors": 0, "wall_s": 15},
+    {"id": 4, "pass": true, "detail": "count.txt on disk == '4'; tool calls: 3 (chain confirmed)", "tool_calls": 3, "parse_errors": 0, "wall_s": 28},
+    {"id": 5, "pass": true, "detail": "sum.js fixed on disk (verified: node sum.js 1 2 -> 3); answer confirms the fix and '3' output. Re-run with item-5 prompt aligned to OMP's wording, fresh scratch dir (D:/dev/ab-tasks/_calib_runs/item5-redo-qwen-oc), never touching the master _calib dir.", "tool_calls": 4, "parse_errors": 0, "wall_s": null}
+  ],
+  "gate_pass": true,
+  "notes": "5/5 pass, zero parse/malformed-tool-call errors. Original item 5 (bare 'Run `node sum.js 1 2`', calibration.md's prior wording) failed the same way as the DSV4 OpenCode row: ran the command, reported the error, did not fix it. Per team-lead's decision, calibration.md and opencode_probe.sh's item-5 prompt were both updated to match the OMP wording verbatim so both harnesses test the same thing; item 5 was re-run in isolation with the new wording (fresh scratch copy of the fixture, not the master _calib dir) and now passes cleanly -- gate_pass flipped to true. Items 1-4 are unchanged from the original run. Ran after the Qwen server restart (MTP)."
+}

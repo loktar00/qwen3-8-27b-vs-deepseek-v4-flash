@@ -1,0 +1,14 @@
+{
+  "harness": "omp",
+  "label": "dsv4",
+  "model": "pod-dsv4/deepseek-v4-flash-0731",
+  "items": [
+    {"id": 1, "pass": true, "detail": "answer='beta gamma' (contains required substring)", "tool_calls": 1, "parse_errors": 0, "wall_s": 67},
+    {"id": 2, "pass": true, "detail": "calc.py on disk now returns a+b (verified); model showed a correct diff", "tool_calls": 3, "parse_errors": 0, "wall_s": 19},
+    {"id": 3, "pass": true, "detail": "answer contains '5'", "tool_calls": 1, "parse_errors": 0, "wall_s": 5},
+    {"id": 4, "pass": true, "detail": "count.txt on disk == '4'; answer states 4", "tool_calls": 2, "parse_errors": 0, "wall_s": 5},
+    {"id": 5, "pass": true, "detail": "sum.js fixed on disk (verified: node sum.js 1 2 -> 3); answer contains '3'", "tool_calls": 4, "parse_errors": 0, "wall_s": 37}
+  ],
+  "gate_pass": true,
+  "notes": "5/5 pass, zero parse/malformed-tool-call errors across all items. Item 1 was the slowest (67s, high TTFT ~15s) likely due to cold-start after tunnel/server came up; items 2-5 were fast (5-37s). input token usage per item stable at ~16.5-17.2k (large system/tool-schema overhead dominates on a 3-line fixture)."
+}

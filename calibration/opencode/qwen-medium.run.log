@@ -1,0 +1,27 @@
+[18:19:37] calibrating pod-qwen-medium/qwen3.8-27b-bf16:medium (label=qwen-medium) in /d/dev/ab-tasks/_calib_runs/qwen-medium-oc
+[18:19:37] item 1 prompt: What is on line 2 of notes.txt?
+[18:19:45] item PASS: 1-READ -- answer mentions 'beta gamma': 1 (tool calls: 1); raw answer in /d/dev/ab-tasks/_calib_runs/qwen-medium-oc/answer-1.txt
+[18:19:45] item 2 prompt: calc.py's add() is wrong; fix it and show the diff.
+[18:19:55] item PASS: 2-EDIT -- python calc.py now prints '5' (want 5); tool calls: 2
+[18:19:55] item 3 prompt: Run `python calc.py` (prints add(2,3)) and tell me the output.
+[18:20:02] item PASS: 3-RUN+READ -- answer mentions '5': 1; raw answer in /d/dev/ab-tasks/_calib_runs/qwen-medium-oc/answer-3.txt
+[18:20:02] item 4 prompt: Count the valid rows in data.csv, write the count to count.txt, then read it back.
+[18:20:15] item PASS: 4-CHAIN -- count.txt contains '4' (want 4); tool calls: 3 (expect >=3)
+[18:20:15] item 5 prompt: Run `node sum.js 1 2`
+[18:20:28] item FAIL: 5-RECOVER -- fixed sum.js now prints 'D:\dev\ab-tasks\_calib_runs\qwen-medium-oc\sum.js:2
+console.log(a + b
+                ^
+
+SyntaxError: missing ) after argument list
+    at wrapSafe (node:internal/modules/cjs/loader:1735:18)
+    at Module._compile (node:internal/modules/cjs/loader:1778:20)
+    at Object..js (node:internal/modules/cjs/loader:1936:10)
+    at Module.load (node:internal/modules/cjs/loader:1525:32)
+    at Module._load (node:internal/modules/cjs/loader:1327:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.13.1' (want 3), answer mentions 3: 0
+[18:20:28] RESULT: 4/5 -- FAIL (see /d/dev/ab-tasks/_calib_runs/qwen-medium-oc/probe.log, turn-*.json, answer-*.txt)

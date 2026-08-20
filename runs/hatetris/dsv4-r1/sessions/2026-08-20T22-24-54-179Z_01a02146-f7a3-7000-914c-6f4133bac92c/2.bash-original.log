@@ -1,0 +1,57 @@
+{
+  "name": "hatetris",
+  "version": "1.2.0",
+  "description": "Tetris which always gives you the worst piece",
+  "homepage": "https://github.com/qntm/hatetris",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/qntm/hatetris.git"
+  },
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "cypress-dev": "start-server-and-test \"npm run start-dev\" http://localhost:3000/hatetris.html \"cypress run\"",
+    "cypress-built": "start-server-and-test \"npm run start-built\" http://localhost:3000/hatetris.html \"cypress run\"",
+    "eslint": "eslint .",
+    "unit": "node --enable-source-maps --import ./register.js --require global-jsdom/register --test --experimental-test-coverage --test-coverage-functions=100 --test-coverage-lines=100 --test-coverage-branches=100 --test-coverage-exclude \"**/*.test.{ts,tsx}\" -- \"**/*.test.{ts,tsx}\"",
+    "start-dev": "node scripts/start-dev.js",
+    "start-built": "node scripts/start-built.js",
+    "test": "npm run eslint && npm run tsc && npm run unit && npm run cypress-dev && npm run build && npm run cypress-built",
+    "tsc": "tsc --noEmit"
+  },
+  "keywords": [
+    "tetris"
+  ],
+  "author": "qntm",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/qntm/hatetris/issues"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.6",
+    "@babel/preset-react": "^7.14.5",
+    "@babel/preset-typescript": "^7.14.5",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.4.3",
+    "@types/react": "^19.0.4",
+    "@types/react-dom": "^19.0.4",
+    "@types/sinon": "^21.0.0",
+    "base2048": "^3.0.0",
+    "base65536": "^5.0.0",
+    "classnames": "^2.2.6",
+    "cypress": "^15.15.0",
+    "esbuild": "^0.28.1",
+    "eslint": "^9.21.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "express": "^5.2.0",
+    "global-jsdom": "^29.0.0",
+    "neostandard": "^0.12.1",
+    "react": "^19.0.4",
+    "react-dom": "^19.0.4",
+    "sinon": "^22.0.0",
+    "start-server-and-test": "^3.0.0",
+    "typescript": "^6.0.2"
+  }
+}

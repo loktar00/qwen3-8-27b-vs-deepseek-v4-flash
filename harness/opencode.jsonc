@@ -1,0 +1,125 @@
+// Lane B (OpenCode) A/B config. Vanilla/reproducible: no personal instructions, no plugins,
+// no MCP, no custom agents. This file is NOT ~/.config/opencode/opencode.json — Jason's
+// personal global config is untouched. It's loaded per-run via the OPENCODE_CONFIG env var
+// (see run_opencode_task.sh), which sits ABOVE global config in precedence but configs still
+// MERGE (they don't replace) -- Jason's global providers (vLLM, vLLM-3090-1, vLLM-3090-2) will
+// still be present alongside these, which is harmless since the driver always passes an
+// explicit --model pod-*/... ref.
+//
+// Pair this file with, on every CLI invocation (see run_opencode_task.sh):
+//   - env OPENCODE_DISABLE_CLAUDE_CODE=1   (kills the Claude-Code-compat layer; verified it
+//     otherwise auto-grants external_directory permission on ~/.claude/skills/* and would pull
+//     in ~/.claude/CLAUDE.md -- confirmed via `opencode debug agent build`: 30 .claude-rooted
+//     permission grants with the env unset, 0 with it set to 1)
+//   - --pure                                (disables external plugins for that invocation)
+//   - --dangerously-skip-permissions        (belt-and-suspenders with permission:"allow" below)
+//
+// VISION: pod-qwen / pod-qwen-medium are marked image-capable via `modalities.input` (adds
+// "image" alongside "text") and `attachment: true`, per the live model schema
+// (https://opencode.ai/config.json, provider.<id>.models.<id>) -- verified empirically, not just
+// read off the docs page (which has no vision config example): a scratch config with these two
+// fields set on a custom openai-compatible model resolves cleanly via `opencode debug config`
+// (no "Unrecognized key" error) and `opencode models <id> --verbose` then reports
+// capabilities.input.image:true and capabilities.attachment:true -- matching exactly how built-in
+// vision models (e.g. anthropic/claude-sonnet-4-5) report themselves. Without these two fields,
+// capabilities.input.image and capabilities.attachment both come back false (checked pod-dsv4 as
+// the negative control). pod-dsv4 is left without them (text-only), per DeepSeek V4 Flash being
+// text-only.
+// Attaching an image in non-interactive `opencode run`: documented flag is `-f/--file`, e.g.
+// `opencode run -f image.png "Describe this image."` (https://opencode.ai/docs/cli/). Structurally
+// verified this combines cleanly with our stdin-based prompt delivery (`-f fake.png < prompt.txt`
+// reached the model-resolution step without hanging, same as every other stdin invocation in this
+// lane). NOT verified: what a real vision-capable model does with an attached image through this
+// pod-qwen provider end to end (needs the servers up).
+//
+// UNCONFIRMED (needs the pod servers up): whether pod-qwen-medium's native reasoningEffort
+// variant actually reaches vLLM's chat template as `reasoning_effort` and whether vLLM honors
+// it for Qwen. OpenCode's request builder only ever sends a top-level OpenAI-style
+// `reasoning_effort` field for a variant with reasoningEffort set (confirmed by string-scanning
+// the compiled CLI: "chat_template_kwargs" does not appear anywhere in it, so there is no native
+// way to send {"chat_template_kwargs":{"reasoning_effort":"medium"}}). This is the exact same
+// risk the OMP lane flagged for itself in omp-pod-providers.yml. If verification shows vLLM
+// ignores the top-level field for Qwen, point pod-qwen-medium's baseURL at
+// http://localhost:8004/v1 instead and run opencode_medium_proxy.py (ships alongside this file,
+// not started by default) -- it injects chat_template_kwargs into the body and forwards to
+// :8001, mirroring the OMP lane's own stated fallback ("tiny local proxy").
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "instructions": [],
+  "mcp": {},
+  "plugin": [],
+  "permission": "allow",
+
+  "provider": {
+    "pod-qwen": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "pod-qwen",
+      "options": {
+        "baseURL": "http://localhost:8001/v1"
+      },
+      "models": {
+        "qwen3.8-27b-bf16": {
+          "name": "Qwen3.8-27B BF16 (pod H200)",
+          "limit": {
+            "context": 131072,
+            "output": 32768
+          },
+          "attachment": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        }
+      }
+    },
+
+    "pod-dsv4": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "pod-dsv4",
+      "options": {
+        "baseURL": "http://localhost:8002/v1"
+      },
+      "models": {
+        "deepseek-v4-flash-0731": {
+          "name": "DeepSeek V4 Flash 0731 (pod 2xH200, Max baked)",
+          "limit": {
+            "context": 393216,
+            "output": 65536
+          }
+        }
+      }
+    },
+
+    // Third entry: same server as pod-qwen, but declares a "medium" reasoning-effort variant.
+    // Run ref: pod-qwen-medium/qwen3.8-27b-bf16:medium  (run_opencode_task.sh strips the
+    // ":medium" suffix and passes it on as --variant medium). If the native path is confirmed
+    // not to reach vLLM, flip baseURL below to http://localhost:8004/v1 (proxy).
+    "pod-qwen-medium": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "pod-qwen-medium",
+      "options": {
+        "baseURL": "http://localhost:8001/v1"
+      },
+      "models": {
+        "qwen3.8-27b-bf16": {
+          "name": "Qwen3.8-27B BF16 medium-effort (pod H200)",
+          "limit": {
+            "context": 131072,
+            "output": 32768
+          },
+          "attachment": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "variants": {
+            "medium": {
+              "reasoningEffort": "medium"
+            }
+          }
+        }
+      }
+    }
+  }
+}

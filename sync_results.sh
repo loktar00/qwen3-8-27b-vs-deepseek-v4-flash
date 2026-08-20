@@ -7,6 +7,11 @@
 # Source of truth lives outside this repo, in the private working tree at
 # D:\dev\ab-tasks. This script never touches D:\devNewman (company-confidential)
 # and never copies deeweb run data beyond what's already committed here.
+#
+# IMPORTANT: this script intentionally never touches tasks/ (and specifically
+# never re-copies tasks/deeweb/*). Those files were hand-scrubbed of local
+# paths/setup notes before publish — do not add a tasks/ rsync step that would
+# overwrite that scrubbed copy from the raw _briefs/ source.
 
 set -euo pipefail
 

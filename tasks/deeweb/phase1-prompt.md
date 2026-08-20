@@ -1,14 +1,5 @@
 # deeweb CAL-7207 — Phase 1 (design) prompt — paste VERBATIM to each model, in its own worktree
 
-Setup (Jason's call 2026-08-20: work in D:\devNewman\called-deeweb-web-3, SEQUENTIALLY):
-  DSV4 first:  branch ab/dsv4-cal7207 @ 1f680c659 (created by orchestrator); open OMP there with
-               pod-dsv4/deepseek-v4-flash-0731 --no-extensions --no-skills --no-rules; Phase 1 then Phase 2; commit all.
-  Qwen second: git checkout -b ab/qwen-cal7207 1f680c659 ; open OMP with pod-qwen/qwen3.8-27b-bf16 (same flags);
-               Phase 1 then Phase 2; commit all. Restore afterwards: git checkout <branch in web-3-original-branch.txt>.
-  (web-1 holds the Claude PR branch bug/CAL-7207-pinned-chat-ordering — never touch it.)
-Paste the prompt below verbatim; same follow-ups to both models in the same order. Do NOT paste the prototype link —
-Phase 1 is the models' own design.
-
 ---- PROMPT (Phase 1) ----
 
 I need a UX design for a change in this app's chat sidebar. Read the ticket below, look at the existing chat
@@ -44,9 +35,4 @@ Users also have no way to rearrange their pinned chats. Rather than leaving drag
 
 ---- END PROMPT ----
 
-Blind pick: after both models finish, I (orchestrator) copy the six mocks to a neutral folder as A1..A3 / B1..B3 with
-the model mapping hidden, Jason opens them in a browser and picks one per set; mapping revealed after. Recorded as
-subjective/illustrative per SCORING §2C.
-
-Phase 2 prompt = D:\dev\ab-tasks\_briefs\deeweb\brief.md (the full ticket incl. Tasks + Notes, the agreed direction),
-run in the SAME worktree after resetting any mock files (git clean -fd), scored by the 9-criteria checklist.
+Phase 2 uses the full ticket brief in tasks/deeweb/brief.md; blind pick procedure per SCORING §2C.

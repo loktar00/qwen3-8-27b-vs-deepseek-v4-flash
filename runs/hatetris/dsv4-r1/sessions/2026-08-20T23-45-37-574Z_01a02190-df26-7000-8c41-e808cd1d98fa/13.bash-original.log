@@ -1,0 +1,56 @@
+diff --git a/src/components/Game/logic.ts b/src/components/Game/logic.ts
+index 928e996..babaefa 100644
+--- a/src/components/Game/logic.ts
++++ b/src/components/Game/logic.ts
+@@ -335,7 +335,13 @@ export const getLogic = ({
+     // row (bar - 1), so there is only one line which we need to check.
+     const gameIsOver = nextWellState.core.well[bar - 1] !== 0
+ 
+-    const nextMode = gameIsOver ? 'GAME_OVER' : mode
++    // If a replay runs out of moves without ending the game, hand control back
++    // to the player so they aren't stuck in replay mode.
++    const nextMode = gameIsOver
++      ? 'GAME_OVER'
++      : mode === 'REPLAYING' && !(nextWellStateId in nextReplay)
++        ? 'PLAYING'
++        : mode
+ 
+     // no live piece? make a new one
+     // suited to the new world, of course
+diff --git a/test/components/Game/Game.test.tsx b/test/components/Game/Game.test.tsx
+index c297b35..b0e56c3 100644
+--- a/test/components/Game/Game.test.tsx
++++ b/test/components/Game/Game.test.tsx
+@@ -375,6 +375,32 @@ describe('<Game>', () => {
+     warn.restore()
+   })
+ 
++  it('lets you carry on playing after an incomplete replay ends', async () => {
++    const game = renderGame()
++
++    // Replay is an incomplete game: a single "down" move
++    const prompt = sinon.stub(window, 'prompt')
++    prompt.returns('D')
++    await user.click(screen.getByTestId('replay-button'))
++    assert.deepEqual(prompt.getCalls().map(call => call.args), [
++      ['Paste replay string...']
++    ])
++    prompt.restore()
++
++    // Play the single replay step
++    await advanceReplaySteps(2)
++
++    // Not stuck in replay mode; the user can carry on playing
++    assert.equal(screen.queryAllByTestId('bottom').length, 0)
++    assert.equal(screen.queryAllByTestId('down').length, 1)
++
++    // And the user can actually continue playing
++    await user.click(screen.getByTestId('down'))
++    assert.equal(screen.queryAllByTestId(/well__cell--live/).length, 4)
++
++    game.unmount()
++  })
++
+   it('lets you undo and stops replaying when a replay is in progress', async () => {
+     const game = renderGame()
+ 

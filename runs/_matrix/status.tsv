@@ -1,11 +1,11 @@
 task	label	state	start	end	last_driver_log_line
-radix	qwen-r1	running	2026-08-20T18:22:27		[18:22:52] opening: pod-qwen/qwen3.8-27b-bf16 on radix
+radix	qwen-r1	running	2026-08-20T18:22:27		[18:44:30] turn 2: Your change should not alter behavior when no forwardedRef is passed. Confirm with a test.
 radix	qwen-r2	running	2026-08-20T18:22:27		[18:22:52] opening: pod-qwen/qwen3.8-27b-bf16 on radix
-radix	qwen-med-r1	running	2026-08-20T18:22:27		[18:22:52] opening: pod-qwen-medium/qwen3.8-27b-bf16 on radix
+radix	qwen-med-r1	running	2026-08-20T18:22:27		[18:40:14] turn 2: Your change should not alter behavior when no forwardedRef is passed. Confirm with a test.
 radix	qwen-med-r2	running	2026-08-20T18:22:27		[18:22:52] opening: pod-qwen-medium/qwen3.8-27b-bf16 on radix
-anyio	qwen-r1	running	2026-08-20T18:22:27		[18:23:03] opening: pod-qwen/qwen3.8-27b-bf16 on anyio
-anyio	qwen-r2	queued			
-anyio	qwen-med-r1	running	2026-08-20T18:22:27		[18:23:03] opening: pod-qwen-medium/qwen3.8-27b-bf16 on anyio
+anyio	qwen-r1	done	2026-08-20T18:22:27	2026-08-20T18:40:09	[18:40:09] DONE anyio/qwen-r1 -> /d/dev/ab-tasks/_runs/anyio/qwen-r1
+anyio	qwen-r2	running	2026-08-20T18:40:09		[18:40:41] opening: pod-qwen/qwen3.8-27b-bf16 on anyio
+anyio	qwen-med-r1	running	2026-08-20T18:22:27		[18:47:18] turn 2: Does your fix also hold when total_tokens is raised while tasks are waiting? Add a test for that path.
 anyio	qwen-med-r2	queued			
 hatetris	qwen-r1	queued			
 hatetris	qwen-r2	queued			

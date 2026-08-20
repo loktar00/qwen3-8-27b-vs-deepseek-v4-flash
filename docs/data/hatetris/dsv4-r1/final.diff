@@ -1,0 +1,60 @@
+diff --git a/src/components/Game/Game.tsx b/src/components/Game/Game.tsx
+index d6e4cfa..700b19f 100644
+--- a/src/components/Game/Game.tsx
++++ b/src/components/Game/Game.tsx
+@@ -249,6 +249,12 @@ class Game extends React.Component<GameProps, GameState> {
+ 
+       if (wellStateId + 1 in replay) {
+         nextReplayTimeoutId = setTimeout(this.handleReplayTimeout, replayTimeout)
++      } else if (this.state.mode === 'REPLAYING') {
++        // Replay is over but the game is not; hand control back to the player.
++        // (If the game IS over, `handleMove` will have set mode to `GAME_OVER`.)
++        this.setState({
++          mode: 'PLAYING'
++        })
+       }
+     } else {
+       console.warn('Ignoring input replay step because mode is', mode)
+diff --git a/test/components/Game/Game.test.tsx b/test/components/Game/Game.test.tsx
+index c297b35..b88e52b 100644
+--- a/test/components/Game/Game.test.tsx
++++ b/test/components/Game/Game.test.tsx
+@@ -394,4 +394,38 @@ describe('<Game>', () => {
+     // TODO: assert that `wellStateId` is now decremented?
+     game.unmount()
+   })
++
++  it('lets you carry on playing when a replay ends before the game is over', async () => {
++    const game = renderGame()
++
++    // Replay is an incomplete game
++    const prompt = sinon.stub(window, 'prompt')
++    prompt.returns('AAAA AAAA AAAA')
++    await user.click(screen.getByTestId('replay-button'))
++    assert.deepEqual(prompt.getCalls().map(call => call.args), [
++      ['Paste replay string...']
++    ])
++    prompt.restore()
++
++    // Still replaying while the replay is in progress
++    assert.equal(screen.queryAllByTestId('down').length, 0)
++
++    // Play beyond the end of the supplied replay
++    await advanceReplaySteps(30)
++
++    // Now the replay is over but the game is not; the player can take over
++    assert.equal(screen.queryAllByTestId('down').length, 1)
++
++    // The replayed moves are preserved: pieces have been dropped into the well
++    const landedBefore = screen.queryAllByTestId('well__cell well__cell--landed').length
++    assert.ok(landedBefore > 0, 'expected the replayed moves to have dropped pieces')
++
++    // and the player can keep playing from that same state
++    const liveBefore = screen.queryAllByTestId('well__cell well__cell--live').length
++    await user.keyboard('{Left}')
++    assert.equal(screen.queryAllByTestId('well__cell well__cell--live').length, liveBefore)
++    assert.equal(screen.queryAllByTestId('well__cell well__cell--landed').length, landedBefore)
++
++    game.unmount()
++  })
+ })

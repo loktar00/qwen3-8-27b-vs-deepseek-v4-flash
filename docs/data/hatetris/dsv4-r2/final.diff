@@ -1,0 +1,125 @@
+diff --git a/src/components/Game/Game.tsx b/src/components/Game/Game.tsx
+index d6e4cfa..e384e5a 100644
+--- a/src/components/Game/Game.tsx
++++ b/src/components/Game/Game.tsx
+@@ -129,7 +129,9 @@ class Game extends React.Component<GameProps, GameState> {
+   }
+ 
+   async handleMove (move: string) {
+-    this.setState(await this.logic.handleMove(this.state, move))
++    const nextState = await this.logic.handleMove(this.state, move)
++    this.setState(nextState)
++    return nextState
+   }
+ 
+   handleClickStart = async () => {
+@@ -242,19 +244,34 @@ class Game extends React.Component<GameProps, GameState> {
+       wellStateId
+     } = this.state
+ 
++    let nextMode
+     let nextReplayTimeoutId
+ 
+     if (mode === 'REPLAYING') {
+-      await this.handleRedo()
++      // This is only reached while `wellStateId` is a replay index, so
++      // `handleRedo` always plays a move and always returns a new state.
++      const result = await this.handleRedo()
++      const gameIsOver = result!.mode === 'GAME_OVER'
++      const moreSteps = wellStateId + 1 in replay
+ 
+-      if (wellStateId + 1 in replay) {
++      if (moreSteps) {
+         nextReplayTimeoutId = setTimeout(this.handleReplayTimeout, replayTimeout)
+       }
++
++      // Keep replaying if there are more steps; otherwise hand control back to
++      // the player. Either way, if the game is over, stay on the game over
++      // screen rather than getting stuck in replay mode.
++      nextMode = gameIsOver
++        ? 'GAME_OVER'
++        : moreSteps
++          ? mode
++          : 'PLAYING'
+     } else {
+       console.warn('Ignoring input replay step because mode is', mode)
+     }
+ 
+     this.setState({
++      mode: nextMode ?? mode,
+       replayTimeoutId: nextReplayTimeoutId
+     })
+   }
+@@ -329,7 +346,7 @@ class Game extends React.Component<GameProps, GameState> {
+ 
+     if (mode === 'PLAYING' || mode === 'REPLAYING') {
+       if (wellStateId in replay) {
+-        await this.handleMove(replay[wellStateId])
++        return await this.handleMove(replay[wellStateId])
+       } else {
+         console.warn('Ignoring redo event because end of history has been reached')
+       }
+diff --git a/test/components/Game/Game.test.tsx b/test/components/Game/Game.test.tsx
+index c297b35..8863bd8 100644
+--- a/test/components/Game/Game.test.tsx
++++ b/test/components/Game/Game.test.tsx
+@@ -27,6 +27,19 @@ describe('<Game>', () => {
+     />
+   )
+ 
++  const getLiveCells = () => {
++    const cells = new Set()
++    const rows = Array.from(document.querySelectorAll('tbody tr'))
++    rows.forEach((tr, y) => {
++      Array.from(tr.children).forEach((td, x) => {
++        if (td.getAttribute('data-testid').includes('well__cell--live')) {
++          cells.add(`${y},${x}`)
++        }
++      })
++    })
++    return cells
++  }
++
+   let user: ReturnType<typeof userEvent.setup>
+ 
+   beforeEach(() => {
+@@ -394,4 +407,39 @@ describe('<Game>', () => {
+     // TODO: assert that `wellStateId` is now decremented?
+     game.unmount()
+   })
++
++  it('lets you keep playing from the replayed state after an incomplete replay ends', async () => {
++    // Reference: a fresh game with the same single move applied by hand
++    const reference = renderGame()
++    await user.click(screen.getByTestId('start-button'))
++    await user.keyboard('{Down}')
++    const expectedCells = getLiveCells()
++    reference.unmount()
++
++    // Now the same move, but supplied as an incomplete replay
++    const game = renderGame()
++    const prompt = sinon.stub(window, 'prompt')
++    prompt.returns('D')
++    await user.click(screen.getByTestId('replay-button'))
++    assert.deepEqual(prompt.getCalls().map(call => call.args), [
++      ['Paste replay string...']
++    ])
++    prompt.restore()
++
++    // Play the single replay move
++    await advanceReplaySteps(1)
++
++    // The game is not stuck in replay mode: the play controls are back
++    assert.equal(screen.queryAllByTestId('down').length, 1)
++
++    // The board is exactly the state reached by the replay, not a reset one: it
++    // matches a fresh game after the same move was applied by hand
++    assert.deepEqual(getLiveCells(), expectedCells)
++
++    // And the user can continue playing from that state
++    await user.keyboard('{Down}')
++    assert.equal(getLiveCells().size, expectedCells.size)
++
++    game.unmount()
++  })
+ })

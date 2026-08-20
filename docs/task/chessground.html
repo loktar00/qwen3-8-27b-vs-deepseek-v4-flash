@@ -377,13 +377,307 @@ window.test = () =&gt; {
   <div class="compare">
 <div class="modelcol a">
   <div class="mhead"><div class="mname">DSV4</div><div class="meffort">Max (server default)</div></div>
-  <div class="rep"><span class="na">no runs published yet</span></div>
-</div>
-<div class="modelcol b">
-  <div class="mhead"><div class="mname">Qwen</div><div class="meffort">shipped default</div></div>
-  <div class="rep"><span class="na">no runs published yet</span></div>
-</div></div>
   
+<div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">dsv4-r1</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/chessground/dsv4-r1/final.diff" target="_blank">diff</a><a class="filelink" href="data/chessground/dsv4-r1/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/chessground/dsv4-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/chessground/dsv4-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/chessground/dsv4-r1/transcript-rendered.html" target="_blank">transcript</a></div>
+  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/src/api.ts b/src/api.ts</span>
+<span class="diffline ">index 366779d..1d87a1e 100644</span>
+<span class="diffline d-hdr">--- a/src/api.ts</span>
+<span class="diffline d-hdr">+++ b/src/api.ts</span>
+<span class="diffline d-hunk">@@ -181,6 +181,7 @@ export function start(state: State, redrawAll: cg.Redraw): Api {</span>
+<span class="diffline ">     destroy(): void {</span>
+<span class="diffline ">       board.stop(state);</span>
+<span class="diffline ">       state.dom.unbind?.();</span>
+<span class="diffline d-add">+      state.dom.resizeObserver?.disconnect();</span>
+<span class="diffline ">       state.dom.destroyed = true;</span>
+<span class="diffline ">     },</span>
+<span class="diffline ">   };</span>
+<span class="diffline ">diff --git a/src/chessground.ts b/src/chessground.ts</span>
+<span class="diffline ">index bece308..1c23c10 100644</span>
+<span class="diffline d-hdr">--- a/src/chessground.ts</span>
+<span class="diffline d-hdr">+++ b/src/chessground.ts</span>
+<span class="diffline d-hunk">@@ -18,7 +18,8 @@ export function Chessground(element: HTMLElement, config?: Config): Api {</span>
+<span class="diffline ">   configure(maybeState, config || {});</span>
+<span class="diffline "> </span>
+<span class="diffline ">   function redrawAll(): State {</span>
+<span class="diffline d-del">-    const prevUnbind = &#x27;dom&#x27; in maybeState ? maybeState.dom.unbind : undefined;</span>
+<span class="diffline d-add">+    const prevDom = &#x27;dom&#x27; in maybeState ? maybeState.dom : undefined;</span>
+<span class="diffline d-add">+    const prevUnbind = prevDom?.unbind;</span>
+<span class="diffline ">     // compute bounds from existing board element if possible</span>
+<span class="diffline ">     // this allows non-square boards from CSS to be handled (for 3D)</span>
+<span class="diffline ">     const elements = renderWrap(element, maybeState),</span>
+<span class="diffline d-hunk">@@ -40,6 +41,7 @@ export function Chessground(element: HTMLElement, config?: Config): Api {</span>
+<span class="diffline ">       redraw: debounceRedraw(redrawNow),</span>
+<span class="diffline ">       redrawNow,</span>
+<span class="diffline ">       unbind: prevUnbind,</span>
+<span class="diffline d-add">+      resizeObserver: prevDom?.resizeObserver,</span>
+<span class="diffline ">     };</span>
+<span class="diffline ">     state.drawable.prevSvgHash = &#x27;&#x27;;</span>
+<span class="diffline ">     updateBounds(state);</span>
+<span class="diffline ">diff --git a/src/events.ts b/src/events.ts</span>
+<span class="diffline ">index 756dd50..2f8c2de 100644</span>
+<span class="diffline d-hdr">--- a/src/events.ts</span>
+<span class="diffline d-hdr">+++ b/src/events.ts</span>
+<span class="diffline d-hunk">@@ -11,7 +11,11 @@ type StateMouchBind = (d: State, e: cg.MouchEvent) =&gt; void;</span>
+<span class="diffline "> export function bindBoard(s: State, onResize: () =&gt; void): void {</span>
+<span class="diffline ">   const boardEl = s.dom.elements.board;</span>
+<span class="diffline "> </span>
+<span class="diffline d-del">-  if (&#x27;ResizeObserver&#x27; in window) new ResizeObserver(onResize).observe(s.dom.elements.wrap);</span>
+<span class="diffline d-add">+  if (&#x27;ResizeObserver&#x27; in window) {</span>
+<span class="diffline d-add">+    s.dom.resizeObserver?.disconnect();</span>
+<span class="diffline d-add">+    s.dom.resizeObserver = new ResizeObserver(onResize);</span>
+<span class="diffline d-add">+    s.dom.resizeObserver.observe(s.dom.elements.wrap);</span>
+<span class="diffline d-add">+  }</span>
+<span class="diffline "> </span>
+<span class="diffline ">   if (s.disableContextMenu || s.drawable.enabled) {</span>
+<span class="diffline ">     boardEl.addEventListener(&#x27;contextmenu&#x27;, e =&gt; e.preventDefault());</span>
+<span class="diffline ">diff --git a/src/types.ts b/src/types.ts</span>
+<span class="diffline ">index ebbee42..bf69d83 100644</span>
+<span class="diffline d-hdr">--- a/src/types.ts</span>
+<span class="diffline d-hdr">+++ b/src/types.ts</span>
+<span class="diffline d-hunk">@@ -53,6 +53,7 @@ export interface Dom {</span>
+<span class="diffline ">   redraw: () =&gt; void;</span>
+<span class="diffline ">   redrawNow: (skipSvg?: boolean) =&gt; void;</span>
+<span class="diffline ">   unbind?: Unbind;</span>
+<span class="diffline d-add">+  resizeObserver?: ResizeObserver;</span>
+<span class="diffline ">   destroyed?: boolean;</span>
+<span class="diffline "> }</span>
+<span class="diffline "> export interface Exploding {</span>
+<span class="diffline ">diff --git a/tests/resizeObserver.test.ts b/tests/resizeObserver.test.ts</span>
+<span class="diffline ">new file mode 100644</span>
+<span class="diffline ">index 0000000..d39fe28</span>
+<span class="diffline d-hdr">--- /dev/null</span>
+<span class="diffline d-hdr">+++ b/tests/resizeObserver.test.ts</span>
+<span class="diffline d-hunk">@@ -0,0 +1,47 @@</span>
+<span class="diffline d-add">+import { Chessground } from &#x27;../src/chessground&#x27;;</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+// jsdom has no ResizeObserver; install a fake that tracks observe/disconnect so we</span>
+<span class="diffline d-add">+// can assert the observer lifecycle independently of any DOM size change.</span>
+<span class="diffline d-add">+class FakeResizeObserver {</span>
+<span class="diffline d-add">+  static active = 0; // observers observing a target (not yet disconnected)</span>
+<span class="diffline d-add">+  target?: Element;</span>
+<span class="diffline d-add">+  observe(target: Element): void {</span>
+<span class="diffline d-add">+    this.target = target;</span>
+<span class="diffline d-add">+    FakeResizeObserver.active++;</span>
+<span class="diffline d-add">+  }</span>
+<span class="diffline d-add">+  disconnect(): void {</span>
+<span class="diffline d-add">+    if (this.target) FakeResizeObserver.active--;</span>
+<span class="diffline d-add">+    this.target = undefined;</span>
+<span class="diffline d-add">+  }</span>
+<span class="diffline d-add">+}</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+beforeEach(() =&gt; {</span>
+<span class="diffline d-add">+  (FakeResizeObserver.active as number) = 0;</span>
+<span class="diffline d-add">+  (window as unknown as { ResizeObserver: typeof FakeResizeObserver }).ResizeObserver =</span>
+<span class="diffline d-add">+    FakeResizeObserver;</span>
+<span class="diffline d-add">+});</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+test(&#x27;destroy disconnects the ResizeObserver (no leak on destroy)&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+  for (let i = 0; i &lt; 100; i++) {</span>
+<span class="diffline d-add">+    const wrap = document.createElement(&#x27;div&#x27;);</span>
+<span class="diffline d-add">+    wrap.style.cssText = &#x27;width:200px;height:200px&#x27;;</span>
+<span class="diffline d-add">+    document.body.appendChild(wrap);</span>
+<span class="diffline d-add">+    const cg = Chessground(wrap, { viewOnly: true });</span>
+<span class="diffline d-add">+    cg.destroy();</span>
+<span class="diffline d-add">+    wrap.remove();</span>
+<span class="diffline d-add">+  }</span>
+<span class="diffline d-add">+  expect(FakeResizeObserver.active).toBe(0);</span>
+<span class="diffline d-add">+});</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+test(&#x27;redrawAll disconnects the previous ResizeObserver (no leak on redraw)&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+  const wrap = document.createElement(&#x27;div&#x27;);</span>
+<span class="diffline d-add">+  wrap.style.cssText = &#x27;width:200px;height:200px&#x27;;</span>
+<span class="diffline d-add">+  document.body.appendChild(wrap);</span>
+<span class="diffline d-add">+  const cg = Chessground(wrap, { viewOnly: true });</span>
+<span class="diffline d-add">+  for (let i = 0; i &lt; 50; i++) cg.redrawAll();</span>
+<span class="diffline d-add">+  // only the current wrap is observed, all previous observers disconnected</span>
+<span class="diffline d-add">+  expect(FakeResizeObserver.active).toBe(1);</span>
+<span class="diffline d-add">+  cg.destroy();</span>
+<span class="diffline d-add">+  expect(FakeResizeObserver.active).toBe(0);</span>
+<span class="diffline d-add">+  wrap.remove();</span>
+<span class="diffline d-add">+});</span>
+<span class="diffline "></span></pre></details>
+</div>
+
+<div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">dsv4-r2</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/chessground/dsv4-r2/final.diff" target="_blank">diff</a><a class="filelink" href="data/chessground/dsv4-r2/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/chessground/dsv4-r2/driver.log" target="_blank">driver log</a><a class="filelink" href="data/chessground/dsv4-r2/install.log" target="_blank">install log</a><a class="filelink" href="data/chessground/dsv4-r2/transcript-rendered.html" target="_blank">transcript</a></div>
+  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/src/api.ts b/src/api.ts</span>
+<span class="diffline ">index 366779d..ada0d1e 100644</span>
+<span class="diffline d-hdr">--- a/src/api.ts</span>
+<span class="diffline d-hdr">+++ b/src/api.ts</span>
+<span class="diffline d-hunk">@@ -180,6 +180,7 @@ export function start(state: State, redrawAll: cg.Redraw): Api {</span>
+<span class="diffline "> </span>
+<span class="diffline ">     destroy(): void {</span>
+<span class="diffline ">       board.stop(state);</span>
+<span class="diffline d-add">+      state.dom.resizeObserver?.disconnect();</span>
+<span class="diffline ">       state.dom.unbind?.();</span>
+<span class="diffline ">       state.dom.destroyed = true;</span>
+<span class="diffline ">     },</span>
+<span class="diffline ">diff --git a/src/chessground.ts b/src/chessground.ts</span>
+<span class="diffline ">index bece308..dca62a1 100644</span>
+<span class="diffline d-hdr">--- a/src/chessground.ts</span>
+<span class="diffline d-hdr">+++ b/src/chessground.ts</span>
+<span class="diffline d-hunk">@@ -19,6 +19,7 @@ export function Chessground(element: HTMLElement, config?: Config): Api {</span>
+<span class="diffline "> </span>
+<span class="diffline ">   function redrawAll(): State {</span>
+<span class="diffline ">     const prevUnbind = &#x27;dom&#x27; in maybeState ? maybeState.dom.unbind : undefined;</span>
+<span class="diffline d-add">+    const prevResizeObserver = &#x27;dom&#x27; in maybeState ? maybeState.dom.resizeObserver : undefined;</span>
+<span class="diffline ">     // compute bounds from existing board element if possible</span>
+<span class="diffline ">     // this allows non-square boards from CSS to be handled (for 3D)</span>
+<span class="diffline ">     const elements = renderWrap(element, maybeState),</span>
+<span class="diffline d-hunk">@@ -40,6 +41,7 @@ export function Chessground(element: HTMLElement, config?: Config): Api {</span>
+<span class="diffline ">       redraw: debounceRedraw(redrawNow),</span>
+<span class="diffline ">       redrawNow,</span>
+<span class="diffline ">       unbind: prevUnbind,</span>
+<span class="diffline d-add">+      resizeObserver: prevResizeObserver,</span>
+<span class="diffline ">     };</span>
+<span class="diffline ">     state.drawable.prevSvgHash = &#x27;&#x27;;</span>
+<span class="diffline ">     updateBounds(state);</span>
+<span class="diffline ">diff --git a/src/events.ts b/src/events.ts</span>
+<span class="diffline ">index 756dd50..c641d63 100644</span>
+<span class="diffline d-hdr">--- a/src/events.ts</span>
+<span class="diffline d-hdr">+++ b/src/events.ts</span>
+<span class="diffline d-hunk">@@ -11,7 +11,11 @@ type StateMouchBind = (d: State, e: cg.MouchEvent) =&gt; void;</span>
+<span class="diffline "> export function bindBoard(s: State, onResize: () =&gt; void): void {</span>
+<span class="diffline ">   const boardEl = s.dom.elements.board;</span>
+<span class="diffline "> </span>
+<span class="diffline d-del">-  if (&#x27;ResizeObserver&#x27; in window) new ResizeObserver(onResize).observe(s.dom.elements.wrap);</span>
+<span class="diffline d-add">+  // disconnect any observer bound to a previous wrap before observing again,</span>
+<span class="diffline d-add">+  // so a full redraw doesn&#x27;t leak an observer per rebuild of the DOM</span>
+<span class="diffline d-add">+  s.dom.resizeObserver?.disconnect();</span>
+<span class="diffline d-add">+  s.dom.resizeObserver = &#x27;ResizeObserver&#x27; in window ? new ResizeObserver(onResize) : undefined;</span>
+<span class="diffline d-add">+  s.dom.resizeObserver?.observe(s.dom.elements.wrap);</span>
+<span class="diffline "> </span>
+<span class="diffline ">   if (s.disableContextMenu || s.drawable.enabled) {</span>
+<span class="diffline ">     boardEl.addEventListener(&#x27;contextmenu&#x27;, e =&gt; e.preventDefault());</span>
+<span class="diffline ">diff --git a/src/types.ts b/src/types.ts</span>
+<span class="diffline ">index ebbee42..e8a567b 100644</span>
+<span class="diffline d-hdr">--- a/src/types.ts</span>
+<span class="diffline d-hdr">+++ b/src/types.ts</span>
+<span class="diffline d-hunk">@@ -54,6 +54,7 @@ export interface Dom {</span>
+<span class="diffline ">   redrawNow: (skipSvg?: boolean) =&gt; void;</span>
+<span class="diffline ">   unbind?: Unbind;</span>
+<span class="diffline ">   destroyed?: boolean;</span>
+<span class="diffline d-add">+  resizeObserver?: ResizeObserver;</span>
+<span class="diffline "> }</span>
+<span class="diffline "> export interface Exploding {</span>
+<span class="diffline ">   stage: number;</span>
+<span class="diffline ">diff --git a/tests/dom.test.ts b/tests/dom.test.ts</span>
+<span class="diffline ">new file mode 100644</span>
+<span class="diffline ">index 0000000..30851ea</span>
+<span class="diffline d-hdr">--- /dev/null</span>
+<span class="diffline d-hdr">+++ b/tests/dom.test.ts</span>
+<span class="diffline d-hunk">@@ -0,0 +1,71 @@</span>
+<span class="diffline d-add">+import { Chessground } from &#x27;../src/chessground&#x27;;</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+// jsdom has no native ResizeObserver. Install a recording mock so we can</span>
+<span class="diffline d-add">+// assert that observers are created per board and disconnected on redraw and</span>
+<span class="diffline d-add">+// on destroy.</span>
+<span class="diffline d-add">+class MockResizeObserver {</span>
+<span class="diffline d-add">+  static instances: MockResizeObserver[] = [];</span>
+<span class="diffline d-add">+  observed = new Set&lt;Element&gt;();</span>
+<span class="diffline d-add">+  disconnected = false;</span>
+<span class="diffline d-add">+  constructor(_callback: ResizeObserverCallback) {</span>
+<span class="diffline d-add">+    MockResizeObserver.instances.push(this);</span>
+<span class="diffline d-add">+  }</span>
+<span class="diffline d-add">+  observe(el: Element): void {</span>
+<span class="diffline d-add">+    this.observed.add(el);</span>
+<span class="diffline d-add">+  }</span>
+<span class="diffline d-add">+  unobserve(el: Element): void {</span>
+<span class="diffline d-add">+    this.observed.delete(el);</span>
+<span class="diffline d-add">+  }</span>
+<span class="diffline d-add">+  disconnect(): void {</span>
+<span class="diffline d-add">+    this.disconnected = true;</span>
+<span class="diffline d-add">+    this.observed.clear();</span>
+<span class="diffline d-add">+  }</span>
+<span class="diffline d-add">+}</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+const lastInstance = (): MockResizeObserver =&gt;</span>
+<span class="diffline d-add">+  MockResizeObserver.instances[MockResizeObserver.instances.length - 1];</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+beforeEach(() =&gt; {</span>
+<span class="diffline d-add">+  MockResizeObserver.instances = [];</span>
+<span class="diffline d-add">+  vi.stubGlobal(&#x27;ResizeObserver&#x27;, MockResizeObserver);</span>
+<span class="diffline d-add">+});</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+afterEach(() =&gt; {</span>
+<span class="diffline d-add">+  vi.unstubAllGlobals();</span>
+<span class="diffline d-add">+});</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+test(&#x27;destroy disconnects the ResizeObserver&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+  const wrap = document.createElement(&#x27;div&#x27;);</span>
+<span class="diffline d-add">+  document.body.appendChild(wrap);</span>
+<span class="diffline d-add">+  const cg = Chessground(wrap, { viewOnly: true });</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  const ro = lastInstance();</span>
+<span class="diffline d-add">+  expect(ro.disconnected).toBe(false);</span>
+<span class="diffline d-add">+  expect(ro.observed.has(wrap)).toBe(true);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  cg.destroy();</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  expect(ro.disconnected).toBe(true);</span>
+<span class="diffline d-add">+  expect(ro.observed.size).toBe(0);</span>
+<span class="diffline d-add">+  wrap.remove();</span>
+<span class="diffline d-add">+});</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+test(&#x27;redraw disconnects the previous ResizeObserver&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+  const wrap = document.createElement(&#x27;div&#x27;);</span>
+<span class="diffline d-add">+  document.body.appendChild(wrap);</span>
+<span class="diffline d-add">+  const cg = Chessground(wrap, { viewOnly: true });</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  const first = lastInstance();</span>
+<span class="diffline d-add">+  cg.redrawAll();</span>
+<span class="diffline d-add">+  const second = lastInstance();</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  expect(MockResizeObserver.instances.length).toBe(2);</span>
+<span class="diffline d-add">+  expect(first.disconnected).toBe(true);</span>
+<span class="diffline d-add">+  expect(first.observed.size).toBe(0);</span>
+<span class="diffline d-add">+  expect(second.disconnected).toBe(false);</span>
+<span class="diffline d-add">+  expect(second.observed.has(wrap)).toBe(true);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  cg.destroy();</span>
+<span class="diffline d-add">+  expect(second.disconnected).toBe(true);</span>
+<span class="diffline d-add">+  wrap.remove();</span>
+<span class="diffline d-add">+});</span>
+<span class="diffline "></span></pre></details>
+</div>
+
+</div></div>
+  <h3>Session transcript</h3><div class="transcripts"><div class="tpane"><div class="thead">DSV4</div><iframe src="../data/chessground/dsv4-r1/transcript-rendered.html" loading="lazy"></iframe></div><div class="tpane"><div class="thead">DSV4</div><iframe src="../data/chessground/dsv4-r2/transcript-rendered.html" loading="lazy"></iframe></div></div>
 </div>
 
 <footer class="sitefoot">Every run, diff, log, transcript and calibration result on this site is published as generated &mdash;

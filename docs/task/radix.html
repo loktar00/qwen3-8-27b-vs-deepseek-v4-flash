@@ -379,6 +379,172 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <div class="mhead"><div class="mname">DSV4</div><div class="meffort">Max (server default)</div></div>
   
 <div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">dsv4-oc</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/radix/dsv4-oc/final.diff" target="_blank">diff</a><a class="filelink" href="data/radix/dsv4-oc/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/radix/dsv4-oc/driver.log" target="_blank">driver log</a><a class="filelink" href="data/radix/dsv4-oc/install.log" target="_blank">install log</a></div>
+  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/.changeset/dropdown-menu-trigger-ref-stability.md b/.changeset/dropdown-menu-trigger-ref-stability.md</span>
+<span class="diffline ">new file mode 100644</span>
+<span class="diffline ">index 00000000..efd87b14</span>
+<span class="diffline d-hdr">--- /dev/null</span>
+<span class="diffline d-hdr">+++ b/.changeset/dropdown-menu-trigger-ref-stability.md</span>
+<span class="diffline d-hunk">@@ -0,0 +1,5 @@</span>
+<span class="diffline d-add">+---</span>
+<span class="diffline d-add">+&#x27;@radix-ui/react-dropdown-menu&#x27;: patch</span>
+<span class="diffline d-add">+---</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+Fix `DropdownMenuTrigger` creating a new composed ref callback on every render, which could cause a &quot;Maximum update depth exceeded&quot; infinite re-render loop under React 19.</span>
+<span class="diffline ">diff --git a/.changeset/menu-subtrigger-ref-stability.md b/.changeset/menu-subtrigger-ref-stability.md</span>
+<span class="diffline ">new file mode 100644</span>
+<span class="diffline ">index 00000000..5b8ab5cc</span>
+<span class="diffline d-hdr">--- /dev/null</span>
+<span class="diffline d-hdr">+++ b/.changeset/menu-subtrigger-ref-stability.md</span>
+<span class="diffline d-hunk">@@ -0,0 +1,5 @@</span>
+<span class="diffline d-add">+---</span>
+<span class="diffline d-add">+&#x27;@radix-ui/react-menu&#x27;: patch</span>
+<span class="diffline d-add">+---</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+Fix `MenuSubTrigger` creating a new composed ref callback on every render, which could cause a &quot;Maximum update depth exceeded&quot; infinite re-render loop under React 19.</span>
+<span class="diffline ">diff --git a/.changeset/slot-ref-stability.md b/.changeset/slot-ref-stability.md</span>
+<span class="diffline ">new file mode 100644</span>
+<span class="diffline ">index 00000000..9986495a</span>
+<span class="diffline d-hdr">--- /dev/null</span>
+<span class="diffline d-hdr">+++ b/.changeset/slot-ref-stability.md</span>
+<span class="diffline d-hunk">@@ -0,0 +1,5 @@</span>
+<span class="diffline d-add">+---</span>
+<span class="diffline d-add">+&#x27;@radix-ui/react-slot&#x27;: patch</span>
+<span class="diffline d-add">+---</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+Fix `Slot` creating a new composed ref callback on every render, which caused a &quot;Maximum update depth exceeded&quot; infinite re-render loop under React 19 when a composed ref triggered a state update (e.g. a state setter used as a ref).</span>
+<span class="diffline ">diff --git a/packages/react/dropdown-menu/src/dropdown-menu-ref-stability.test.tsx b/packages/react/dropdown-menu/src/dropdown-menu-ref-stability.test.tsx</span>
+<span class="diffline ">new file mode 100644</span>
+<span class="diffline ">index 00000000..cc3f46d7</span>
+<span class="diffline d-hdr">--- /dev/null</span>
+<span class="diffline d-hdr">+++ b/packages/react/dropdown-menu/src/dropdown-menu-ref-stability.test.tsx</span>
+<span class="diffline d-hunk">@@ -0,0 +1,32 @@</span>
+<span class="diffline d-add">+import * as React from &#x27;react&#x27;;</span>
+<span class="diffline d-add">+import { render, cleanup } from &#x27;@testing-library/react&#x27;;</span>
+<span class="diffline d-add">+import { afterEach, describe, it, expect } from &#x27;vitest&#x27;;</span>
+<span class="diffline d-add">+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from &#x27;./dropdown-menu&#x27;;</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+describe(&#x27;DropdownMenuTrigger composed ref stability&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+  afterEach(cleanup);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  it(&#x27;does not cause an infinite render loop when attaching the ref triggers a render&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+    let renderCount = 0;</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    function App() {</span>
+<span class="diffline d-add">+      renderCount++;</span>
+<span class="diffline d-add">+      const [, forceRender] = React.useReducer((c) =&gt; c + 1, 0);</span>
+<span class="diffline d-add">+      const ref = React.useCallback((node: HTMLElement | null) =&gt; {</span>
+<span class="diffline d-add">+        if (node) forceRender();</span>
+<span class="diffline d-add">+      }, []);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+      return (</span>
+<span class="diffline d-add">+        &lt;DropdownMenu&gt;</span>
+<span class="diffline d-add">+          &lt;DropdownMenuTrigger ref={ref}&gt;Edit&lt;/DropdownMenuTrigger&gt;</span>
+<span class="diffline d-add">+          &lt;DropdownMenuContent&gt;</span>
+<span class="diffline d-add">+            &lt;DropdownMenuItem&gt;Copy&lt;/DropdownMenuItem&gt;</span>
+<span class="diffline d-add">+          &lt;/DropdownMenuContent&gt;</span>
+<span class="diffline d-add">+        &lt;/DropdownMenu&gt;</span>
+<span class="diffline d-add">+      );</span>
+<span class="diffline d-add">+    }</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    expect(() =&gt; render(&lt;App /&gt;)).not.toThrow();</span>
+<span class="diffline d-add">+    expect(renderCount).toBeLessThan(25);</span>
+<span class="diffline d-add">+  });</span>
+<span class="diffline d-add">+});</span>
+<span class="diffline ">diff --git a/packages/react/dropdown-menu/src/dropdown-menu.tsx b/packages/react/dropdown-menu/src/dropdown-menu.tsx</span>
+<span class="diffline ">index 8744ee76..b515093f 100644</span>
+<span class="diffline d-hdr">--- a/packages/react/dropdown-menu/src/dropdown-menu.tsx</span>
+<span class="diffline d-hdr">+++ b/packages/react/dropdown-menu/src/dropdown-menu.tsx</span>
+<span class="diffline d-hunk">@@ -1,6 +1,6 @@</span>
+<span class="diffline "> import * as React from &#x27;react&#x27;;</span>
+<span class="diffline "> import { composeEventHandlers } from &#x27;@radix-ui/primitive&#x27;;</span>
+<span class="diffline d-del">-import { composeRefs } from &#x27;@radix-ui/react-compose-refs&#x27;;</span>
+<span class="diffline d-add">+import { useComposedRefs } from &#x27;@radix-ui/react-compose-refs&#x27;;</span>
+<span class="diffline "> import { createContextScope } from &#x27;@radix-ui/react-context&#x27;;</span>
+<span class="diffline "> import { useControllableState } from &#x27;@radix-ui/react-use-controllable-state&#x27;;</span>
+<span class="diffline "> import { Primitive } from &#x27;@radix-ui/react-primitive&#x27;;</span>
+<span class="diffline d-hunk">@@ -101,6 +101,7 @@ const DropdownMenuTrigger = React.forwardRef&lt;DropdownMenuTriggerElement, Dropdow</span>
+<span class="diffline ">     const { __scopeDropdownMenu, disabled = false, ...triggerProps } = props;</span>
+<span class="diffline ">     const context = useDropdownMenuContext(TRIGGER_NAME, __scopeDropdownMenu);</span>
+<span class="diffline ">     const menuScope = useMenuScope(__scopeDropdownMenu);</span>
+<span class="diffline d-add">+    const composedRefs = useComposedRefs(forwardedRef, context.triggerRef);</span>
+<span class="diffline ">     return (</span>
+<span class="diffline ">       &lt;MenuPrimitive.Anchor asChild {...menuScope}&gt;</span>
+<span class="diffline ">         &lt;Primitive.button</span>
+<span class="diffline d-hunk">@@ -113,7 +114,7 @@ const DropdownMenuTrigger = React.forwardRef&lt;DropdownMenuTriggerElement, Dropdow</span>
+<span class="diffline ">           data-disabled={disabled ? &#x27;&#x27; : undefined}</span>
+<span class="diffline ">           disabled={disabled}</span>
+<span class="diffline ">           {...triggerProps}</span>
+<span class="diffline d-del">-          ref={composeRefs(forwardedRef, context.triggerRef)}</span>
+<span class="diffline d-add">+          ref={composedRefs}</span>
+<span class="diffline ">           onPointerDown={composeEventHandlers(props.onPointerDown, (event) =&gt; {</span>
+<span class="diffline ">             // only call handler if it&#x27;s the left button (mousedown gets triggered by all mouse buttons)</span>
+<span class="diffline ">             // but not when the control key is pressed (avoiding MacOS right click)</span>
+<span class="diffline ">diff --git a/packages/react/menu/src/menu-ref-stability.test.tsx b/packages/react/menu/src/menu-ref-stability.test.tsx</span>
+<span class="diffline ">new file mode 100644</span>
+<span class="diffline ">index 00000000..758ab68c</span>
+<span class="diffline d-hdr">--- /dev/null</span>
+<span class="diffline d-hdr">+++ b/packages/react/menu/src/menu-ref-stability.test.tsx</span>
+<span class="diffline d-hunk">@@ -0,0 +1,33 @@</span>
+<span class="diffline d-add">+import * as React from &#x27;react&#x27;;</span>
+<span class="diffline d-add">+import { render, cleanup } from &#x27;@testing-library/react&#x27;;</span>
+<span class="diffline d-add">+import { afterEach, describe, it, expect } from &#x27;vitest&#x27;;</span>
+<span class="diffline d-add">+import { Menu, MenuContent, MenuSub, MenuSubTrigger } from &#x27;./menu&#x27;;</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+describe(&#x27;MenuSubTrigger composed ref stability&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+  afterEach(cleanup);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  it(&#x27;does not cause an infinite render loop when attaching the ref triggers a render&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+    let renderCount = 0;</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    function App() {</span>
+<span class="diffline d-add">+      renderCount++;</span>
+<span class="diffline d-add">+      const [, forceRender] = React.useReducer((c) =&gt; c + 1, 0);</span>
+<span class="diffline d-add">+      const ref = React.useCallback((node: HTMLElement | null) =&gt; {</span>
+<span class="diffline d-add">+        if (node) forceRender();</span>
+<span class="diffline d-add">+      }, []);</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+      return (</span>
+<span class="diffline d-add">+        &lt;Menu modal={false}&gt;</span>
+<span class="diffline d-add">+          &lt;MenuContent forceMount&gt;</span>
+<span class="diffline d-add">+            &lt;MenuSub&gt;</span>
+<span class="diffline d-add">+              &lt;MenuSubTrigger ref={ref}&gt;Edit&lt;/MenuSubTrigger&gt;</span>
+<span class="diffline d-add">+            &lt;/MenuSub&gt;</span>
+<span class="diffline d-add">+          &lt;/MenuContent&gt;</span>
+<span class="diffline d-add">+        &lt;/Menu&gt;</span>
+<span class="diffline d-add">+      );</span>
+<span class="diffline d-add">+    }</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    expect(() =&gt; render(&lt;App /&gt;)).not.toThrow();</span>
+<span class="diffline d-add">+    expect(renderCount).toBeLessThan(25);</span>
+<span class="diffline d-add">+  });</span>
+<span class="diffline d-add">+});</span>
+<span class="diffline ">diff --git a/packages/react/menu/src/menu.tsx b/packages/react/menu/src/menu.tsx</span>
+<span class="diffline ">index dff0c1e9..2a110284 100644</span>
+<span class="diffline d-hdr">--- a/packages/react/menu/src/menu.tsx</span>
+<span class="diffline d-hdr">+++ b/packages/react/menu/sr</span>
+<span class="diffline "></span>
+<span class="diffline ">... [truncated, 6678 more characters -- see the full file]</span></pre></details>
+</div>
+
+<div class="rep">
   <div class="rep-label">rep 1 <span class="badge">dsv4-r1</span></div>
   <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
   <h4>Process</h4>

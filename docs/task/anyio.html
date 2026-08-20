@@ -426,6 +426,132 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <div class="mhead"><div class="mname">DSV4</div><div class="meffort">Max (server default)</div></div>
   
 <div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">dsv4-oc</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/anyio/dsv4-oc/final.diff" target="_blank">diff</a><a class="filelink" href="data/anyio/dsv4-oc/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/anyio/dsv4-oc/driver.log" target="_blank">driver log</a><a class="filelink" href="data/anyio/dsv4-oc/install.log" target="_blank">install log</a></div>
+  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py</span>
+<span class="diffline ">index bc7e6ab..c2ebabf 100644</span>
+<span class="diffline d-hdr">--- a/src/anyio/_backends/_asyncio.py</span>
+<span class="diffline d-hdr">+++ b/src/anyio/_backends/_asyncio.py</span>
+<span class="diffline d-hunk">@@ -2077,7 +2077,8 @@ class CapacityLimiter(BaseCapacityLimiter):</span>
+<span class="diffline "> </span>
+<span class="diffline ">         # Notify waiting tasks that they have acquired the limiter</span>
+<span class="diffline ">         while self._wait_queue and waiters_to_notify:</span>
+<span class="diffline d-del">-            event = self._wait_queue.popitem(last=False)[1]</span>
+<span class="diffline d-add">+            borrower, event = self._wait_queue.popitem(last=False)</span>
+<span class="diffline d-add">+            self._borrowers.add(borrower)</span>
+<span class="diffline ">             event.set()</span>
+<span class="diffline ">             waiters_to_notify -= 1</span>
+<span class="diffline "> </span>
+<span class="diffline d-hunk">@@ -2092,7 +2093,8 @@ class CapacityLimiter(BaseCapacityLimiter):</span>
+<span class="diffline ">     def _notify_next_waiter(self) -&gt; None:</span>
+<span class="diffline ">         &quot;&quot;&quot;Notify the next task in line if this limiter has free capacity now.&quot;&quot;&quot;</span>
+<span class="diffline ">         if self._wait_queue and len(self._borrowers) &lt; self._total_tokens:</span>
+<span class="diffline d-del">-            event = self._wait_queue.popitem(last=False)[1]</span>
+<span class="diffline d-add">+            borrower, event = self._wait_queue.popitem(last=False)</span>
+<span class="diffline d-add">+            self._borrowers.add(borrower)</span>
+<span class="diffline ">             event.set()</span>
+<span class="diffline "> </span>
+<span class="diffline ">     def acquire_nowait(self) -&gt; None:</span>
+<span class="diffline d-hunk">@@ -2124,11 +2126,10 @@ class CapacityLimiter(BaseCapacityLimiter):</span>
+<span class="diffline ">             except BaseException:</span>
+<span class="diffline ">                 self._wait_queue.pop(borrower, None)</span>
+<span class="diffline ">                 if event.is_set():</span>
+<span class="diffline d-add">+                    self._borrowers.discard(borrower)</span>
+<span class="diffline ">                     self._notify_next_waiter()</span>
+<span class="diffline "> </span>
+<span class="diffline ">                 raise</span>
+<span class="diffline d-del">-</span>
+<span class="diffline d-del">-            self._borrowers.add(borrower)</span>
+<span class="diffline ">         else:</span>
+<span class="diffline ">             try:</span>
+<span class="diffline ">                 await AsyncIOBackend.cancel_shielded_checkpoint()</span>
+<span class="diffline ">diff --git a/tests/test_synchronization.py b/tests/test_synchronization.py</span>
+<span class="diffline ">index 3ead3c2..f8d3b95 100644</span>
+<span class="diffline d-hdr">--- a/tests/test_synchronization.py</span>
+<span class="diffline d-hdr">+++ b/tests/test_synchronization.py</span>
+<span class="diffline d-hunk">@@ -993,3 +993,62 @@ class TestCapacityLimiter:</span>
+<span class="diffline ">         limiter.acquire_on_behalf_of_nowait(borrower1)</span>
+<span class="diffline ">         with pytest.raises(WouldBlock):</span>
+<span class="diffline ">             limiter.acquire_on_behalf_of_nowait(borrower2)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    async def test_nowait_does_not_steal_token_reserved_for_waiter(self) -&gt; None:</span>
+<span class="diffline d-add">+        &quot;&quot;&quot;Regression test for a token being over-granted to a nowait acquirer.</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        When a token is freed, the woken waiter has it reserved for it. A</span>
+<span class="diffline d-add">+        synchronous acquire issued before that waiter resumes must not be able to</span>
+<span class="diffline d-add">+        take the token.</span>
+<span class="diffline d-add">+        &quot;&quot;&quot;</span>
+<span class="diffline d-add">+        limiter = CapacityLimiter(1)</span>
+<span class="diffline d-add">+        limiter.acquire_on_behalf_of_nowait(&quot;A&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        async with create_task_group() as tg:</span>
+<span class="diffline d-add">+            async def waiter() -&gt; None:</span>
+<span class="diffline d-add">+                await limiter.acquire_on_behalf_of(&quot;B&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+            tg.start_soon(waiter)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+            while limiter.statistics().tasks_waiting != 1:</span>
+<span class="diffline d-add">+                await wait_all_tasks_blocked()</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+            limiter.release_on_behalf_of(&quot;A&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+            # The freed token is reserved for the woken waiter, so a nowait</span>
+<span class="diffline d-add">+            # acquire must fail rather than over-grant the limiter</span>
+<span class="diffline d-add">+            with pytest.raises(WouldBlock):</span>
+<span class="diffline d-add">+                limiter.acquire_on_behalf_of_nowait(&quot;C&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        assert limiter.borrowed_tokens &lt;= limiter.total_tokens</span>
+<span class="diffline d-add">+        assert limiter.available_tokens &gt;= 0</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    async def test_increase_tokens_does_not_steal_reserved_token(self) -&gt; None:</span>
+<span class="diffline d-add">+        &quot;&quot;&quot;Regression test for over-granting when total_tokens is raised.</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        When total_tokens is raised, the newly freed tokens are reserved for the</span>
+<span class="diffline d-add">+        woken waiters at notify time. A synchronous acquire issued before those</span>
+<span class="diffline d-add">+        waiters resume must not be able to take a token.</span>
+<span class="diffline d-add">+        &quot;&quot;&quot;</span>
+<span class="diffline d-add">+        limiter = CapacityLimiter(1)</span>
+<span class="diffline d-add">+        limiter.acquire_on_behalf_of_nowait(&quot;A&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        async with create_task_group() as tg:</span>
+<span class="diffline d-add">+            async def waiter(borrower: str) -&gt; None:</span>
+<span class="diffline d-add">+                await limiter.acquire_on_behalf_of(borrower)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+            tg.start_soon(waiter, &quot;B&quot;)</span>
+<span class="diffline d-add">+            tg.start_soon(waiter, &quot;C&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+            while limiter.statistics().tasks_waiting != 2:</span>
+<span class="diffline d-add">+                await wait_all_tasks_blocked()</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+            limiter.total_tokens = 3</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+            # Both freed tokens are reserved for the woken waiters, so a nowait</span>
+<span class="diffline d-add">+            # acquire must fail rather than over-grant the limiter</span>
+<span class="diffline d-add">+            with pytest.raises(WouldBlock):</span>
+<span class="diffline d-add">+                limiter.acquire_on_behalf_of_nowait(&quot;D&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        assert limiter.borrowed_tokens &lt;= limiter.total_tokens</span>
+<span class="diffline d-add">+        assert limiter.available_tokens &gt;= 0</span>
+<span class="diffline "></span></pre></details>
+</div>
+
+<div class="rep">
   <div class="rep-label">rep 1 <span class="badge">dsv4-r1</span></div>
   <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
   <h4>Process</h4>
@@ -443,13 +569,116 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
 
   
   
-  <div class="linkrow"><a class="filelink" href="data/anyio/dsv4-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/anyio/dsv4-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/anyio/dsv4-r1/transcript-rendered.html" target="_blank">transcript</a></div>
-  
+  <div class="linkrow"><a class="filelink" href="data/anyio/dsv4-r1/final.diff" target="_blank">diff</a><a class="filelink" href="data/anyio/dsv4-r1/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/anyio/dsv4-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/anyio/dsv4-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/anyio/dsv4-r1/transcript-rendered.html" target="_blank">transcript</a></div>
+  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py</span>
+<span class="diffline ">index bc7e6ab..658670d 100644</span>
+<span class="diffline d-hdr">--- a/src/anyio/_backends/_asyncio.py</span>
+<span class="diffline d-hdr">+++ b/src/anyio/_backends/_asyncio.py</span>
+<span class="diffline d-hunk">@@ -2072,14 +2072,13 @@ class CapacityLimiter(BaseCapacityLimiter):</span>
+<span class="diffline ">         if value &lt; 0:</span>
+<span class="diffline ">             raise ValueError(&quot;total_tokens must be &gt;= 0&quot;)</span>
+<span class="diffline "> </span>
+<span class="diffline d-del">-        waiters_to_notify = max(value - self._total_tokens, 0)</span>
+<span class="diffline ">         self._total_tokens = value</span>
+<span class="diffline "> </span>
+<span class="diffline d-del">-        # Notify waiting tasks that they have acquired the limiter</span>
+<span class="diffline d-del">-        while self._wait_queue and waiters_to_notify:</span>
+<span class="diffline d-del">-            event = self._wait_queue.popitem(last=False)[1]</span>
+<span class="diffline d-del">-            event.set()</span>
+<span class="diffline d-del">-            waiters_to_notify -= 1</span>
+<span class="diffline d-add">+        # Notify waiting tasks that they have acquired the limiter, reserving each</span>
+<span class="diffline d-add">+        # token immediately so a synchronous acquire can&#x27;t steal it before the</span>
+<span class="diffline d-add">+        # waiter resumes (same reasoning as _notify_next_waiter)</span>
+<span class="diffline d-add">+        while self._wait_queue and len(self._borrowers) &lt; self._total_tokens:</span>
+<span class="diffline d-add">+            self._notify_next_waiter()</span>
+<span class="diffline "> </span>
+<span class="diffline ">     @property</span>
+<span class="diffline ">     def borrowed_tokens(self) -&gt; int:</span>
+<span class="diffline d-hunk">@@ -2092,7 +2091,12 @@ class CapacityLimiter(BaseCapacityLimiter):</span>
+<span class="diffline ">     def _notify_next_waiter(self) -&gt; None:</span>
+<span class="diffline ">         &quot;&quot;&quot;Notify the next task in line if this limiter has free capacity now.&quot;&quot;&quot;</span>
+<span class="diffline ">         if self._wait_queue and len(self._borrowers) &lt; self._total_tokens:</span>
+<span class="diffline d-del">-            event = self._wait_queue.popitem(last=False)[1]</span>
+<span class="diffline d-add">+            borrower, event = self._wait_queue.popitem(last=False)</span>
+<span class="diffline d-add">+            # Reserve the token for this waiter immediately, so that a synchronous</span>
+<span class="diffline d-add">+            # acquire issued between now and when the waiter resumes cannot steal it.</span>
+<span class="diffline d-add">+            # This mirrors the Semaphore, which hands the freed slot directly to the</span>
+<span class="diffline d-add">+            # next waiter instead of leaving it generally available.</span>
+<span class="diffline d-add">+            self._borrowers.add(borrower)</span>
+<span class="diffline ">             event.set()</span>
+<span class="diffline "> </span>
+<span class="diffline ">     def acquire_nowait(self) -&gt; None:</span>
+<span class="diffline d-hunk">@@ -2124,6 +2128,9 @@ class CapacityLimiter(BaseCapacityLimiter):</span>
+<span class="diffline ">             except BaseException:</span>
+<span class="diffline ">                 self._wait_queue.pop(borrower, None)</span>
+<span class="diffline ">                 if event.is_set():</span>
+<span class="diffline d-add">+                    # The token was already reserved for this waiter; give it to the</span>
+<span class="diffline d-add">+                    # next task in line instead.</span>
+<span class="diffline d-add">+                    self._borrowers.discard(borrower)</span>
+<span class="diffline ">                     self._notify_next_waiter()</span>
+<span class="diffline "> </span>
+<span class="diffline ">                 raise</span>
+<span class="diffline ">diff --git a/tests/test_synchronization.py b/tests/test_synchronization.py</span>
+<span class="diffline ">index 3ead3c2..58917d6 100644</span>
+<span class="diffline d-hdr">--- a/tests/test_synchronization.py</span>
+<span class="diffline d-hdr">+++ b/tests/test_synchronization.py</span>
+<span class="diffline d-hunk">@@ -993,3 +993,50 @@ class TestCapacityLimiter:</span>
+<span class="diffline ">         limiter.acquire_on_behalf_of_nowait(borrower1)</span>
+<span class="diffline ">         with pytest.raises(WouldBlock):</span>
+<span class="diffline ">             limiter.acquire_on_behalf_of_nowait(borrower2)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    async def test_nowait_does_not_steal_reserved_token(self) -&gt; None:</span>
+<span class="diffline d-add">+        &quot;&quot;&quot;A nowait acquire must not steal a token already handed to a woken waiter.&quot;&quot;&quot;</span>
+<span class="diffline d-add">+        limiter = CapacityLimiter(1)</span>
+<span class="diffline d-add">+        limiter.acquire_on_behalf_of_nowait(&quot;A&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        async def waiter() -&gt; None:</span>
+<span class="diffline d-add">+            await limiter.acquire_on_behalf_of(&quot;B&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        async with create_task_group() as tg:</span>
+<span class="diffline d-add">+            tg.start_soon(waiter)</span>
+<span class="diffline d-add">+            while limiter.statistics().tasks_waiting != 1:</span>
+<span class="diffline d-add">+                await checkpoint()</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+            # Free the only token; this hands it to the woken waiter, which has not</span>
+<span class="diffline d-add">+            # resumed yet, so it must not be visible as available to a nowait acquire.</span>
+<span class="diffline d-add">+            limiter.release_on_behalf_of(&quot;A&quot;)</span>
+<span class="diffline d-add">+            with pytest.raises(WouldBlock):</span>
+<span class="diffline d-add">+                limiter.acquire_on_behalf_of_nowait(&quot;X&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        assert limiter.borrowed_tokens == 1</span>
+<span class="diffline d-add">+        assert limiter.borrowed_tokens &lt;= limiter.total_tokens</span>
+<span class="diffline d-add">+        assert limiter.available_tokens == 0</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    async def test_raising_total_tokens_reserves_for_waiter(self) -&gt; None:</span>
+<span class="diffline d-add">+        &quot;&quot;&quot;Raising total_tokens must reserve the new token for a woken waiter, not</span>
+<span class="diffline d-add">+        leave it stealable by a synchronous nowait acquire before the waiter resumes.&quot;&quot;&quot;</span>
+<span class="diffline d-add">+        limiter = CapacityLimiter(1)</span>
+<span class="diffline d-add">+        limiter.acquire_on_behalf_of_nowait(&quot;A&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        async def waiter() -&gt; None:</span>
+<span class="diffline d-add">+            await limiter.acquire_on_behalf_of(&quot;B&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        async with create_task_group() as tg:</span>
+<span class="diffline d-add">+            tg.start_soon(waiter)</span>
+<span class="diffline d-add">+            while limiter.statistics().tasks_waiting != 1:</span>
+<span class="diffline d-add">+                await checkpoint()</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+            # Raise the token count; this hands the new slot to the woken waiter,</span>
+<span class="diffline d-add">+            # which has not resumed yet, so it must not be available to nowait.</span>
+<span class="diffline d-add">+            limiter.total_tokens = 2</span>
+<span class="diffline d-add">+            with pytest.raises(WouldBlock):</span>
+<span class="diffline d-add">+                limiter.acquire_on_behalf_of_nowait(&quot;X&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        assert limiter.borrowed_tokens == 2</span>
+<span class="diffline d-add">+        assert limiter.borrowed_tokens &lt;= limiter.total_tokens</span>
+<span class="diffline d-add">+        assert limiter.available_tokens == 0</span>
+<span class="diffline "></span></pre></details>
 </div>
 
 <div class="rep">
   <div class="rep-label">rep 1 <span class="badge">dsv4-r2</span></div>
-  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div><div class="check-reason">model&#x27;s own test does not pass in the model&#x27;s worktree</div></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
   <h4>Process</h4>
   
 <dl class="kv">
@@ -635,7 +864,149 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
 
   
   
-  <div class="linkrow"><a class="filelink" href="data/anyio/qwen-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/anyio/qwen-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/anyio/qwen-r1/transcript-rendered.html" target="_blank">transcript</a></div>
+  <div class="linkrow"><a class="filelink" href="data/anyio/qwen-r1/final.diff" target="_blank">diff</a><a class="filelink" href="data/anyio/qwen-r1/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/anyio/qwen-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/anyio/qwen-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/anyio/qwen-r1/transcript-rendered.html" target="_blank">transcript</a></div>
+  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst</span>
+<span class="diffline ">index 98bbb70..ced3a31 100644</span>
+<span class="diffline d-hdr">--- a/docs/versionhistory.rst</span>
+<span class="diffline d-hdr">+++ b/docs/versionhistory.rst</span>
+<span class="diffline d-hunk">@@ -27,6 +27,13 @@ This library adheres to `Semantic Versioning 2.0 &lt;http://semver.org/&gt;`_.</span>
+<span class="diffline ">   ``CapacityLimiter.acquire_nowait_on_behalf_of()`` raising ``trio.WouldBlock`` instead</span>
+<span class="diffline ">   of ``anyio.WouldBlock`` on the ``trio`` backend when there are no tokens available</span>
+<span class="diffline ">   (`#1218 &lt;https://github.com/agronholm/anyio/pull/1218&gt;`_)</span>
+<span class="diffline d-add">+- Fixed ``CapacityLimiter`` on the asyncio backend over-granting tokens when a</span>
+<span class="diffline d-add">+  non-blocking acquire (``acquire_nowait()`` or ``acquire_on_behalf_of_nowait()``) was</span>
+<span class="diffline d-add">+  made in the window between a release and the woken waiter resuming: the freed token</span>
+<span class="diffline d-add">+  was visible as available even though it had already been handed to the waiter,</span>
+<span class="diffline d-add">+  allowing ``borrowed_tokens`` to exceed ``total_tokens`` and ``available_tokens`` to</span>
+<span class="diffline d-add">+  go negative. The token is now reserved for the woken waiter at notification time, so</span>
+<span class="diffline d-add">+  a non-blocking acquire correctly raises ``WouldBlock`` in that window</span>
+<span class="diffline "> </span>
+<span class="diffline "> **4.14.1**</span>
+<span class="diffline "> </span>
+<span class="diffline ">diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py</span>
+<span class="diffline ">index bc7e6ab..cb42140 100644</span>
+<span class="diffline d-hdr">--- a/src/anyio/_backends/_asyncio.py</span>
+<span class="diffline d-hdr">+++ b/src/anyio/_backends/_asyncio.py</span>
+<span class="diffline d-hunk">@@ -2077,7 +2077,8 @@ class CapacityLimiter(BaseCapacityLimiter):</span>
+<span class="diffline "> </span>
+<span class="diffline ">         # Notify waiting tasks that they have acquired the limiter</span>
+<span class="diffline ">         while self._wait_queue and waiters_to_notify:</span>
+<span class="diffline d-del">-            event = self._wait_queue.popitem(last=False)[1]</span>
+<span class="diffline d-add">+            borrower, event = self._wait_queue.popitem(last=False)</span>
+<span class="diffline d-add">+            self._borrowers.add(borrower)</span>
+<span class="diffline ">             event.set()</span>
+<span class="diffline ">             waiters_to_notify -= 1</span>
+<span class="diffline "> </span>
+<span class="diffline d-hunk">@@ -2092,7 +2093,10 @@ class CapacityLimiter(BaseCapacityLimiter):</span>
+<span class="diffline ">     def _notify_next_waiter(self) -&gt; None:</span>
+<span class="diffline ">         &quot;&quot;&quot;Notify the next task in line if this limiter has free capacity now.&quot;&quot;&quot;</span>
+<span class="diffline ">         if self._wait_queue and len(self._borrowers) &lt; self._total_tokens:</span>
+<span class="diffline d-del">-            event = self._wait_queue.popitem(last=False)[1]</span>
+<span class="diffline d-add">+            borrower, event = self._wait_queue.popitem(last=False)</span>
+<span class="diffline d-add">+            # Reserve the token for the woken waiter before waking it, so that</span>
+<span class="diffline d-add">+            # non-blocking acquires cannot steal it before the waiter resumes</span>
+<span class="diffline d-add">+            self._borrowers.add(borrower)</span>
+<span class="diffline ">             event.set()</span>
+<span class="diffline "> </span>
+<span class="diffline ">     def acquire_nowait(self) -&gt; None:</span>
+<span class="diffline d-hunk">@@ -2124,11 +2128,10 @@ class CapacityLimiter(BaseCapacityLimiter):</span>
+<span class="diffline ">             except BaseException:</span>
+<span class="diffline ">                 self._wait_queue.pop(borrower, None)</span>
+<span class="diffline ">                 if event.is_set():</span>
+<span class="diffline d-add">+                    self._borrowers.remove(borrower)</span>
+<span class="diffline ">                     self._notify_next_waiter()</span>
+<span class="diffline "> </span>
+<span class="diffline ">                 raise</span>
+<span class="diffline d-del">-</span>
+<span class="diffline d-del">-            self._borrowers.add(borrower)</span>
+<span class="diffline ">         else:</span>
+<span class="diffline ">             try:</span>
+<span class="diffline ">                 await AsyncIOBackend.cancel_shielded_checkpoint()</span>
+<span class="diffline ">diff --git a/tests/test_synchronization.py b/tests/test_synchronization.py</span>
+<span class="diffline ">index 3ead3c2..bbf4363 100644</span>
+<span class="diffline d-hdr">--- a/tests/test_synchronization.py</span>
+<span class="diffline d-hdr">+++ b/tests/test_synchronization.py</span>
+<span class="diffline d-hunk">@@ -993,3 +993,58 @@ class TestCapacityLimiter:</span>
+<span class="diffline ">         limiter.acquire_on_behalf_of_nowait(borrower1)</span>
+<span class="diffline ">         with pytest.raises(WouldBlock):</span>
+<span class="diffline ">             limiter.acquire_on_behalf_of_nowait(borrower2)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    async def test_acquire_nowait_with_reserved_token(self) -&gt; None:</span>
+<span class="diffline d-add">+        # A non-blocking acquire must not steal a token that has already been</span>
+<span class="diffline d-add">+        # reserved for a woken (but not yet resumed) waiter</span>
+<span class="diffline d-add">+        limiter = CapacityLimiter(1)</span>
+<span class="diffline d-add">+        limiter.acquire_on_behalf_of_nowait(&quot;A&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        async def waiter() -&gt; None:</span>
+<span class="diffline d-add">+            try:</span>
+<span class="diffline d-add">+                await limiter.acquire_on_behalf_of(&quot;B&quot;)</span>
+<span class="diffline d-add">+            finally:</span>
+<span class="diffline d-add">+                limiter.release_on_behalf_of(&quot;B&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        async with create_task_group() as tg:</span>
+<span class="diffline d-add">+            tg.start_soon(waiter)</span>
+<span class="diffline d-add">+            await wait_all_tasks_blocked()</span>
+<span class="diffline d-add">+            assert limiter.statistics().tasks_waiting == 1</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+            # Free the token. The waiter is woken and the token is reserved</span>
+<span class="diffline d-add">+            # for it, so a non-blocking acquire in this window must fail.</span>
+<span class="diffline d-add">+            limiter.release_on_behalf_of(&quot;A&quot;)</span>
+<span class="diffline d-add">+            with pytest.raises(WouldBlock):</span>
+<span class="diffline d-add">+                limiter.acquire_on_behalf_of_nowait(&quot;X&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        assert limiter.borrowed_tokens == 0</span>
+<span class="diffline d-add">+        assert limiter.available_tokens == limiter.total_tokens</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    async def test_acquire_nowait_with_reserved_token_from_increase(self) -&gt; None:</span>
+<span class="diffline d-add">+        # A non-blocking acquire must not steal a token that has already been</span>
+<span class="diffline d-add">+        # reserved for a waiter woken by a total_tokens increase</span>
+<span class="diffline d-add">+        limiter = CapacityLimiter(1)</span>
+<span class="diffline d-add">+        limiter.acquire_on_behalf_of_nowait(&quot;A&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        async def waiter() -&gt; None:</span>
+<span class="diffline d-add">+            try:</span>
+<span class="diffline d-add">+                await limiter.acquire_on_behalf_of(&quot;B&quot;)</span>
+<span class="diffline d-add">+            finally:</span>
+<span class="diffline d-add">+                limiter.release_on_behalf_of(&quot;B&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        async with create_task_group() as tg:</span>
+<span class="diffline d-add">+            tg.start_soon(waiter)</span>
+<span class="diffline d-add">+            await wait_all_tasks_blocked()</span>
+<span class="diffline d-add">+            assert limiter.statistics().tasks_waiting == 1</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+            # Wakes the waiter and reserves a token for it, so a</span>
+<span class="diffline d-add">+            # non-blocking acquire in this window must fail even though the</span>
+<span class="diffline d-add">+            # total capacity is larger than the number of resumed borrowers</span>
+<span class="diffline d-add">+            limiter.total_tokens = 2</span>
+<span class="diffline d-add">+            assert limiter.available_tokens == 0</span>
+<span class="diffline d-add">+            with pytest.raises(WouldBlock):</span>
+<span class="diffline d-add">+                limiter.acquire_on_behalf_of_nowait(&quot;X&quot;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+        limiter.release_on_behalf_of(&quot;A&quot;)</span>
+<span class="diffline d-add">+        assert limiter.borrowed_tokens == 0</span>
+<span class="diffline d-add">+        assert limiter.available_tokens == limiter.total_tokens</span>
+<span class="diffline "></span></pre></details>
+</div>
+
+<div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">qwen-r2</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/anyio/qwen-r2/driver.log" target="_blank">driver log</a><a class="filelink" href="data/anyio/qwen-r2/install.log" target="_blank">install log</a><a class="filelink" href="data/anyio/qwen-r2/transcript-rendered.html" target="_blank">transcript</a></div>
   
 </div>
 

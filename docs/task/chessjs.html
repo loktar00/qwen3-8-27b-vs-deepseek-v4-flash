@@ -366,27 +366,171 @@ chess.moves({ square: &#x27;h8&#x27;, verbose: true }))</code></pre>
   <div class="compare">
 <div class="modelcol a">
   <div class="mhead"><div class="mname">DSV4</div><div class="meffort">Max (server default)</div></div>
-  <div class="rep"><span class="na">no runs published yet</span></div>
+  
+<div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">dsv4-r1</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Repro test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div><div class="check-reason">model&#x27;s own test does not pass in the model&#x27;s worktree</div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/chessjs/dsv4-r1/final.diff" target="_blank">diff</a><a class="filelink" href="data/chessjs/dsv4-r1/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/chessjs/dsv4-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/chessjs/dsv4-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/chessjs/dsv4-r1/transcript-rendered.html" target="_blank">transcript</a></div>
+  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/__tests__/regression.test.ts b/__tests__/regression.test.ts</span>
+<span class="diffline ">index e77035a..1152ad3 100644</span>
+<span class="diffline d-hdr">--- a/__tests__/regression.test.ts</span>
+<span class="diffline d-hdr">+++ b/__tests__/regression.test.ts</span>
+<span class="diffline d-hunk">@@ -308,4 +308,12 @@ describe(&#x27;Regression Tests&#x27;, () =&gt; {</span>
+<span class="diffline ">     const chess = new Chess(&#x27;kb4r1/p2n3P/1PP5/1P6/8/8/6p1/R3KR2 b KQkq - 0 19&#x27;)</span>
+<span class="diffline ">     expect(chess.isGameOver()).toBe(false) // this was crashing due to invalid castling moves being generated</span>
+<span class="diffline ">   })</span>
+<span class="diffline d-del">-})</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  it(&#x27;does not generate off-board pawn moves on the back ranks (BigInt crash)&#x27;, () =&gt; {</span>
+<span class="diffline d-add">+    // white pawn on h8 / black pawn on a1 - forward square is off-board</span>
+<span class="diffline d-add">+    const white = new Chess()</span>
+<span class="diffline d-add">+    white.put({ type: &#x27;p&#x27;, color: &#x27;w&#x27; }, &#x27;h8&#x27;)</span>
+<span class="diffline d-add">+    white.put({ type: &#x27;p&#x27;, color: &#x27;b&#x27; }, &#x27;a1&#x27;)</span>
+<span class="diffline d-add">+    white.turn = &#x27;w&#x27;</span>
+<span class="diffline d-add">+    expect(() =&gt; white.moves({ square: &#x27;h8&#x27;, verbose: true })&lt;/parameter&gt;</span>
+<span class="diffline d-add">+</span>
+<span class="diffline ">diff --git a/repro.ts b/repro.ts</span>
+<span class="diffline ">new file mode 100644</span>
+<span class="diffline ">index 0000000..9eece00</span>
+<span class="diffline d-hdr">--- /dev/null</span>
+<span class="diffline d-hdr">+++ b/repro.ts</span>
+<span class="diffline d-hunk">@@ -0,0 +1,10 @@</span>
+<span class="diffline d-add">+import { Chess } from &#x27;./src/chess&#x27;</span>
+<span class="diffline d-add">+const chess = new Chess()</span>
+<span class="diffline d-add">+chess.put({ type: &#x27;p&#x27;, color: &#x27;w&#x27; }, &#x27;h8&#x27;)</span>
+<span class="diffline d-add">+try {</span>
+<span class="diffline d-add">+  const m = chess.moves({ square: &#x27;h8&#x27;, verbose: true })</span>
+<span class="diffline d-add">+  console.log(&#x27;moves:&#x27;, m)</span>
+<span class="diffline d-add">+} catch (e) {</span>
+<span class="diffline d-add">+  console.log(&#x27;ERROR:&#x27;, e.message)</span>
+<span class="diffline d-add">+  console.log(e.stack)</span>
+<span class="diffline d-add">+}</span>
+<span class="diffline ">diff --git a/repro2.ts b/repro2.ts</span>
+<span class="diffline ">new file mode 100644</span>
+<span class="diffline ">index 0000000..d1a0872</span>
+<span class="diffline d-hdr">--- /dev/null</span>
+<span class="diffline d-hdr">+++ b/repro2.ts</span>
+<span class="diffline d-hunk">@@ -0,0 +1,10 @@</span>
+<span class="diffline d-add">+import { Chess, PAWN_OFFSETS } from &#x27;./src/chess&#x27;</span>
+<span class="diffline d-add">+const chess = new Chess()</span>
+<span class="diffline d-add">+chess.put({ type: &#x27;p&#x27;, color: &#x27;w&#x27; }, &#x27;h8&#x27;)</span>
+<span class="diffline d-add">+// manually trace pawn move gen for h8</span>
+<span class="diffline d-add">+const us = &#x27;w&#x27;</span>
+<span class="diffline d-add">+const from = 119 // h8</span>
+<span class="diffline d-add">+for (let j = 0; j &lt; 4; j++) {</span>
+<span class="diffline d-add">+  const to = from + PAWN_OFFSETS[us][j]</span>
+<span class="diffline d-add">+  console.log(&#x27;offset&#x27;, j, &#x27;to=&#x27;, to, &#x27;hex&#x27;, to.toString(16), &#x27;0x88?&#x27;, to &amp; 0x88, &#x27;onBoard?&#x27;, !(to &amp; 0x88))</span>
+<span class="diffline d-add">+}</span>
+<span class="diffline ">diff --git a/repro3.ts b/repro3.ts</span>
+<span class="diffline ">new file mode 100644</span>
+<span class="diffline ">index 0000000..e9f9a80</span>
+<span class="diffline d-hdr">--- /dev/null</span>
+<span class="diffline d-hdr">+++ b/repro3.ts</span>
+<span class="diffline d-hunk">@@ -0,0 +1,15 @@</span>
+<span class="diffline d-add">+import { Chess } from &#x27;./src/chess&#x27;</span>
+<span class="diffline d-add">+const chess = new Chess()</span>
+<span class="diffline d-add">+chess.put({ type: &#x27;p&#x27;, color: &#x27;w&#x27; }, &#x27;h8&#x27;)</span>
+<span class="diffline d-add">+// intercept: patch _makeMove to log</span>
+<span class="diffline d-add">+const orig = (chess as any)._makeMove</span>
+<span class="diffline d-add">+;(chess as any)._makeMove = function (move: any) {</span>
+<span class="diffline d-add">+  console.log(&#x27;making move from&#x27;, move.from, &#x27;to&#x27;, move.to, &#x27;flags&#x27;, move.flags)</span>
+<span class="diffline d-add">+  return orig.call(this, move)</span>
+<span class="diffline d-add">+}</span>
+<span class="diffline d-add">+try {</span>
+<span class="diffline d-add">+  const m = chess.moves({ square: &#x27;h8&#x27;, verbose: true })</span>
+<span class="diffline d-add">+  console.log(&#x27;moves:&#x27;, m)</span>
+<span class="diffline d-add">+} catch (e) {</span>
+<span class="diffline d-add">+  console.log(&#x27;ERROR:&#x27;, e.message)</span>
+<span class="diffline d-add">+}</span>
+<span class="diffline ">diff --git a/repro4.ts b/repro4.ts</span>
+<span class="diffline ">new file mode 100644</span>
+<span class="diffline ">index 0000000..df1553a</span>
+<span class="diffline d-hdr">--- /dev/null</span>
+<span class="diffline d-hdr">+++ b/repro4.ts</span>
+<span class="diffline d-hunk">@@ -0,0 +1,6 @@</span>
+<span class="diffline d-add">+import { Chess } from &#x27;./src/chess&#x27;</span>
+<span class="diffline d-add">+const chess = new Chess()</span>
+<span class="diffline d-add">+chess.put({ type: &#x27;p&#x27;, color: &#x27;w&#x27; }, &#x27;h8&#x27;)</span>
+<span class="diffline d-add">+console.log(&#x27;fen:&#x27;, chess.fen())</span>
+<span class="diffline d-add">+console.log(&#x27;get h8:&#x27;, chess.get(&#x27;h8&#x27;))</span>
+<span class="diffline d-add">+console.log(&#x27;get h1:&#x27;, chess.get(&#x27;h1&#x27;))</span>
+<span class="diffline ">diff --git a/repro5.ts b/repro5.ts</span>
+<span class="diffline ">new file mode 100644</span>
+<span class="diffline ">index 0000000..57ea83a</span>
+<span class="diffline d-hdr">--- /dev/null</span>
+<span class="diffline d-hdr">+++ b/repro5.ts</span>
+<span class="diffline d-hunk">@@ -0,0 +1,16 @@</span>
+<span class="diffline d-add">+import { Chess } from &#x27;./src/chess&#x27;</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+// black pawn on a1 (edge rank 1) and h1</span>
+<span class="diffline d-add">+for (const sq of [&#x27;a1&#x27;, &#x27;h1&#x27;, &#x27;a8&#x27;, &#x27;h8&#x27;]) {</span>
+<span class="diffline d-add">+  for (const [color, type] of [[&#x27;b&#x27;, &#x27;p&#x27;], [&#x27;w&#x27;, &#x27;p&#x27;]]) {</span>
+<span class="diffline d-add">+    const chess = new Chess()</span>
+<span class="diffline d-add">+    chess.turn = color as any</span>
+<span class="diffline d-add">+    chess.put({ type: type as any, color: color as any }, sq as any)</span>
+<span class="diffline d-add">+    try {</span>
+<span class="diffline d-add">+      const m = chess.moves({ square: sq as any, verbose: true })</span>
+<span class="diffline d-add">+      console.log(`black? ${color} pawn on ${sq}:`, m.map((x: any) =&gt; x.san).join(&#x27;, &#x27;) || &#x27;(none)&#x27;)</span>
+<span class="diffline d-add">+    } catch (e) {</span>
+<span class="diffline d-add">+      console.log(`ERROR ${color} pawn on ${sq}: ${e.message}`)</span>
+<span class="diffline d-add">+    }</span>
+<span class="diffline d-add">+  }</span>
+<span class="diffline d-add">+}</span>
+<span class="diffline ">diff --git a/src/chess.ts b/src/chess.ts</span>
+<span class="diffline ">index 5efdb74..2ab4a11 100644</span>
+<span class="diffline d-hdr">--- a/src/chess.ts</span>
+<span class="diffline d-hdr">+++ b/src/chess.ts</span>
+<span class="diffline d-hunk">@@ -1575,7 +1575,7 @@ export class Chess {</span>
+<span class="diffline "> </span>
+<span class="diffline ">         // single square, non-capturing</span>
+<span class="diffline ">         to = from + PAWN_OFFSETS[us][0]</span>
+<span class="diffline d-del">-        if (!this._board[to]) {</span>
+<span class="diffline d-add">+        if (!(to &amp; 0x88) &amp;&amp; !this._board[to]) {</span>
+<span class="diffline ">           addMove(moves, us, from, to, PAWN)</span>
+<span class="diffline "> </span>
+<span class="diffline ">           // double square</span>
+<span class="diffline "></span></pre></details>
 </div>
-<div class="modelcol b">
-  <div class="mhead"><div class="mname">Qwen</div><div class="meffort">shipped default</div></div>
-  <div class="rep"><span class="na">no runs published yet</span></div>
-</div></div>
+
+<div class="rep">
+  <div class="rep-label">rep 1 <span class="badge">dsv4-r2</span></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Repro test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced first</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>precision</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="data/chessjs/dsv4-r2/driver.log" target="_blank">driver log</a><a class="filelink" href="data/chessjs/dsv4-r2/install.log" target="_blank">install log</a><a class="filelink" href="data/chessjs/dsv4-r2/transcript-rendered.html" target="_blank">transcript</a></div>
   
 </div>
-<div class="section">
-  <h2>Lane C &middot; No-harness scripted human</h2>
-  <p class="lede">chess.js #577, one hidden-reference task</p>
-  <div class="compare">
-<div class="modelcol a">
-  <div class="mhead"><div class="mname">DSV4</div><div class="meffort">Max (server default)</div></div>
-  <div class="rep"><span class="na">no runs published yet</span></div>
-</div>
-<div class="modelcol b">
-  <div class="mhead"><div class="mname">Qwen</div><div class="meffort">shipped default</div></div>
-  <div class="rep"><span class="na">no runs published yet</span></div>
+
 </div></div>
-  
+  <h3>Session transcript</h3><div class="transcripts"><div class="tpane"><div class="thead">DSV4</div><iframe src="../data/chessjs/dsv4-r1/transcript-rendered.html" loading="lazy"></iframe></div><div class="tpane"><div class="thead">DSV4</div><iframe src="../data/chessjs/dsv4-r2/transcript-rendered.html" loading="lazy"></iframe></div></div>
 </div>
 
 <footer class="sitefoot">Every run, diff, log, transcript and calibration result on this site is published as generated &mdash;

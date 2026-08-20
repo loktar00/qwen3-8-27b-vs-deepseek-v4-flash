@@ -375,8 +375,68 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 
   
   
-  <div class="linkrow"><a class="filelink" href="data/hatetris/dsv4-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/hatetris/dsv4-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/hatetris/dsv4-r1/transcript-rendered.html" target="_blank">transcript</a></div>
-  
+  <div class="linkrow"><a class="filelink" href="data/hatetris/dsv4-r1/final.diff" target="_blank">diff</a><a class="filelink" href="data/hatetris/dsv4-r1/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/hatetris/dsv4-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/hatetris/dsv4-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/hatetris/dsv4-r1/transcript-rendered.html" target="_blank">transcript</a></div>
+  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/src/components/Game/Game.tsx b/src/components/Game/Game.tsx</span>
+<span class="diffline ">index d6e4cfa..700b19f 100644</span>
+<span class="diffline d-hdr">--- a/src/components/Game/Game.tsx</span>
+<span class="diffline d-hdr">+++ b/src/components/Game/Game.tsx</span>
+<span class="diffline d-hunk">@@ -249,6 +249,12 @@ class Game extends React.Component&lt;GameProps, GameState&gt; {</span>
+<span class="diffline "> </span>
+<span class="diffline ">       if (wellStateId + 1 in replay) {</span>
+<span class="diffline ">         nextReplayTimeoutId = setTimeout(this.handleReplayTimeout, replayTimeout)</span>
+<span class="diffline d-add">+      } else if (this.state.mode === &#x27;REPLAYING&#x27;) {</span>
+<span class="diffline d-add">+        // Replay is over but the game is not; hand control back to the player.</span>
+<span class="diffline d-add">+        // (If the game IS over, `handleMove` will have set mode to `GAME_OVER`.)</span>
+<span class="diffline d-add">+        this.setState({</span>
+<span class="diffline d-add">+          mode: &#x27;PLAYING&#x27;</span>
+<span class="diffline d-add">+        })</span>
+<span class="diffline ">       }</span>
+<span class="diffline ">     } else {</span>
+<span class="diffline ">       console.warn(&#x27;Ignoring input replay step because mode is&#x27;, mode)</span>
+<span class="diffline ">diff --git a/test/components/Game/Game.test.tsx b/test/components/Game/Game.test.tsx</span>
+<span class="diffline ">index c297b35..b88e52b 100644</span>
+<span class="diffline d-hdr">--- a/test/components/Game/Game.test.tsx</span>
+<span class="diffline d-hdr">+++ b/test/components/Game/Game.test.tsx</span>
+<span class="diffline d-hunk">@@ -394,4 +394,38 @@ describe(&#x27;&lt;Game&gt;&#x27;, () =&gt; {</span>
+<span class="diffline ">     // TODO: assert that `wellStateId` is now decremented?</span>
+<span class="diffline ">     game.unmount()</span>
+<span class="diffline ">   })</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  it(&#x27;lets you carry on playing when a replay ends before the game is over&#x27;, async () =&gt; {</span>
+<span class="diffline d-add">+    const game = renderGame()</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    // Replay is an incomplete game</span>
+<span class="diffline d-add">+    const prompt = sinon.stub(window, &#x27;prompt&#x27;)</span>
+<span class="diffline d-add">+    prompt.returns(&#x27;AAAA AAAA AAAA&#x27;)</span>
+<span class="diffline d-add">+    await user.click(screen.getByTestId(&#x27;replay-button&#x27;))</span>
+<span class="diffline d-add">+    assert.deepEqual(prompt.getCalls().map(call =&gt; call.args), [</span>
+<span class="diffline d-add">+      [&#x27;Paste replay string...&#x27;]</span>
+<span class="diffline d-add">+    ])</span>
+<span class="diffline d-add">+    prompt.restore()</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    // Still replaying while the replay is in progress</span>
+<span class="diffline d-add">+    assert.equal(screen.queryAllByTestId(&#x27;down&#x27;).length, 0)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    // Play beyond the end of the supplied replay</span>
+<span class="diffline d-add">+    await advanceReplaySteps(30)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    // Now the replay is over but the game is not; the player can take over</span>
+<span class="diffline d-add">+    assert.equal(screen.queryAllByTestId(&#x27;down&#x27;).length, 1)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    // The replayed moves are preserved: pieces have been dropped into the well</span>
+<span class="diffline d-add">+    const landedBefore = screen.queryAllByTestId(&#x27;well__cell well__cell--landed&#x27;).length</span>
+<span class="diffline d-add">+    assert.ok(landedBefore &gt; 0, &#x27;expected the replayed moves to have dropped pieces&#x27;)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    // and the player can keep playing from that same state</span>
+<span class="diffline d-add">+    const liveBefore = screen.queryAllByTestId(&#x27;well__cell well__cell--live&#x27;).length</span>
+<span class="diffline d-add">+    await user.keyboard(&#x27;{Left}&#x27;)</span>
+<span class="diffline d-add">+    assert.equal(screen.queryAllByTestId(&#x27;well__cell well__cell--live&#x27;).length, liveBefore)</span>
+<span class="diffline d-add">+    assert.equal(screen.queryAllByTestId(&#x27;well__cell well__cell--landed&#x27;).length, landedBefore)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    game.unmount()</span>
+<span class="diffline d-add">+  })</span>
+<span class="diffline "> })</span>
+<span class="diffline "></span></pre></details>
 </div>
 
 <div class="rep">
@@ -397,8 +457,133 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 
   
   
-  <div class="linkrow"><a class="filelink" href="data/hatetris/dsv4-r2/driver.log" target="_blank">driver log</a><a class="filelink" href="data/hatetris/dsv4-r2/install.log" target="_blank">install log</a><a class="filelink" href="data/hatetris/dsv4-r2/transcript-rendered.html" target="_blank">transcript</a></div>
-  
+  <div class="linkrow"><a class="filelink" href="data/hatetris/dsv4-r2/final.diff" target="_blank">diff</a><a class="filelink" href="data/hatetris/dsv4-r2/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/hatetris/dsv4-r2/driver.log" target="_blank">driver log</a><a class="filelink" href="data/hatetris/dsv4-r2/install.log" target="_blank">install log</a><a class="filelink" href="data/hatetris/dsv4-r2/transcript-rendered.html" target="_blank">transcript</a></div>
+  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/src/components/Game/Game.tsx b/src/components/Game/Game.tsx</span>
+<span class="diffline ">index d6e4cfa..e384e5a 100644</span>
+<span class="diffline d-hdr">--- a/src/components/Game/Game.tsx</span>
+<span class="diffline d-hdr">+++ b/src/components/Game/Game.tsx</span>
+<span class="diffline d-hunk">@@ -129,7 +129,9 @@ class Game extends React.Component&lt;GameProps, GameState&gt; {</span>
+<span class="diffline ">   }</span>
+<span class="diffline "> </span>
+<span class="diffline ">   async handleMove (move: string) {</span>
+<span class="diffline d-del">-    this.setState(await this.logic.handleMove(this.state, move))</span>
+<span class="diffline d-add">+    const nextState = await this.logic.handleMove(this.state, move)</span>
+<span class="diffline d-add">+    this.setState(nextState)</span>
+<span class="diffline d-add">+    return nextState</span>
+<span class="diffline ">   }</span>
+<span class="diffline "> </span>
+<span class="diffline ">   handleClickStart = async () =&gt; {</span>
+<span class="diffline d-hunk">@@ -242,19 +244,34 @@ class Game extends React.Component&lt;GameProps, GameState&gt; {</span>
+<span class="diffline ">       wellStateId</span>
+<span class="diffline ">     } = this.state</span>
+<span class="diffline "> </span>
+<span class="diffline d-add">+    let nextMode</span>
+<span class="diffline ">     let nextReplayTimeoutId</span>
+<span class="diffline "> </span>
+<span class="diffline ">     if (mode === &#x27;REPLAYING&#x27;) {</span>
+<span class="diffline d-del">-      await this.handleRedo()</span>
+<span class="diffline d-add">+      // This is only reached while `wellStateId` is a replay index, so</span>
+<span class="diffline d-add">+      // `handleRedo` always plays a move and always returns a new state.</span>
+<span class="diffline d-add">+      const result = await this.handleRedo()</span>
+<span class="diffline d-add">+      const gameIsOver = result!.mode === &#x27;GAME_OVER&#x27;</span>
+<span class="diffline d-add">+      const moreSteps = wellStateId + 1 in replay</span>
+<span class="diffline "> </span>
+<span class="diffline d-del">-      if (wellStateId + 1 in replay) {</span>
+<span class="diffline d-add">+      if (moreSteps) {</span>
+<span class="diffline ">         nextReplayTimeoutId = setTimeout(this.handleReplayTimeout, replayTimeout)</span>
+<span class="diffline ">       }</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+      // Keep replaying if there are more steps; otherwise hand control back to</span>
+<span class="diffline d-add">+      // the player. Either way, if the game is over, stay on the game over</span>
+<span class="diffline d-add">+      // screen rather than getting stuck in replay mode.</span>
+<span class="diffline d-add">+      nextMode = gameIsOver</span>
+<span class="diffline d-add">+        ? &#x27;GAME_OVER&#x27;</span>
+<span class="diffline d-add">+        : moreSteps</span>
+<span class="diffline d-add">+          ? mode</span>
+<span class="diffline d-add">+          : &#x27;PLAYING&#x27;</span>
+<span class="diffline ">     } else {</span>
+<span class="diffline ">       console.warn(&#x27;Ignoring input replay step because mode is&#x27;, mode)</span>
+<span class="diffline ">     }</span>
+<span class="diffline "> </span>
+<span class="diffline ">     this.setState({</span>
+<span class="diffline d-add">+      mode: nextMode ?? mode,</span>
+<span class="diffline ">       replayTimeoutId: nextReplayTimeoutId</span>
+<span class="diffline ">     })</span>
+<span class="diffline ">   }</span>
+<span class="diffline d-hunk">@@ -329,7 +346,7 @@ class Game extends React.Component&lt;GameProps, GameState&gt; {</span>
+<span class="diffline "> </span>
+<span class="diffline ">     if (mode === &#x27;PLAYING&#x27; || mode === &#x27;REPLAYING&#x27;) {</span>
+<span class="diffline ">       if (wellStateId in replay) {</span>
+<span class="diffline d-del">-        await this.handleMove(replay[wellStateId])</span>
+<span class="diffline d-add">+        return await this.handleMove(replay[wellStateId])</span>
+<span class="diffline ">       } else {</span>
+<span class="diffline ">         console.warn(&#x27;Ignoring redo event because end of history has been reached&#x27;)</span>
+<span class="diffline ">       }</span>
+<span class="diffline ">diff --git a/test/components/Game/Game.test.tsx b/test/components/Game/Game.test.tsx</span>
+<span class="diffline ">index c297b35..8863bd8 100644</span>
+<span class="diffline d-hdr">--- a/test/components/Game/Game.test.tsx</span>
+<span class="diffline d-hdr">+++ b/test/components/Game/Game.test.tsx</span>
+<span class="diffline d-hunk">@@ -27,6 +27,19 @@ describe(&#x27;&lt;Game&gt;&#x27;, () =&gt; {</span>
+<span class="diffline ">     /&gt;</span>
+<span class="diffline ">   )</span>
+<span class="diffline "> </span>
+<span class="diffline d-add">+  const getLiveCells = () =&gt; {</span>
+<span class="diffline d-add">+    const cells = new Set()</span>
+<span class="diffline d-add">+    const rows = Array.from(document.querySelectorAll(&#x27;tbody tr&#x27;))</span>
+<span class="diffline d-add">+    rows.forEach((tr, y) =&gt; {</span>
+<span class="diffline d-add">+      Array.from(tr.children).forEach((td, x) =&gt; {</span>
+<span class="diffline d-add">+        if (td.getAttribute(&#x27;data-testid&#x27;).includes(&#x27;well__cell--live&#x27;)) {</span>
+<span class="diffline d-add">+          cells.add(`${y},${x}`)</span>
+<span class="diffline d-add">+        }</span>
+<span class="diffline d-add">+      })</span>
+<span class="diffline d-add">+    })</span>
+<span class="diffline d-add">+    return cells</span>
+<span class="diffline d-add">+  }</span>
+<span class="diffline d-add">+</span>
+<span class="diffline ">   let user: ReturnType&lt;typeof userEvent.setup&gt;</span>
+<span class="diffline "> </span>
+<span class="diffline ">   beforeEach(() =&gt; {</span>
+<span class="diffline d-hunk">@@ -394,4 +407,39 @@ describe(&#x27;&lt;Game&gt;&#x27;, () =&gt; {</span>
+<span class="diffline ">     // TODO: assert that `wellStateId` is now decremented?</span>
+<span class="diffline ">     game.unmount()</span>
+<span class="diffline ">   })</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+  it(&#x27;lets you keep playing from the replayed state after an incomplete replay ends&#x27;, async () =&gt; {</span>
+<span class="diffline d-add">+    // Reference: a fresh game with the same single move applied by hand</span>
+<span class="diffline d-add">+    const reference = renderGame()</span>
+<span class="diffline d-add">+    await user.click(screen.getByTestId(&#x27;start-button&#x27;))</span>
+<span class="diffline d-add">+    await user.keyboard(&#x27;{Down}&#x27;)</span>
+<span class="diffline d-add">+    const expectedCells = getLiveCells()</span>
+<span class="diffline d-add">+    reference.unmount()</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    // Now the same move, but supplied as an incomplete replay</span>
+<span class="diffline d-add">+    const game = renderGame()</span>
+<span class="diffline d-add">+    const prompt = sinon.stub(window, &#x27;prompt&#x27;)</span>
+<span class="diffline d-add">+    prompt.returns(&#x27;D&#x27;)</span>
+<span class="diffline d-add">+    await user.click(screen.getByTestId(&#x27;replay-button&#x27;))</span>
+<span class="diffline d-add">+    assert.deepEqual(prompt.getCalls().map(call =&gt; call.args), [</span>
+<span class="diffline d-add">+      [&#x27;Paste replay string...&#x27;]</span>
+<span class="diffline d-add">+    ])</span>
+<span class="diffline d-add">+    prompt.restore()</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    // Play the single replay move</span>
+<span class="diffline d-add">+    await advanceReplaySteps(1)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    // The game is not stuck in replay mode: the play controls are back</span>
+<span class="diffline d-add">+    assert.equal(screen.queryAllByTestId(&#x27;down&#x27;).length, 1)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    // The board is exactly the state reached by the replay, not a reset one: it</span>
+<span class="diffline d-add">+    // matches a fresh game after the same move was applied by hand</span>
+<span class="diffline d-add">+    assert.deepEqual(getLiveCells(), expectedCells)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    // And the user can continue playing from that state</span>
+<span class="diffline d-add">+    await user.keyboard(&#x27;{Down}&#x27;)</span>
+<span class="diffline d-add">+    assert.equal(getLiveCells().size, expectedCells.size)</span>
+<span class="diffline d-add">+</span>
+<span class="diffline d-add">+    game.unmount()</span>
+<span class="diffline d-add">+  })</span>
+<span class="diffline "> })</span>
+<span class="diffline "></span></pre></details>
 </div>
 
 </div></div>

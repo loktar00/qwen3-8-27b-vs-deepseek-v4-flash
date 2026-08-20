@@ -1,0 +1,61 @@
+diff --git a/src/components/Game/Game.tsx b/src/components/Game/Game.tsx
+index d6e4cfa..e384e5a 100644
+--- a/src/components/Game/Game.tsx
++++ b/src/components/Game/Game.tsx
+@@ -129,7 +129,9 @@ class Game extends React.Component<GameProps, GameState> {
+   }
+ 
+   async handleMove (move: string) {
+-    this.setState(await this.logic.handleMove(this.state, move))
++    const nextState = await this.logic.handleMove(this.state, move)
++    this.setState(nextState)
++    return nextState
+   }
+ 
+   handleClickStart = async () => {
+@@ -242,19 +244,34 @@ class Game extends React.Component<GameProps, GameState> {
+       wellStateId
+     } = this.state
+ 
++    let nextMode
+     let nextReplayTimeoutId
+ 
+     if (mode === 'REPLAYING') {
+-      await this.handleRedo()
++      // This is only reached while `wellStateId` is a replay index, so
++      // `handleRedo` always plays a move and always returns a new state.
++      const result = await this.handleRedo()
++      const gameIsOver = result!.mode === 'GAME_OVER'
++      const moreSteps = wellStateId + 1 in replay
+ 
+-      if (wellStateId + 1 in replay) {
++      if (moreSteps) {
+         nextReplayTimeoutId = setTimeout(this.handleReplayTimeout, replayTimeout)
+       }
++
++      // Keep replaying if there are more steps; otherwise hand control back to
++      // the player. Either way, if the game is over, stay on the game over
++      // screen rather than getting stuck in replay mode.
++      nextMode = gameIsOver
++        ? 'GAME_OVER'
++        : moreSteps
++          ? mode
++          : 'PLAYING'
+     } else {
+       console.warn('Ignoring input replay step because mode is', mode)
+     }
+ 
+     this.setState({
++      mode: nextMode ?? mode,
+       replayTimeoutId: nextReplayTimeoutId
+     })
+   }
+@@ -329,7 +346,7 @@ class Game extends React.Component<GameProps, GameState> {
+ 
+     if (mode === 'PLAYING' || mode === 'REPLAYING') {
+       if (wellStateId in replay) {
+-        await this.handleMove(replay[wellStateId])
++        return await this.handleMove(replay[wellStateId])
+       } else {
+         console.warn('Ignoring redo event because end of history has been reached')
+       }

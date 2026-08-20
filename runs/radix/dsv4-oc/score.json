@@ -1,0 +1,87 @@
+{
+  "task": "radix",
+  "label": "dsv4-oc",
+  "worktree": "D:\\dev\\ab-tasks\\radix-dsv4-oc",
+  "run_dir": "D:\\dev\\ab-tasks\\_runs\\radix\\dsv4-oc",
+  "overall_pass": true,
+  "P1": {
+    "status": "PASS",
+    "files": [
+      "packages/react/slot/src/zz-upstream-slot-ref-stability.test.tsx"
+    ],
+    "rc": 0,
+    "cmd": "npx --no-install vitest run \"packages/react/slot/src/zz-upstream-slot-ref-stability.test.tsx\"",
+    "conflicts": [
+      "packages/react/slot/src/zz-upstream-slot-ref-stability.test.tsx"
+    ],
+    "log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-dsv4-oc\n\n\n Test Files  1 passed (1)\n      Tests  2 passed (2)\n   Start at  18:35:10\n   Duration  1.70s (transform 68ms, setup 158ms, import 301ms, tests 17ms, environment 1.00s)\n\n"
+  },
+  "P2": {
+    "status": "PASS",
+    "rc": 0,
+    "cmd": "pnpm vitest run packages/react/slot",
+    "log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-dsv4-oc\n\n\n Test Files  2 passed (2)\n      Tests  34 passed (34)\n   Start at  18:35:13\n   Duration  2.96s (transform 128ms, setup 300ms, import 591ms, tests 1.33s, environment 1.89s)\n\n"
+  },
+  "P3": {
+    "files": [
+      "packages/react/dropdown-menu/src/dropdown-menu-ref-stability.test.tsx",
+      "packages/react/menu/src/menu-ref-stability.test.tsx",
+      "packages/react/slot/src/slot-ref-stability.test.tsx",
+      "packages/react/slot/src/slot.test.tsx"
+    ],
+    "cmd": "npx --no-install vitest run \"packages/react/dropdown-menu/src/dropdown-menu-ref-stability.test.tsx\" \"packages/react/menu/src/menu-ref-stability.test.tsx\" \"packages/react/slot/src/slot-ref-stability.test.tsx\" \"packages/react/slot/src/slot.test.tsx\"",
+    "model_worktree_pass": true,
+    "model_log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-dsv4-oc\n\n\n Test Files  4 passed (4)\n      Tests  36 passed (36)\n   Start at  18:35:17\n   Duration  3.26s (transform 830ms, setup 881ms, import 2.42s, tests 1.45s, environment 4.36s)\n\n",
+    "base_worktree_fail_as_expected": true,
+    "base_sha": "bd41d038",
+    "base_log_tail": "fined\n\n+ Received:\n\"Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.\"\n\n \u276f packages/react/dropdown-menu/src/dropdown-menu-ref-stability.test.tsx:29:39\n     27|     }\n     28|\n     29|     expect(() => render(<App />)).not.toThrow();\n       |                                       ^\n     30|     expect(renderCount).toBeLessThan(25);\n     31|   });\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/10]\u23af\n\n FAIL  packages/react/menu/src/menu-ref-stability.test.tsx > MenuSubTrigger composed ref stability > does not cause an infinite render loop when attaching the ref triggers a render\n FAIL  packages/react/menu/src/menu-ref-stability.test.tsx > MenuSubTrigger composed ref stability > does not cause an infinite render loop when attaching the ref triggers a render\nAssertionError: expected [Function] to not throw an error but 'Error: Maximum update depth exceeded.\u2026' was thrown\n\n- Expected:\nundefined\n\n+ Received:\n\"Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.\"\n\n \u276f packages/react/menu/src/menu-ref-stability.test.tsx:30:39\n     28|     }\n     29|\n     30|     expect(() => render(<App />)).not.toThrow();\n       |                                       ^\n     31|     expect(renderCount).toBeLessThan(25);\n     32|   });\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[2/10]\u23af\n\n FAIL  packages/react/slot/src/slot-ref-stability.test.tsx > Slot ref stability > does not cause an infinite render loop when attaching the ref triggers a render\n FAIL  packages/react/slot/src/slot-ref-stability.test.tsx > Slot ref stability > does not cause an infinite render loop when attaching the ref triggers a render\nAssertionError: expected [Function] to not throw an error but 'Error: Maximum update depth exceeded.\u2026' was thrown\n\n- Expected:\nundefined\n\n+ Received:\n\"Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.\"\n\n \u276f packages/react/slot/src/slot-ref-stability.test.tsx:27:39\n     25|     }\n     26|\n     27|     expect(() => render(<App />)).not.toThrow();\n       |                                       ^\n     28|     expect(renderCount).toBeLessThan(25);\n     29|   });\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[3/10]\u23af\n\n FAIL  packages/react/slot/src/slot-ref-stability.test.tsx > Slot ref stability > passes a single stable composed ref to the child across re-renders\n FAIL  packages/react/slot/src/slot-ref-stability.test.tsx > Slot ref stability > passes a single stable composed ref to the child across re-renders\nAssertionError: expected 3 to be 1 // Object.is equality\n\n- Expected\n+ Received\n\n- 1\n+ 3\n\n \u276f packages/react/slot/src/slot-ref-stability.test.tsx:54:32\n     52|     act(() => bump());\n     53|     act(() => bump());\n     54|     expect(refIdentities.size).toBe(1);\n       |                                ^\n     55|   });\n     56|\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[4/10]\u23af\n\n FAIL  packages/react/slot/src/slot.test.tsx > given an Input > with asChild > should only call function refs once\n FAIL  packages/react/slot/src/slot.test.tsx > given an Input > with asChild > should only call function refs once\nAssertionError: expected \"vi.fn()\" to be called 1 times, but got 7 times\n \u276f packages/react/slot/src/slot.test.tsx:219:25\n    217|       );\n    218|       await userEvent.type(screen.getByRole('textbox'), 'foo');\n    219|       expect(handleRef).toHaveBeenCalledTimes(1);\n       |                         ^\n    220|     });\n    221|   });\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[5/10]\u23af\n\n\n Test Files  4 failed (4)\n      Tests  5 failed | 31 passed (36)\n   Start at  18:35:22\n   Duration  3.23s (transform 1.06s, setup 742ms, import 3.19s, tests 1.79s, environment 3.98s)\n\n",
+    "status": "PASS"
+  },
+  "secondary": {
+    "loc_added": 177,
+    "loc_removed": 11,
+    "files_touched": [
+      ".changeset/dropdown-menu-trigger-ref-stability.md",
+      ".changeset/menu-subtrigger-ref-stability.md",
+      ".changeset/slot-ref-stability.md",
+      "packages/react/dropdown-menu/src/dropdown-menu-ref-stability.test.tsx",
+      "packages/react/dropdown-menu/src/dropdown-menu.tsx",
+      "packages/react/menu/src/menu-ref-stability.test.tsx",
+      "packages/react/menu/src/menu.tsx",
+      "packages/react/slot/src/slot-ref-stability.test.tsx",
+      "packages/react/slot/src/slot.test.tsx",
+      "packages/react/slot/src/slot.tsx"
+    ],
+    "files_touched_count": 10,
+    "non_test_files_touched": [
+      ".changeset/dropdown-menu-trigger-ref-stability.md",
+      ".changeset/menu-subtrigger-ref-stability.md",
+      ".changeset/slot-ref-stability.md",
+      "packages/react/dropdown-menu/src/dropdown-menu.tsx",
+      "packages/react/menu/src/menu.tsx",
+      "packages/react/slot/src/slot.tsx"
+    ],
+    "upstream_non_test_files": [
+      ".changeset/honest-dancers-stay.md",
+      "packages/react/slot/src/slot.tsx"
+    ],
+    "precision_subset_of_upstream": false
+  },
+  "events": {
+    "event_source": "turn-json",
+    "raw_ndjson_parse_errors": 0,
+    "tool_call_counts": {},
+    "tool_call_count_source": "tool_execution_start",
+    "test_run_tool_calls": 0,
+    "reproduced_before_first_edit": null,
+    "harness_parse_errors": 0,
+    "total_tool_errors": 0,
+    "prompt_tokens_sum": null,
+    "completion_tokens_sum": null,
+    "reasoning_tokens_sum": null,
+    "cache_read_tokens_sum": null,
+    "cache_write_tokens_sum": null,
+    "assistant_turns": null
+  },
+  "wallclock_seconds": 475
+}

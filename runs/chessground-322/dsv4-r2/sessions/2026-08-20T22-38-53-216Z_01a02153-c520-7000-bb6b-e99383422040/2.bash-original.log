@@ -1,0 +1,92 @@
+total 132827
+drwxrwxrwx 1 somebody somegroup  4096 Aug 20 18:38 .
+drwxrwxrwx 1 somebody somegroup  8192 Aug 20 18:38 ..
+-rwxrwxrwx 1 somebody somegroup    75 Aug 20 18:38 .git
+-rwxrwxrwx 1 somebody somegroup    17 Aug 20 18:38 .gitattributes
+drwxrwxrwx 1 somebody somegroup     0 Aug 20 18:38 .github
+-rwxrwxrwx 1 somebody somegroup    65 Aug 20 18:38 .gitignore
+-rwxrwxrwx 1 somebody somegroup   403 Aug 20 18:38 .oxfmtrc.json
+-rwxrwxrwx 1 somebody somegroup  4870 Aug 20 18:38 .oxlintrc.json
+-rwxrwxrwx 1 somebody somegroup 35821 Aug 20 18:38 LICENSE
+-rwxrwxrwx 1 somebody somegroup  4726 Aug 20 18:38 README.md
+drwxrwxrwx 1 somebody somegroup     0 Aug 20 18:38 assets
+-rwxrwxrwx 1 somebody somegroup  3168 Aug 20 18:38 demo.html
+drwxrwxrwx 1 somebody somegroup     0 Aug 20 18:38 dist
+drwxrwxrwx 1 somebody somegroup     0 Aug 20 18:38 node_modules
+-rwxrwxrwx 1 somebody somegroup  1757 Aug 20 18:38 package.json
+-rwxrwxrwx 1 somebody somegroup 69022 Aug 20 18:38 pnpm-lock.yaml
+-rwxrwxrwx 1 somebody somegroup    32 Aug 20 18:38 pnpm-workspace.yaml
+drwxrwxrwx 1 somebody somegroup     0 Aug 20 18:38 screenshot
+drwxrwxrwx 1 somebody somegroup     0 Aug 20 18:38 src
+drwxrwxrwx 1 somebody somegroup     0 Aug 20 18:38 tests
+-rwxrwxrwx 1 somebody somegroup   413 Aug 20 18:38 tsconfig.json
+-rwxrwxrwx 1 somebody somegroup   170 Aug 20 18:38 vitest.config.ts
+{
+  "name": "@lichess-org/chessground",
+  "version": "10.1.1",
+  "//": "version is managed by the build system",
+  "description": "lichess.org chess ui",
+  "type": "module",
+  "main": "dist/chessground.js",
+  "types": "chessground.d.ts",
+  "exports": {
+    ".": "./dist/chessground.js",
+    "./assets/*": "./assets/*",
+    "./*": "./dist/*.js"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/*"
+      ]
+    }
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1",
+    "jsdom": "^26.1.0",
+    "oxfmt": "^0.57.0",
+    "oxlint": "^1.72.0",
+    "oxlint-tsgolint": "^0.24.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.6"
+  },
+  "scripts": {
+    "prepare": "$npm_execpath run compile",
+    "compile": "tsc --sourceMap --declaration",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt",
+    "check-format": "oxfmt --check",
+    "bundle": "esbuild src/chessground.ts --bundle --format=esm --outfile=dist/chessground.min.js --minify",
+    "dist": "$npm_execpath run compile && $npm_execpath run bundle",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "files": [
+    "/dist/*.js",
+    "/dist/*.d.ts",
+    "/dist/*.js.map",
+    "/assets/*.css",
+    "/src/*.ts"
+  ],
+  "repository": "https://github.com/lichess-org/chessground",
+  "keywords": [
+    "chess",
+    "lichess",
+    "lichess.org",
+    "chessboard",
+    "ui",
+    "typescript"
+  ],
+  "author": "Lichess Team <contact@lichess.org>",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/lichess-org/chessground/issues"
+  },
+  "funding": "https://lichess.org/patron",
+  "packageManager": "pnpm@11.5.1",
+  "engines": {
+    "node": ">=22",
+    "pnpm": "11"
+  }
+}

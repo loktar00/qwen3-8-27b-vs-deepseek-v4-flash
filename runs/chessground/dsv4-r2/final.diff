@@ -1,0 +1,138 @@
+diff --git a/src/api.ts b/src/api.ts
+index 366779d..ada0d1e 100644
+--- a/src/api.ts
++++ b/src/api.ts
+@@ -180,6 +180,7 @@ export function start(state: State, redrawAll: cg.Redraw): Api {
+ 
+     destroy(): void {
+       board.stop(state);
++      state.dom.resizeObserver?.disconnect();
+       state.dom.unbind?.();
+       state.dom.destroyed = true;
+     },
+diff --git a/src/chessground.ts b/src/chessground.ts
+index bece308..dca62a1 100644
+--- a/src/chessground.ts
++++ b/src/chessground.ts
+@@ -19,6 +19,7 @@ export function Chessground(element: HTMLElement, config?: Config): Api {
+ 
+   function redrawAll(): State {
+     const prevUnbind = 'dom' in maybeState ? maybeState.dom.unbind : undefined;
++    const prevResizeObserver = 'dom' in maybeState ? maybeState.dom.resizeObserver : undefined;
+     // compute bounds from existing board element if possible
+     // this allows non-square boards from CSS to be handled (for 3D)
+     const elements = renderWrap(element, maybeState),
+@@ -40,6 +41,7 @@ export function Chessground(element: HTMLElement, config?: Config): Api {
+       redraw: debounceRedraw(redrawNow),
+       redrawNow,
+       unbind: prevUnbind,
++      resizeObserver: prevResizeObserver,
+     };
+     state.drawable.prevSvgHash = '';
+     updateBounds(state);
+diff --git a/src/events.ts b/src/events.ts
+index 756dd50..c641d63 100644
+--- a/src/events.ts
++++ b/src/events.ts
+@@ -11,7 +11,11 @@ type StateMouchBind = (d: State, e: cg.MouchEvent) => void;
+ export function bindBoard(s: State, onResize: () => void): void {
+   const boardEl = s.dom.elements.board;
+ 
+-  if ('ResizeObserver' in window) new ResizeObserver(onResize).observe(s.dom.elements.wrap);
++  // disconnect any observer bound to a previous wrap before observing again,
++  // so a full redraw doesn't leak an observer per rebuild of the DOM
++  s.dom.resizeObserver?.disconnect();
++  s.dom.resizeObserver = 'ResizeObserver' in window ? new ResizeObserver(onResize) : undefined;
++  s.dom.resizeObserver?.observe(s.dom.elements.wrap);
+ 
+   if (s.disableContextMenu || s.drawable.enabled) {
+     boardEl.addEventListener('contextmenu', e => e.preventDefault());
+diff --git a/src/types.ts b/src/types.ts
+index ebbee42..e8a567b 100644
+--- a/src/types.ts
++++ b/src/types.ts
+@@ -54,6 +54,7 @@ export interface Dom {
+   redrawNow: (skipSvg?: boolean) => void;
+   unbind?: Unbind;
+   destroyed?: boolean;
++  resizeObserver?: ResizeObserver;
+ }
+ export interface Exploding {
+   stage: number;
+diff --git a/tests/dom.test.ts b/tests/dom.test.ts
+new file mode 100644
+index 0000000..30851ea
+--- /dev/null
++++ b/tests/dom.test.ts
+@@ -0,0 +1,71 @@
++import { Chessground } from '../src/chessground';
++
++// jsdom has no native ResizeObserver. Install a recording mock so we can
++// assert that observers are created per board and disconnected on redraw and
++// on destroy.
++class MockResizeObserver {
++  static instances: MockResizeObserver[] = [];
++  observed = new Set<Element>();
++  disconnected = false;
++  constructor(_callback: ResizeObserverCallback) {
++    MockResizeObserver.instances.push(this);
++  }
++  observe(el: Element): void {
++    this.observed.add(el);
++  }
++  unobserve(el: Element): void {
++    this.observed.delete(el);
++  }
++  disconnect(): void {
++    this.disconnected = true;
++    this.observed.clear();
++  }
++}
++
++const lastInstance = (): MockResizeObserver =>
++  MockResizeObserver.instances[MockResizeObserver.instances.length - 1];
++
++beforeEach(() => {
++  MockResizeObserver.instances = [];
++  vi.stubGlobal('ResizeObserver', MockResizeObserver);
++});
++
++afterEach(() => {
++  vi.unstubAllGlobals();
++});
++
++test('destroy disconnects the ResizeObserver', () => {
++  const wrap = document.createElement('div');
++  document.body.appendChild(wrap);
++  const cg = Chessground(wrap, { viewOnly: true });
++
++  const ro = lastInstance();
++  expect(ro.disconnected).toBe(false);
++  expect(ro.observed.has(wrap)).toBe(true);
++
++  cg.destroy();
++
++  expect(ro.disconnected).toBe(true);
++  expect(ro.observed.size).toBe(0);
++  wrap.remove();
++});
++
++test('redraw disconnects the previous ResizeObserver', () => {
++  const wrap = document.createElement('div');
++  document.body.appendChild(wrap);
++  const cg = Chessground(wrap, { viewOnly: true });
++
++  const first = lastInstance();
++  cg.redrawAll();
++  const second = lastInstance();
++
++  expect(MockResizeObserver.instances.length).toBe(2);
++  expect(first.disconnected).toBe(true);
++  expect(first.observed.size).toBe(0);
++  expect(second.disconnected).toBe(false);
++  expect(second.observed.has(wrap)).toBe(true);
++
++  cg.destroy();
++  expect(second.disconnected).toBe(true);
++  wrap.remove();
++});

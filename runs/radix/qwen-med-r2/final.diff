@@ -1,0 +1,141 @@
+diff --git a/.changeset/stable-refs-slot.md b/.changeset/stable-refs-slot.md
+new file mode 100644
+index 00000000..87e6a47c
+--- /dev/null
++++ b/.changeset/stable-refs-slot.md
+@@ -0,0 +1,5 @@
++---
++'@radix-ui/react-slot': patch
++---
++
++Fixed "Maximum update depth exceeded" in React 19: `Slot` now composes the forwarded and child refs with the memoized `useComposedRefs` instead of creating a new `composeRefs` callback on every render. A new callback ref identity per render made React 19 detach and re-invoke the ref on every commit, which loops forever when the ref updates state (e.g. `useSize`, or editors such as Slate/Plate).
+diff --git a/packages/react/slot/src/slot.test.tsx b/packages/react/slot/src/slot.test.tsx
+index 7beb9bbd..3c3b5fc5 100644
+--- a/packages/react/slot/src/slot.test.tsx
++++ b/packages/react/slot/src/slot.test.tsx
+@@ -191,9 +191,7 @@ describe('given a Button with Slottable nesting', () => {
+   });
+ });
+ 
+-// TODO: Unskip when underlying issue is resolved
+-// Reverted in https://github.com/radix-ui/primitives/pull/3554
+-describe.skip('given an Input', () => {
++describe('given an Input', () => {
+   const handleRef = vi.fn();
+ 
+   beforeEach(() => {
+@@ -339,6 +337,78 @@ describe('Slot prop and ref merging (single element child)', () => {
+     expect(slotRef).toHaveBeenCalledWith(button);
+     expect(childRef).toHaveBeenCalledWith(button);
+   });
++
++  it('attaches the child ref as-is and only once when no forwarded ref is passed', () => {
++    const childRef = vi.fn();
++
++    const Probe = () => {
++      const [, forceRender] = React.useReducer((count: number) => count + 1, 0);
++      return (
++        <>
++          <button onClick={forceRender} type="button">
++            bump
++          </button>
++          <Slot>
++            <span data-testid="slotted" ref={childRef}>
++              hi
++            </span>
++          </Slot>
++        </>
++      );
++    };
++
++    render(<Probe />);
++    expect(childRef).toHaveBeenCalledTimes(1);
++    expect(childRef).toHaveBeenCalledWith(screen.getByTestId('slotted'));
++
++    // Re-rendering must not re-invoke the child ref: without a forwarded ref,
++    // the cloned element keeps the child's own ref (no composed wrapper).
++    fireEvent.click(screen.getByRole('button', { name: 'bump' }));
++    expect(childRef).toHaveBeenCalledTimes(1);
++  });
++});
++
++describe('Slot with a stateful ref and a re-rendering parent (React 19)', () => {
++  afterEach(cleanup);
++
++  const refSpy = vi.fn();
++
++  const RefLoopProbe = () => {
++    const [text, setText] = React.useState('');
++    const [size, setSize] = React.useState<{ width: number; height: number } | null>(null);
++    const ref = React.useCallback((node: HTMLElement | null) => {
++      // A fresh state value on every invocation, like `useSize` or Slate/Plate
++      // editor refs produce. Re-invoking it on every commit is what turns a
++      // per-render ref closure into an infinite update loop.
++      refSpy(node);
++      setSize(node ? { width: node.offsetWidth, height: node.offsetHeight } : null);
++    }, []);
++
++    return (
++      <>
++        <input
++          aria-label="type here"
++          onChange={(event) => setText(event.target.value)}
++          value={text}
++        />
++        <Slot ref={ref}>
++          <button type="button">hi</button>
++        </Slot>
++        <span data-testid="size">{size ? `${size.width}x${size.height}` : 'none'}</span>
++      </>
++    );
++  };
++
++  it('does not re-invoke the ref on every re-render', async () => {
++    refSpy.mockReset();
++    render(<RefLoopProbe />);
++    // Before the fix this threw "Maximum update depth exceeded": each keystroke
++    // re-rendered the tree, Slot attached a new composed ref closure, React
++    // re-invoked the ref, the ref set state, which rendered again — forever.
++    await userEvent.type(screen.getByRole('textbox', { name: 'type here' }), 'foo');
++    expect(refSpy).toHaveBeenCalledTimes(1);
++    expect(screen.getByTestId('size')).toHaveTextContent('0x0');
++  });
+ });
+ 
+ describe('Slot with non-mergeable children', () => {
+diff --git a/packages/react/slot/src/slot.tsx b/packages/react/slot/src/slot.tsx
+index acb7e7bb..91026f18 100644
+--- a/packages/react/slot/src/slot.tsx
++++ b/packages/react/slot/src/slot.tsx
+@@ -1,5 +1,5 @@
+ import * as React from 'react';
+-import { composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ 
+ declare module 'react' {
+   interface ReactElement {
+@@ -59,6 +59,15 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       slottableElement = children;
+     }
+ 
++    // Compose refs with `useComposedRefs` (memoized) rather than `composeRefs`
++    // (a fresh closure per render). A new callback ref identity on every render
++    // makes React 19 detach and re-invoke the ref on each commit, which turns a
++    // stateful ref (e.g. `useSize`, Slate/Plate editor refs) into an infinite
++    // update loop ("Maximum update depth exceeded").
++    // Must run unconditionally (rules of hooks), before the early returns below.
++    const slottableElementRef = slottableElement ? getElementRef(slottableElement) : undefined;
++    const composedRefs = useComposedRefs(forwardedRef, slottableElementRef);
++
+     if (!slottableElement) {
+       // Empty/falsy children (`null`, `undefined`, `false`, no children, etc.) are valid and
+       // render nothing. Anything else is content we couldn't slot onto a single element, which
+@@ -71,8 +80,6 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       return children;
+     }
+ 
+-    const slottableElementRef = getElementRef(slottableElement);
+-    const composedRefs = composeRefs(forwardedRef, slottableElementRef);
+     const mergedProps = mergeProps(slotProps, slottableElement.props ?? {});
+ 
+     // do not pass ref to React.Fragment for React 19 compatibility

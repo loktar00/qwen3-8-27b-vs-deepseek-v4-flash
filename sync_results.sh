@@ -11,6 +11,14 @@
 # mirroring uses Windows' built-in `robocopy` instead — see robomirror() below for
 # the exit-code handling that makes that safe to call without tripping `set -e`.
 #
+# robocopy is a native Win32 tool: it needs real "D:\..." paths, not the POSIX
+# "/d/..." form bash's own `pwd`/`dirname` produce. Both wrappers below convert
+# both src and dst through `cygpath -w` right before the robocopy call. Getting
+# this wrong is silent, not loud: robocopy given a POSIX-style destination exits
+# 1 ("success") having copied zero files — it does not error. So each wrapper
+# also does a post-copy sanity check (src has files => dst ends up non-empty)
+# and treats a false "success" that copied nothing as a real failure.
+#
 # Source of truth lives outside this repo, in the private working tree at
 # D:\dev\ab-tasks (and D:\dev\style-pilot\labs\qwen38-day0\ab for methodology).
 # This script never touches D:\devNewman (company-confidential) and never copies
@@ -28,7 +36,8 @@ set -uo pipefail
 
 # Git-for-Windows/MSYS rewrites bare "/X" args (like robocopy's /MIR, /XD) as POSIX
 # paths before exec'ing native Win32 tools. This disables that heuristic for every
-# command this script runs, which is required for every robocopy call below.
+# command this script runs; the wrappers below compensate by converting the actual
+# path arguments themselves via cygpath -w, since MSYS won't do it for us anymore.
 export MSYS_NO_PATHCONV=1
 
 SRC="D:/dev/ab-tasks"
@@ -72,6 +81,21 @@ if ! acquire_lock; then
 fi
 trap 'rm -rf "$LOCKDIR"' EXIT
 
+# Sanity check: if src has any files, dst must end up with at least one too.
+# Catches robocopy "succeeding" (exit <8) while having silently copied nothing
+# (e.g. because it was handed a POSIX-style destination it can't write to).
+verify_copied() {
+  local src="$1" dst="$2"
+  local src_n dst_n
+  src_n="$(find "$src" -type f 2>/dev/null | wc -l)"
+  dst_n="$(find "$dst" -type f 2>/dev/null | wc -l)"
+  if [ "$src_n" -gt 0 ] && [ "$dst_n" -eq 0 ]; then
+    log "VERIFY FAILED: $src has $src_n file(s) but $dst has 0 after copy"
+    return 1
+  fi
+  return 0
+}
+
 # --- robocopy wrapper: robocopy's own "success" exit codes are 0-7 (bitflags for
 # what it did), only >=8 means real failure. Wrap so callers can treat this like
 # any other command returning 0/1 under set -o pipefail without robocopy's normal
@@ -79,11 +103,14 @@ trap 'rm -rf "$LOCKDIR"' EXIT
 # so only use robomirror on dirs with no hand-authored files worth protecting. ---
 robomirror() {
   local src="$1" dst="$2"; shift 2
-  local rc=0
+  local rc=0 src_win dst_win
   mkdir -p "$dst"
-  robocopy "$src" "$dst" /MIR /NFL /NDL /NJH /NJS /NP "$@" >/dev/null 2>&1
+  src_win="$(cygpath -w "$src" 2>/dev/null || echo "$src")"
+  dst_win="$(cygpath -w "$dst" 2>/dev/null || echo "$dst")"
+  robocopy "$src_win" "$dst_win" /MIR /NFL /NDL /NJH /NJS /NP "$@" >/dev/null 2>&1
   rc=$?
   [ "$rc" -ge 8 ] && return 1
+  verify_copied "$src" "$dst" || return 1
   return 0
 }
 
@@ -91,11 +118,14 @@ robomirror() {
 # where we keep a hand-written file (e.g. a README.md) alongside synced content.
 robocopy_update() {
   local src="$1" dst="$2"; shift 2
-  local rc=0
+  local rc=0 src_win dst_win
   mkdir -p "$dst"
-  robocopy "$src" "$dst" /E /NFL /NDL /NJH /NJS /NP "$@" >/dev/null 2>&1
+  src_win="$(cygpath -w "$src" 2>/dev/null || echo "$src")"
+  dst_win="$(cygpath -w "$dst" 2>/dev/null || echo "$dst")"
+  robocopy "$src_win" "$dst_win" /E /NFL /NDL /NJH /NJS /NP "$@" >/dev/null 2>&1
   rc=$?
   [ "$rc" -ge 8 ] && return 1
+  verify_copied "$src" "$dst" || return 1
   return 0
 }
 

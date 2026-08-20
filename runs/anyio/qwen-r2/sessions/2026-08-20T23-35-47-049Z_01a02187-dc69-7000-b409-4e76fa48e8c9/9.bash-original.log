@@ -1,0 +1,70 @@
+Saved working directory and index state WIP on (no branch): 6f82b25 Refactored TestTLSStream.test_receive_invalid_max_bytes() to be less flaky
+FFFs                                                                                                                                                                                                                                                                                                    [100%]
+================================================================================================================================================== FAILURES ==================================================================================================================================================
+___________________________________________________________________________________________________________________________ TestCapacityLimiter.test_acquire_nowait_race[asyncio] ____________________________________________________________________________________________________________________________
+  + Exception Group Traceback (most recent call last):
+  |   File "D:\dev\ab-tasks\anyio-qwen-r2\tests\test_synchronization.py", line 1006, in test_acquire_nowait_race
+  |     async with create_task_group() as tg:
+  |                ^^^^^^^^^^^^^^^^^^^
+  |   File "D:\dev\ab-tasks\anyio-qwen-r2\src\anyio\_backends\_asyncio.py", line 811, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "D:\dev\ab-tasks\anyio-qwen-r2\tests\test_synchronization.py", line 1010, in test_acquire_nowait_race
+    |     assert limiter.available_tokens == 0
+    | AssertionError: assert 1 == 0
+    |  +  where 1 = <anyio._backends._asyncio.CapacityLimiter object at 0x00000235FDC6B1B0>.available_tokens
+    +------------------------------------
+_______________________________________________________________________________________________________________________ TestCapacityLimiter.test_acquire_nowait_race[asyncio+winloop] ________________________________________________________________________________________________________________________
+  + Exception Group Traceback (most recent call last):
+  |   File "D:\dev\ab-tasks\anyio-qwen-r2\tests\test_synchronization.py", line 1006, in test_acquire_nowait_race
+  |     async with create_task_group() as tg:
+  |                ^^^^^^^^^^^^^^^^^^^
+  |   File "D:\dev\ab-tasks\anyio-qwen-r2\src\anyio\_backends\_asyncio.py", line 811, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "D:\dev\ab-tasks\anyio-qwen-r2\tests\test_synchronization.py", line 1010, in test_acquire_nowait_race
+    |     assert limiter.available_tokens == 0
+    | AssertionError: assert 1 == 0
+    |  +  where 1 = <anyio._backends._asyncio.CapacityLimiter object at 0x00000235FD6767B0>.available_tokens
+    +------------------------------------
+________________________________________________________________________________________________________________________ TestCapacityLimiter.test_acquire_nowait_race[asyncio+eager] _________________________________________________________________________________________________________________________
+  + Exception Group Traceback (most recent call last):
+  |   File "D:\dev\ab-tasks\anyio-qwen-r2\tests\test_synchronization.py", line 1006, in test_acquire_nowait_race
+  |     async with create_task_group() as tg:
+  |                ^^^^^^^^^^^^^^^^^^^
+  |   File "D:\dev\ab-tasks\anyio-qwen-r2\src\anyio\_backends\_asyncio.py", line 811, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "D:\dev\ab-tasks\anyio-qwen-r2\tests\test_synchronization.py", line 1010, in test_acquire_nowait_race
+    |     assert limiter.available_tokens == 0
+    | AssertionError: assert 1 == 0
+    |  +  where 1 = <anyio._backends._asyncio.CapacityLimiter object at 0x00000235FD674AF0>.available_tokens
+    +------------------------------------
+========================================================================================================================================== short test summary info ===========================================================================================================================================
+SKIPPED [1] tests\test_synchronization.py:997: trio is not available
+FAILED tests/test_synchronization.py::TestCapacityLimiter::test_acquire_nowait_race[asyncio] - AssertionError('assert 1 == 0\n +  where 1 = <anyio._backends._asyncio.CapacityLimiter object at 0x00000235FDC6B1B0>.available_tokens') [single exception in ExceptionGroup]
+FAILED tests/test_synchronization.py::TestCapacityLimiter::test_acquire_nowait_race[asyncio+winloop] - AssertionError('assert 1 == 0\n +  where 1 = <anyio._backends._asyncio.CapacityLimiter object at 0x00000235FD6767B0>.available_tokens') [single exception in ExceptionGroup]
+FAILED tests/test_synchronization.py::TestCapacityLimiter::test_acquire_nowait_race[asyncio+eager] - AssertionError('assert 1 == 0\n +  where 1 = <anyio._backends._asyncio.CapacityLimiter object at 0x00000235FD674AF0>.available_tokens') [single exception in ExceptionGroup]
+3 failed, 1 skipped in 0.30s
+Not currently on any branch.
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	deleted:    AGENTS.md
+	deleted:    CLAUDE.md
+	modified:   src/anyio/_backends/_asyncio.py
+	modified:   tests/test_synchronization.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.venv/
+	repro.py
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (d77b6e8ad540c3992e894f9e9607505b2bfda365)

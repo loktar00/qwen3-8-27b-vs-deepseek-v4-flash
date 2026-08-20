@@ -1,0 +1,373 @@
+<title>DeepSeek V4 Flash vs Qwen3.8-27B · Methodology</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --paper:        #f6f6f3;
+  --surface:      #fcfcfa;
+  --surface-2:    #ecece7;
+  --ink:          #14171a;
+  --ink-2:        #494c50;
+  --ink-muted:    #82858a;
+  --line:         #dcdcd7;
+  --line-strong:  #bcbcb5;
+  --accent:       #0e6660;
+  --accent-ink:   #094440;
+  --accent-soft:  rgba(14,102,96,.09);
+  --model-a:      #2467b8;
+  --model-b:      #b5541c;
+  --shadow:       0 1px 2px rgba(20,23,26,.05), 0 6px 20px rgba(20,23,26,.05);
+  --radius:       7px;
+  --serif: "Source Serif 4", Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --sans:  "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Arial, sans-serif;
+  --mono:  "IBM Plex Mono", ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Liberation Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper:        #101213;
+    --surface:      #17191b;
+    --surface-2:    #1e2123;
+    --ink:          #eef0ef;
+    --ink-2:        #c2c5c3;
+    --ink-muted:    #8b8e8c;
+    --line:         #292c2d;
+    --line-strong:  #3a3d3e;
+    --accent:       #3fb2a8;
+    --accent-ink:   #bdeae4;
+    --accent-soft:  rgba(63,178,168,.14);
+    --model-a:      #6da3e0;
+    --model-b:      #e2954f;
+    --shadow:       0 1px 2px rgba(0,0,0,.35), 0 6px 20px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper:        #101213;
+  --surface:      #17191b;
+  --surface-2:    #1e2123;
+  --ink:          #eef0ef;
+  --ink-2:        #c2c5c3;
+  --ink-muted:    #8b8e8c;
+  --line:         #292c2d;
+  --line-strong:  #3a3d3e;
+  --accent:       #3fb2a8;
+  --accent-ink:   #bdeae4;
+  --accent-soft:  rgba(63,178,168,.14);
+  --model-a:      #6da3e0;
+  --model-b:      #e2954f;
+  --shadow:       0 1px 2px rgba(0,0,0,.35), 0 6px 20px rgba(0,0,0,.3);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+  font-variant-numeric: tabular-nums;
+}
+::selection { background: var(--accent-soft); }
+
+.page { max-width: 74rem; margin: 0 auto; padding: 0 1.5rem 5rem; }
+
+/* -------- masthead -------- */
+.masthead { padding: 3.2rem 0 2rem; max-width: 52rem; }
+.eyebrow {
+  font-family: var(--mono); font-size: .78rem; text-transform: uppercase;
+  letter-spacing: .09em; color: var(--ink-muted); margin: 0 0 .9em;
+}
+.masthead h1 {
+  font-family: var(--serif); font-weight: 600; text-wrap: balance;
+  font-size: clamp(1.9rem, 1.4rem + 2vw, 2.8rem);
+  line-height: 1.15; margin: 0 0 .5em; letter-spacing: -0.01em;
+}
+.masthead h1 .model-a { color: var(--model-a); }
+.masthead h1 .model-b { color: var(--model-b); }
+.masthead .dek {
+  font-size: 1.08rem; color: var(--ink-2); max-width: 46rem; margin: 0 0 1.1em;
+}
+.masthead .meta {
+  font-family: var(--mono); font-size: .8rem; color: var(--ink-muted);
+  display: flex; gap: .6em; flex-wrap: wrap; align-items: center;
+}
+.masthead .meta .dot { color: var(--line-strong); }
+.masthead .meta strong { color: var(--ink-2); font-weight: 600; }
+
+/* -------- layout: sticky TOC rail + doc column -------- */
+.layout { display: grid; grid-template-columns: 15.5rem minmax(0, 1fr); gap: 3rem; align-items: start; }
+
+nav.toc {
+  position: sticky; top: 1.5rem;
+  max-height: calc(100vh - 3rem); overflow-y: auto;
+  padding: 1.1rem 1.2rem; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--surface); box-shadow: var(--shadow);
+}
+nav.toc h2 {
+  font-family: var(--mono); font-size: .72rem; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--ink-muted); margin: 0 0 .6em;
+}
+nav.toc .toc-group + .toc-group { margin-top: 1.4em; padding-top: 1.2em; border-top: 1px solid var(--line); }
+nav.toc ol, nav.toc ul { list-style: none; margin: 0; padding: 0; }
+nav.toc li { margin: 0; }
+nav.toc a {
+  display: block; padding: .3em 0; font-family: var(--mono); font-size: .82rem;
+  color: var(--ink-2); text-decoration: none; border-left: 2px solid transparent;
+  padding-left: .7em; margin-left: -.7em; line-height: 1.4;
+}
+nav.toc a:hover { color: var(--ink); }
+nav.toc a.active { color: var(--accent-ink); border-left-color: var(--accent); font-weight: 500; }
+nav.toc > details > summary { display: none; }
+
+@media (max-width: 62rem) {
+  .layout { grid-template-columns: 1fr; gap: 1.25rem; }
+  nav.toc {
+    position: sticky; top: 0; z-index: 20; max-height: none;
+    padding: 0; border-radius: 0; border: none; border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter: blur(8px);
+    box-shadow: none;
+  }
+  nav.toc > details { padding: .8rem 1.25rem; }
+  nav.toc > details > summary {
+    display: flex; cursor: pointer;
+    font-family: var(--mono); font-size: .8rem; color: var(--ink-2);
+    list-style: none; align-items: center; gap: .5em;
+  }
+  nav.toc > details > summary::-webkit-details-marker { display: none; }
+  nav.toc > details > summary::before { content: "\25B8"; transition: transform .15s; color: var(--ink-muted); }
+  nav.toc > details[open] > summary::before { transform: rotate(90deg); }
+  nav.toc > details[open] { padding-bottom: 1.1rem; }
+  nav.toc .toc-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: .8rem; }
+  nav.toc .toc-group + .toc-group { margin-top: 0; padding-top: 0; border-top: none; }
+}
+
+/* -------- document body -------- */
+.doc { min-width: 0; padding-bottom: 2rem; }
+.doc h1.part-title {
+  font-family: var(--serif); font-weight: 600; font-size: clamp(1.55rem, 1.25rem + 1.2vw, 2.05rem);
+  line-height: 1.2; text-wrap: balance; margin: 0 0 .3em; letter-spacing: -0.01em;
+  scroll-margin-top: 1.5rem;
+}
+.doc .part-kicker {
+  font-family: var(--mono); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--accent-ink); margin: 2.4rem 0 .5em;
+}
+.doc .part-lede { color: var(--ink-2); max-width: 65ch; margin: 0 0 1.6em; font-size: 1rem; }
+.doc h2 {
+  font-family: var(--serif); font-weight: 600; font-size: 1.4rem; line-height: 1.3;
+  text-wrap: balance; margin: 2.1em 0 .55em; letter-spacing: -0.005em;
+  scroll-margin-top: 1.5rem;
+}
+.doc h3 {
+  font-family: var(--serif); font-weight: 600; font-size: 1.12rem; line-height: 1.35;
+  text-wrap: balance; margin: 1.7em 0 .5em; color: var(--ink);
+  scroll-margin-top: 1.5rem;
+}
+.doc h2:first-of-type { margin-top: 1.4em; }
+.doc p { margin: 0 0 1.05em; max-width: 65ch; }
+.doc ul, .doc ol { margin: 0 0 1.1em; padding-left: 1.4em; max-width: 65ch; }
+.doc li { margin: 0 0 .5em; }
+.doc li:last-child { margin-bottom: 0; }
+.doc li::marker { color: var(--ink-muted); font-family: var(--mono); font-size: .92em; }
+.doc strong { font-weight: 600; color: var(--ink); }
+.doc em { font-style: italic; }
+.doc a { color: var(--accent-ink); text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent); text-underline-offset: .15em; }
+.doc a:hover { text-decoration-color: currentColor; }
+.doc code { font-family: var(--mono); font-size: .88em; background: var(--surface-2); padding: .12em .38em; border-radius: 4px; }
+
+.doc blockquote {
+  margin: 1.4em 0; padding: .2em 0 .2em 1.1em; border-left: 3px solid var(--accent);
+  color: var(--ink-2); max-width: 65ch;
+}
+.doc blockquote p { margin: 0 0 .9em; }
+.doc blockquote ol, .doc blockquote ul { margin: .3em 0 .9em; }
+.doc blockquote > *:last-child { margin-bottom: 0; }
+
+.code-wrap { overflow-x: auto; margin: 1.3em 0; max-width: 100%; }
+.doc pre {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: .95em 1.1em; margin: 0; font-size: .85rem; line-height: 1.55;
+}
+.doc pre code { background: none; padding: 0; font-size: 1em; }
+
+.table-wrap { overflow-x: auto; margin: 1.4em 0; border: 1px solid var(--line); border-radius: var(--radius); }
+table.md-table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+table.md-table th, table.md-table td { padding: .55em .8em; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+table.md-table th { font-family: var(--mono); font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-muted); background: var(--surface-2); }
+table.md-table tr:last-child td { border-bottom: none; }
+
+hr.part-divider { border: none; border-top: 1px solid var(--line-strong); margin: 3.2rem 0 0; }
+
+.doc-footer {
+  margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--line);
+  font-family: var(--mono); font-size: .78rem; color: var(--ink-muted); max-width: 65ch;
+}
+.doc-footer a { color: var(--ink-muted); }
+
+@media (max-width: 30rem) {
+  .masthead { padding-top: 2.2rem; }
+}
+</style>
+<div class="page">
+  <header class="masthead">
+    <p class="eyebrow">Pre-registered 2026-08-20 &middot; before any comparison run</p>
+    <h1 id="top"><span class="model-a">DeepSeek V4 Flash</span> vs <span class="model-b">Qwen3.8-27B</span></h1>
+    <p class="dek">How we compared two models on real multi-turn coding work, and the scoring
+    spec we committed to before running anything &mdash; published so the work can be checked
+    or repeated.</p>
+    <p class="meta"><strong>Two documents.</strong><span class="dot">&middot;</span>Methodology summarizes the spec<span class="dot">&middot;</span><a href="#scoring" style="color:inherit">SCORING.md is the source of truth</a> on any disagreement</p>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="Contents">
+      <details open id="toc-details">
+        <summary>Contents</summary>
+        <div class="toc-cols">
+          <div class="toc-group">
+            <h2 id="toc-methodology">Methodology</h2>
+            <ul><li><a href="#1-why-this-exists">1. Why this exists</a></li><li><a href="#2-what-s-being-compared">2. What's being compared</a></li><li><a href="#3-harness-lanes">3. Harness lanes</a></li><li><a href="#4-the-tasks">4. The tasks</a></li><li><a href="#5-calibration-gate">5. Calibration gate</a></li><li><a href="#6-fairness-controls-and-disclosures">6. Fairness controls and disclosures</a></li><li><a href="#7-the-verdict-rule">7. The verdict rule</a></li><li><a href="#8-amendments-made-during-the-run-all-pre-verdict-all-logged">8. Amendments made during the run (all pre-verdict, all logged)</a></li><li><a href="#9-how-to-reproduce-this">9. How to reproduce this</a></li></ul>
+          </div>
+          <div class="toc-group">
+            <h2 id="toc-scoring">Scoring spec</h2>
+            <ul><li><a href="#0-principles">0. Principles</a></li><li><a href="#1-calibration-gate-per-model-per-harness-before-anything-counts">1. Calibration gate (per model × per harness, before anything counts)</a></li><li><a href="#2-task-classes-and-their-checks">2. Task classes and their checks</a></li><li><a href="#3-lanes">3. Lanes</a></li><li><a href="#4-repetition">4. Repetition</a></li><li><a href="#5-aggregation-and-the-verdict-rule">5. Aggregation and the verdict rule</a></li><li><a href="#6-what-we-will-not-do">6. What we will NOT do</a></li><li><a href="#change-log">Change log</a></li></ul>
+          </div>
+        </div>
+      </details>
+    </nav>
+
+    <main class="doc">
+      <h1 class="part-title" id="methodology">Methodology: DeepSeek-V4-Flash-0731 vs Qwen3.8-27B — a multi-turn coding comparison</h1>
+      <p>This document explains how we compared two models on real coding work, in enough detail to check our work or repeat it yourself. It's written for readers who are (rightly) skeptical of one-shot demos and marketing benchmarks. It summarizes the pre-registered scoring spec in <a href="#scoring"><code>SCORING.md</code></a>; if the two ever disagree, <code>SCORING.md</code> is the source of truth.</p>
+<h2 id="1-why-this-exists">1. Why this exists</h2>
+<p>A tweet claimed DeepSeek-V4-Flash (at its "Max" reasoning setting) beats Qwen3.8-27B in real-world multi-turn use. That's testable, and testing it properly means committing to a scoring method <em>before</em> running anything, so the outcome can't be shaped after the fact to fit a preferred conclusion. <code>SCORING.md</code> was written and time-stamped on 2026-08-20, before any comparison run started; every change since is logged and dated at the bottom of that file.</p>
+<h2 id="2-what-s-being-compared">2. What's being compared</h2>
+<p>Both models were served on a single rented cloud pod (3×H200 GPUs), with vLLM 0.27.1, so neither one gets a hardware advantage:</p>
+<p><strong>DeepSeek-V4-Flash-0731</strong> — 2×H200, tensor-parallel degree 2 with expert parallelism, FP8 KV cache, DSpark speculative decoding (bundled in the checkpoint), <code>max-model-len</code> 393,216 tokens. Reasoning effort "max" is this model's own server default, set via chat-template kwargs — we didn't dial it up. Sampling (temperature 1.0, top_p 0.95) is the model card's recommendation. Measured throughput: ~300 tok/s.</p>
+<p><strong>Qwen3.8-27B (BF16)</strong> — 1×H200, 131,072-token context, sampling per the model card, reasoning parser <code>qwen3</code>, tool parser <code>qwen3_coder</code>. Qwen runs as <strong>two full scoreboard rows with equal standing</strong>, neither one a fallback for the other: the shipped default, which is Qwen's <em>highest</em> effort tier, <code>xhigh</code> — verified, not assumed: rendering the chat template with the default and with <code>xhigh</code> explicitly set produces identical output — and <code>medium</code>, our own day-to-day setting, which launch-day evidence suggests avoids <code>xhigh</code>'s over-thinking failure mode. Each model is compared at both its shipped default and its best-known configuration; §7 covers how a split result between the two Qwen rows is reported. Qwen is also served with its official MTP speculative-decoding head enabled in vLLM (<code>--speculative-config '{"method":"mtp","num_speculative_tokens":1}'</code>; the MTP weights ship inside the official checkpoint) for parity with DeepSeek's bundled DSpark draft model. Measured throughput: ~64-67 tok/s without MTP; with MTP: <em>to be measured at calibration</em>.</p>
+<p><strong>One deliberate asymmetry: Qwen is served with vision enabled</strong> (<code>--language-model-only</code> is NOT set, verified at calibration with a live image request); DeepSeek-V4-Flash-0731 is text-only. Not an oversight — Jason wants Qwen compared at its full real capability. Both harness model entries declare their true modality, and every image artifact a task uses (Raptor's DOSBox reference frames, UI screenshots, deeweb mock renders) goes to <em>both</em> models as a worktree file: Qwen looks at it directly, DeepSeek reasons from text/code or scripts its own pixel analysis. A real capability gap, disclosed rather than papered over — see §6.</p>
+<p>Both models get the same tools, worktree commit, turn/time budget, and scripted follow-up text. Modality aside, the only thing that varies between a DeepSeek run and a Qwen run is the model.</p>
+<h2 id="3-harness-lanes">3. Harness lanes</h2>
+<p>A model's behavior isn't only a function of the model — the harness around it (how tool calls are parsed, what system prompt gets assembled, how errors are recovered) matters too. So every task runs through more than one harness, and lanes are reported separately, never averaged together. A ranking that flips between lanes is reported as "harness-sensitive," not smoothed over.</p>
+<ul><li><strong>Lane A — OMP</strong> (oh-my-pi v17.3.5, our daily tool), run vanilla (<code>--no-extensions --no-skills --no-rules</code>), identical flags for both models. Every task.</li><li><strong>Lane B — OpenCode</strong> (v1.14.29), vanilla config, its "Claude Code compatibility" layer explicitly disabled (<code>OPENCODE_DISABLE_CLAUDE_CODE=1</code>) — left on, it silently pulls in our personal global config, making the lane non-reproducible for anyone else. The two most tool-heavy tasks (radix, anyio), as a robustness check.</li><li><strong>Lane C — no-harness chat.</strong> Plain chat-completions API, zero tools. A scripted human (a Python script, not a person improvising) pastes files, applies the model's diffs, runs tests, and pastes output back — only what a developer at a chat box would do. Same script for every model. One hidden-reference task and the live chess.js bug.</li><li><strong>Lane D — existing one-shots.</strong> The already-public single-prompt demos, as a control point, not head-to-head data.</li></ul>
+<h2 id="4-the-tasks">4. The tasks</h2>
+<p>Every bug-fix task (2A and 2B below) carries the identical standing instructions, quoted here verbatim from the brief:</p>
+<blockquote><p>You are working in the repository at the current working directory. Work like a careful open-source contributor:</p>
+<ol><li>Reproduce the bug first (write a minimal failing test or script) before changing code.</li><li>Find the root cause; fix the cause, not the symptom. Keep the change minimal and in the project's style.</li><li>Add or update a regression test that fails before your fix and passes after.</li><li>Run the project's test suite and make it green. Do not modify or delete unrelated tests.</li><li>When done, summarize: root cause, the files you changed, how you verified it.</li></ol>
+<p>Do not ask me for permission between steps; proceed until the task is complete, then report.</p></blockquote>
+<h3 id="4a-hidden-reference-bug-fixes">4A. Hidden-reference bug fixes</h3>
+<p>Four real, historical GitHub issues with a real, already-merged upstream fix: radix-ui <code>Slot</code> infinite-loop (#3799), anyio <code>CapacityLimiter</code> over-granting tokens (#1170), HATETRIS replay soft-lock (#301), and chessground's <code>ResizeObserver</code> leak (#386 — the reporter's own proposed patch was stripped from the brief first). "Hidden-reference": the model never sees the upstream fix, but we have it and score against it. Scoring is binary and scripted, not vibes:</p>
+<ul><li><strong>P1</strong> — the upstream fix PR's own test file(s), copied into the model's tree, pass. (Where upstream shipped no test, as with chessground, P1 is our own frozen test, pre-validated to fail before the fix and pass after.)</li><li><strong>P2</strong> — the full pre-registered test suite is green (no regressions).</li><li><strong>P3</strong> — the model's <em>own</em> regression test fails on the unfixed code and passes on its fix (we run it against both trees to confirm).</li></ul>
+<p>PASS requires all three. Secondary numbers (wall-clock, tokens, tool calls, turns, diff size, whether the model reproduced the bug before editing) and a blinded tertiary rubric (root-cause match, code-style fit), scored on anonymized A/B diffs and revealed only after, are also recorded.</p>
+<h3 id="4b-live-open-bugs">4B. Live open bugs</h3>
+<p>The same treatment applied to bugs with <strong>no existing public fix</strong>: chess.js #577 (BigInt error generating pawn moves on edge ranks), and chessground #322 (<code>eraseOnMovablePieceClick</code>, the option the issue calls <code>eraseOnClick</code>, is ignored on any empty-square or opponent-piece click — drawings are cleared regardless of the setting). Here P1 is a repro test written and frozen <em>before</em> any run, built directly from the issue's reported repro steps. We also track, separately and never scored, whether a PR opened from the model's diff is later merged upstream (P4, checked at 30 days) — a real-world signal, but a lagging one that can't retroactively change a published verdict.</p>
+<h3 id="4c-deeweb-cal-7207-private-company-task">4C. deeweb CAL-7207 (private company task)</h3>
+<p>Real company code: Jason drives the session by hand in OMP rather than the automated harness, and only aggregate scores are published — no company source. Runs in two phases:</p>
+<ul><li><strong>Phase 1 — design.</strong> Each model produces three static mockups from the ticket. Jason picks one blind (mockups labeled A/B/C, mapping revealed after the pick). This is subjective and illustrative only — it does not feed the verdict.</li><li><strong>Phase 2 — implementation.</strong> The model implements the agreed direction; scored objectively — the ticket's 9 acceptance criteria as a checklist, verified in the running app with the same manual script, plus suite/typecheck/lint, against a real, already-merged reference PR (#1866) hidden from both models. Secondary numbers (turns, redirects Jason had to give, diff size vs. the reference) and a non-blinded tertiary rubric (Jason drives the session and knows the model — illustrative only, never the verdict) round it out.</li></ul>
+<h3 id="4d-raptor-call-of-the-shadows-html5-canvas-port">4D. Raptor: Call of the Shadows → HTML5 canvas port</h3>
+<p>The counterweight to memorization risk: porting the shareware sector-1 levels of a 1994 DOS shooter (GPL-licensed source) to an HTML5 canvas — something, as far as we could find, never done before. Both models get the same fixed budget: the same 6 scripted milestone turns. Wall-clock is reported (time-to-milestone) but is not a cap — the only time limit is a 4-hour-per-turn runaway guard applied identically to both models, so neither is penalized just for being slower. Progress is milestone-based (M1 rendering → M2 controls → M3 combat → M4 HUD/audio → M5 full sector loop), each with a scripted, automated check (Playwright, SSIM against a reference DOSBox frame, exposed state hooks) — not a human's impression of "does it look right." Both ports are published in one repository, as separate trees with per-milestone branches, so any claimed milestone can be checked against the actual commit.</p>
+<h2 id="5-calibration-gate">5. Calibration gate</h2>
+<p>Before any head-to-head result counts, each model/harness pairing clears a calibration gate: five basic tool-use tasks (read, edit, run+read output, a three-step chain, recover from an error — full spec in <a href="./calibration.md"><code>calibration.md</code></a>), 5/5 correct with zero unrecoverable tool-call parse errors required. A failing gate is a harness/config problem, not a model loss — it's fixed and re-run, never used as a comparison point.</p>
+<h2 id="6-fairness-controls-and-disclosures">6. Fairness controls and disclosures</h2>
+<p>A few rules we committed to before running anything:</p>
+<ul><li><strong>Harness events aren't model losses.</strong> A malformed tool call or a harness crash is a logged HARNESS event; a run the harness kills is re-run once, and the event stays in the report.</li><li><strong>Context-ceiling asymmetry is disclosed.</strong> Qwen's context window (131k) is smaller than DeepSeek's (393k). Prompt-token usage is reported per run; crossing 80% of a model's ceiling is flagged CONFIG and excluded from the PASS count — not scored as a loss.</li><li><strong>Modality asymmetry is disclosed, not equalized away.</strong> Qwen is served with vision; DeepSeek is text-only. Image artifacts go to both models as worktree files regardless — no task is scored on image understanding for its own sake, images are inputs, and the same PASS/FAIL checks apply either way.</li><li><strong>Memorization is a real confound we can't remove, only disclose.</strong> The hidden-reference tasks are public issues with public fixes; either model may have seen them in training. Raptor and deeweb are the counterweights — neither has a public solution to memorize.</li><li>anyio's issue text, as filed, narrates its own fix mechanism — its root-cause rubric score carries that caveat.</li><li>deeweb's tertiary rubric isn't blind, since Jason drives that session and knows the model; published as illustrative only, never part of the verdict.</li><li>Bug-fix tasks (4A/4B) run <strong>twice per model</strong>, different seeds, both reported. deeweb and Raptor run once each, for cost — stated plainly, not implied equivalent rigor.</li></ul>
+<h2 id="7-the-verdict-rule">7. The verdict rule</h2>
+<p>The scoreboard is tasks × (model × lane), each cell a PASS/FAIL or a milestone number. We only publish "<strong>RUNS IN PROGRESS — no verdict until all planned runs are scored</strong>" if X wins the majority of primary checks, no lane flips the ranking, and the margin holds under both of Qwen's effort settings. Anything short of that is published as "no clear difference on these tasks" — an allowed, honest outcome, not a failure. A split result across the two Qwen rows — say, DeepSeek beats Qwen-xhigh but not Qwen-medium — is reported as exactly that, not smoothed into a single headline number.</p>
+<p>We also committed to a few things we will <em>not</em> do: no cherry-picked re-runs (every run is reported, including harness-forced ones); no editing briefs or scripted turns between one model's run and the other's; no scoring by Claude alone — every rubric score is Jason's, given blind, with an optional third-model judge reported as an extra column, never as the verdict.</p>
+<h2 id="8-amendments-made-during-the-run-all-pre-verdict-all-logged">8. Amendments made during the run (all pre-verdict, all logged)</h2>
+<p>A pre-registered spec doesn't mean nothing changes once runs start — it means every change is dated, explained, and applied evenly. Every item below is logged in <a href="#scoring"><code>SCORING.md</code></a>'s change log under the same 2026-08-20 date; all of them landed before any verdict was drawn, and none were applied to only some of a task's runs.</p>
+<ol><li><strong>Scorer execution bug.</strong> The scoring script initially failed to launch anyio's virtualenv Python from cmd.exe (<code>.venv/Scripts/python</code> wasn't resolving), which wrongly marked one anyio run FAIL. Once the launch bug was found and fixed, <em>all</em> anyio runs were re-scored on the corrected scorer — not just the one that looked wrong.</li><li><strong>chessground #322's frozen test made design-agnostic.</strong> The first frozen repro test assumed a fix would reuse chessground's existing <code>eraseOnMovablePieceClick</code> flag. A model's fix used a different, equally correct new flag instead, and the original test penalized it for that. The test was rewritten to check the actual required behavior — any erase-related drawable flag set false must prevent erase on an empty-square click, and defaults must still erase — rather than one specific implementation.</li><li><strong>HATETRIS #301's P1 switched from the upstream PR's test file to a frozen behavioral test.</strong> The upstream fix's own tests turned out to be coupled to an unrelated button-testid refactor shipped in the same PR, so copying them in verbatim would fail on a model's tree even with a correct fix, for reasons unrelated to the soft-lock bug itself. We wrote a frozen behavioral test instead and validated it the way every hidden-reference test is validated — it fails on the base commit and passes on the upstream fix — plus one more check specific to this amendment: it also passes on several alternative correct fixes we hand-wrote, not just the upstream one.</li><li><strong>Qwen re-served with official MTP speculative decoding</strong>, for parity with DeepSeek's bundled DSpark draft model (see §2).</li><li><strong>Project-level <code>AGENTS.md</code>/<code>CLAUDE.md</code>/<code>.cursorrules</code> removed from every model's worktree in every lane.</strong> Only one task repo (anyio) shipped one of these files; leaving it in place would have given that lane's runs extra unscripted instructions no other task got. Removed everywhere so every harness lane sees identical instructions.</li><li><strong>Calibration item 5's wording aligned across harnesses</strong>, so the recover-from-error task in <a href="./calibration.md"><code>calibration.md</code></a> reads identically whether it's driven through OMP or OpenCode.</li><li><strong>OMP's "auto" thinking level wasn't giving DeepSeek Max.</strong> A session-log audit found OMP's "auto" setting was sending DeepSeek a top-level <code>reasoning_effort</code> of high or low on every lane-A run — DeepSeek's chat template only renders its full Max preamble when the field is literally <code>"max"</code> — so no DeepSeek OMP run had actually run at the Max effort level this whole comparison is built around. Qwen was unaffected: OMP sends no effort field to Qwen's provider at all, so its rows (server default xhigh; medium through the local proxy) were correct as run. Separately, several DeepSeek runs had spawned OMP subagents, whose model roles come from the operator's own OMP config rather than the model under test — a second way a "DeepSeek run" could quietly include another model's work. Fix: DeepSeek's model ref was pinned to <code>:max</code> (verified by inspecting the actual rendered prompt tokens), OMP's subagent/task tools were disabled for every lane-A run (<code>--tools read,write,edit,bash,grep,glob</code>), and every affected DeepSeek lane-A run plus the Raptor run was archived and re-run under the corrected config. Four Qwen runs interrupted mid-run during the pause were re-queued too; two Qwen anyio runs that had already completed correctly were kept as valid. OpenCode (lane B) gives no visibility into what effort setting it actually sends to either model — disclosed here as a blind spot rather than assumed fine — but its runs send no effort field by default and were kept.</li><li><strong>Raptor's budget was turns, not a wall-clock cap.</strong> The original rule set both a scripted milestone-turn budget and a wall-clock cap (e.g. 6h) per model. Jason's ruling: the wall-clock cap penalized the slower model just for being slower, which isn't what this task is meant to measure. Raptor is now budgeted purely by the same 6 scripted milestone turns for both models; wall-clock is still reported (time-to-milestone) so speed is visible, but it is no longer a cap. The only time limit left is a 4-hour-per-turn runaway guard, applied identically to both models, replacing an earlier 90-minute-per-turn setting that would have had the same slower-model-penalty problem. Both in-flight Raptor runs were restarted under the new rule and the earlier attempts archived.</li></ol>
+<p>The principle behind all eight: a frozen check has to pass on <em>any</em> correct fix, not just the one particular design the test author happened to imagine when writing it. When a check turns out to be too narrow, or a script has a bug, that's a defect in our scaffolding, not evidence about a model — so it gets fixed, dated, logged here and in <code>SCORING.md</code>, and reapplied to every run of that task. Never quietly patched for a subset.</p>
+<h2 id="9-how-to-reproduce-this">9. How to reproduce this</h2>
+<p>You'll need two models behind OpenAI-compatible endpoints (we used a rented multi-GPU cloud pod tunnelled to localhost — substitute your own hardware/provider) and a local clone of the target repositories.</p>
+<div class="code-wrap"><pre><code class="lang-bash"># Lane A (OMP): worktree per task/model, run brief + scripted turns, export session
+bash run_omp_task.sh &lt;task&gt; &lt;model-ref&gt; &lt;label&gt;   # e.g. radix pod-dsv4/deepseek-v4-flash-0731 dsv4
+
+# Lane B (OpenCode): same semantics, OpenCode CLI shape
+bash run_opencode_task.sh &lt;task&gt; &lt;model-ref&gt; &lt;label&gt;
+
+# Lane C (no-harness chat): scripted human, plain chat completions, zero tools
+python lane_c_runner.py --task tasks/&lt;task&gt;.json --model &lt;dsv4|qwen|qwen-medium&gt;
+
+# Score any run against the pre-registered checks
+python score_task.py &lt;task&gt; &lt;label&gt;       # or --all for every run + a scoreboard.md</code></pre></div>
+<p><code>&lt;task&gt;</code> is one of <code>radix | anyio | hatetris | chessground | chessjs</code>; briefs and scripted turns for each live under <code>_briefs/&lt;task&gt;/brief.md</code> and <code>turns.json</code>, so the exact prompt text is inspectable, not paraphrased. Every run's raw session export, final diff, and test log is published alongside the scoreboard — nothing is summarized-only. For the precise scoring logic and running change log behind every number in this document, see <a href="#scoring"><code>SCORING.md</code></a>.</p>
+
+      <hr class="part-divider">
+      <p class="part-kicker">Part two</p>
+      <p class="part-lede">The pre-registered scoring spec &mdash; the exact PASS/FAIL logic behind every
+      number in the methodology above, time-stamped before any comparison run.</p>
+      <h1 class="part-title" id="scoring">Scoring spec — DeepSeek V4 Flash 0731 (Max) vs Qwen3.8-27B BF16, multi-turn</h1>
+      <p>Pre-registered 2026-08-20 before any comparison run. Changes after the first run are logged at the bottom.</p>
+<h2 id="0-principles">0. Principles</h2>
+<ol><li><strong>Objective before subjective.</strong> Every task has binary PASS/FAIL checks that a script decides. Human judgment is collected separately, labeled as such, and never overrides an objective result.</li><li><strong>Identical inputs.</strong> Same brief text, same scripted follow-up turns (pre-written, triggered by state not by model), same tools, same worktree commit, same sampling (model-card), same turn/time budget. Effort settings declared: DSV4 = Max (server default, its only row). Qwen runs as TWO full scoreboard rows with equal standing, neither "primary" nor "secondary": the shipped default, which IS Qwen's highest effort tier (xhigh; verified 2026-08-14 via /tokenize render diff: default and xhigh render identically, medium/low differ), and <code>medium</code>, our standing day-to-day setting — launch-day evidence suggests <code>medium</code> avoids xhigh's over-thinking failure mode. Each model is thus compared at both its shipped default and its best-known configuration; see §5 for how a split result across the two Qwen rows is handled.</li><li><strong>Harness events are not model losses.</strong> Malformed tool calls, parser errors and harness crashes are counted and reported as HARNESS events; a run killed by the harness is re-run once, and the event stays in the report.</li><li><strong>Publish everything:</strong> raw session exports, diffs, test logs, this spec, calibration results, the scoreboard.</li><li><strong>Blinded judgment:</strong> any rubric score is given on diffs/screens labeled A/B; the mapping is revealed after scoring.</li><li><strong>Context-ceiling asymmetry is disclosed per run.</strong> Qwen serves 131k, DSV4 393k. Prompt-token usage is reported for every run; any run that exceeds 80% of a model's context ceiling is flagged CONFIG (per principle 3) and excluded from the PASS count, not scored as a loss.</li><li><strong>Vision is on for the model that has it.</strong> Qwen3.8-27B is served multimodal (vision tower enabled; verified at calibration with an image request); DeepSeek V4 Flash 0731 is text-only. Harness entries declare Qwen as text+image input. Every task artifact a human would look at (Raptor DOSBox reference frames, UI screenshots, deeweb mock renders) is provided to BOTH models as files in the worktree — Qwen can view them, DeepSeek must reason from text/code or script its own pixel analysis. This is a real capability difference and is disclosed, not equalized away; no task is scored on image understanding per se — images are inputs, the checks stay the same.</li></ol>
+<h2 id="1-calibration-gate-per-model-per-harness-before-anything-counts">1. Calibration gate (per model × per harness, before anything counts)</h2>
+<p>5 tool tasks (read / edit / run+read / 3-step chain / recover-from-error), see <code>calibration.md</code>. Required: 5/5 with zero unrecoverable tool-call parse errors. Reported: tool calls, parse errors, wall time, tokens. A failing gate is a CONFIG problem — fix and re-run; never compare on a failing gate.</p>
+<h2 id="2-task-classes-and-their-checks">2. Task classes and their checks</h2>
+<h3 id="2a-hidden-reference-bug-fixes-radix-3799-anyio-1170-hatetris">2A. Hidden-reference bug fixes — radix #3799, anyio #1170, HATETRIS #301, chessground #386</h3>
+<p>Primary (binary, scripted):</p>
+<ul><li><strong>P1 Upstream test passes</strong>: copy ONLY the upstream fix PR's test file(s) into the model's worktree and run them. Where upstream shipped no test (chessground #386), P1 = our frozen test in <code>_hidden/</code> (validated: fails pre-fix, passes on the merged fix).</li><li><strong>P2 No regressions</strong>: the repo's pre-registered suite command is green.</li><li><strong>P3 Test honesty</strong>: the model's own regression test exists, FAILS on the base commit, PASSES on its fix (we run it against both trees).</li></ul>
+<p>PASS = P1 ∧ P2 ∧ P3. Secondary (measured): wall-clock; prompt/completion/reasoning tokens; tool calls; test runs; turns consumed (of the scripted budget); diff size (LOC) and files touched vs upstream (precision = touched ⊆ upstream-touched-or-tests); "reproduced before editing" (trace check: a failing test/script run precedes the first edit — yes/no); harness events. Tertiary (blinded rubric, 0–2 each): root-cause match (addresses the same cause as upstream / a superset / a symptom patch); code-style fit. Disclosure: these are real historical issues on public repos whose fixes are public; either model may have seen them. Memorization is a confound we cannot remove, only disclose; the Raptor port (no prior port exists anywhere) and deeweb (private code) are the non-memorizable counterweights. anyio #1170's issue text, as filed, narrates its own fix mechanism — its root-cause rubric score is reported with that caveat. chessground #386's brief had the reporter's proposed patch removed before any run (2026-08-20).</p>
+<h3 id="2b-live-bugs-chess-js-577-chessground-322-chessground-344">2B. Live bugs — chess.js #577, chessground #322. (chessground #344 retired: its code path was removed upstream 2025-11-04; repro passes on HEAD. chess.js #574 retired before entering the task list: already fixed upstream via PR #546, "Fix forceEnpassantSquare for when there is no capturing pawn", merged 2025-07-09; repro of the issue's own example passes on HEAD.)</h3>
+<p>Same as 2A except P1 = <strong>our pre-written reproduction test</strong> built from the issue's repro (e.g. the exact FEN/<code>put</code>+ <code>moves()</code> sequence) passes; it is written and frozen BEFORE runs and kept in <code>_hidden/</code>. Plus a lagging indicator, reported separately and never scored: <strong>P4 upstream outcome</strong> of a PR opened from the model's diff (merged / changes-requested / no response, at 30 days).</p>
+<h3 id="2c-deeweb-cal-7207-private-jason-drives-in-omp-claude-s-pr-1866">2C. deeweb CAL-7207 (private; Jason drives in OMP; Claude's PR #1866 is the reference bar, hidden from the models)</h3>
+<p><strong>Phase 1 — design</strong>: each model produces 3 static mockups from the ticket; Jason picks one blind (labeled A/B/C, mapping revealed after) before any implementation begins. Subjective/illustrative only — not scored toward the verdict. <strong>Phase 2 — implementation</strong>: the model implements the ticket's agreed direction; scored objectively per the checklist below, against the reference PR. Everything under Primary/Secondary/Tertiary here applies to Phase 2. Primary: the ticket's <strong>9 acceptance criteria</strong> as a checklist, each verified in the running app with the SAME manual script (pin 4 → unpin 2 → pin 2 → reload → order check; Edit toggle; bulk check/uncheck; drag reorder; keyboard reorder; Save = exactly one PATCH in the network tab; Cancel restores; rows open chat outside edit). Score /9. Plus suite green, typecheck clean, lint clean (each binary). Secondary: turns used; number of redirects Jason had to give (counted from the transcript); diff size and files touched vs the reference (+1458/−126, 23 files); CodeRabbit findings by severity on each branch (the team's normal reviewer — mechanical and already trusted). Tertiary (Jason, NOT blinded — he drives the session and knows the model; reported as illustrative only, never part of the verdict, 1–5): UX quality vs the reference; code quality. 'Redirects needed' is likewise illustrative. Published: aggregate scores only (company code).</p>
+<h3 id="2d-raptor-web-port-ladder-shareware-sector-1-only">2D. Raptor → web port ladder (shareware sector 1 only)</h3>
+<p>Fixed budget per model: the same 6 scripted milestone turns. Wall-clock is REPORTED (time-to-milestone) but is not a cap; the only time limit is a 4-hour-per-turn runaway guard applied identically to both models. Primary: <strong>highest milestone with its acceptance check passing</strong> (0–5), each check scripted in Playwright against the model's build:</p>
+<ul><li>M1 level-1 background + player ship rendered on canvas from the real GLB data: screenshot similarity (SSIM) to a DOSBox reference frame ≥ 0.80 on the playfield region, AND ≥ 90% of the reference palette present.</li><li>M2 arrow keys move the ship; fire spawns a projectile (DOM/canvas state hooks exposed on <code>window.__raptor</code>).</li><li>M3 wave-1 enemies spawn; a projectile hit decrements enemy HP / removes an enemy; player can die.</li><li>M4 HUD (score/shields) renders; Web Audio context running and ≥1 SFX triggered on fire.</li><li>M5 sector-1 loop: wave counter advances to 9 and the sector-complete screen appears (autoplay harness allowed).</li></ul>
+<p>Secondary: time-to-each-milestone; tokens; tool calls; reverts/dead-ends (count of <code>git checkout -- .</code>/mass deletions); SSIM at M1/M3. Tertiary (Jason, 1–5): fidelity and feel.</p>
+<h2 id="3-lanes">3. Lanes</h2>
+<p>A = OMP (all tasks)  ·  B = OpenCode (radix, anyio — tool-heaviest; robustness check)  ·  C = no-harness scripted human (chess.js #577, one hidden-reference task)  ·  D = existing 0-shots (control, already public). Each lane reported separately. A ranking that flips between lanes is reported as "harness-sensitive", not averaged away.</p>
+<h2 id="4-repetition">4. Repetition</h2>
+<p>Bug-fix tasks (2A/2B): <strong>n=2 runs per model</strong> (different seeds), both reported; PASS rate out of 2. deeweb and Raptor: n=1 (cost), stated plainly.</p>
+<h2 id="5-aggregation-and-the-verdict-rule">5. Aggregation and the verdict rule</h2>
+<p>Scoreboard rows = tasks, columns = model × lane; cell = PASS/FAIL (or milestone). Headline = count of primary PASSes (and Raptor milestone). Ties broken by process efficiency (wall-clock, then tokens, then turns). "<strong>RUNS IN PROGRESS — no verdict until all planned runs are scored</strong>" requires: X wins the majority of primary checks, AND no lane flips the ranking, AND the margin survives both Qwen effort settings. Anything short of that is published as "no clear difference on these tasks" — the honest outcome is an allowed outcome. A split result across the two full Qwen rows (e.g. DSV4 beats Qwen-xhigh but not Qwen-medium) is reported as exactly that, not resolved into a single headline verdict.</p>
+<h2 id="6-what-we-will-not-do">6. What we will NOT do</h2>
+<ul><li>No cherry-picked reruns (every run is reported, including harness re-runs).</li><li>No editing briefs/turns between models.</li><li>No scoring by Claude alone: rubric items are Jason's, blinded; an optional third-model judge may be reported as an extra column, never as the verdict.</li></ul>
+<h2 id="change-log">Change log</h2>
+<ul><li>2026-08-20 (pre-run): chessground #344 retired (path removed upstream 2025-11-04); chessground becomes hidden-ref #386 with our frozen leak test as P1.</li><li>2026-08-20 (pre-run, after adversarial review): Qwen-default-is-ceiling made explicit; context-ceiling CONFIG rule added; memorization + anyio-narration + deeweb-not-blind disclosures added; chessground brief stripped of the reporter's patch.</li><li>2026-08-20 (pre-run): §2C split into Phase 1 (design: 3 static mocks per model, Jason picks blind, subjective/illustrative) and Phase 2 (implementation of the ticket's agreed direction, objective checklist vs reference PR); Raptor ports to be published in one repository (both models' trees + per-milestone branches).</li><li>2026-08-20 (pre-run): Qwen served with vision enabled (DSV4 is text-only); image artifacts provided to both models; disclosed as a capability difference.</li><li>2026-08-20 (pre-run): clarified that both Qwen effort rows (default/xhigh and medium) are full scoreboard rows; verdict must hold under both.</li><li>2026-08-20 (pre-run): live task chessground #322 added (open, no public fix; frozen repro test validated to fail on HEAD — <code>eraseOnMovablePieceClick: false</code> does not stop <code>drawClear</code> from firing on an empty-square or opponent-piece click). chess.js #574 was investigated for the same slot and retired before entering the task list: the exact behavior the issue reports is already fixed upstream via PR #546 ("Fix forceEnpassantSquare for when there is no capturing pawn", merged 2025-07-09); the frozen chessjs checkout's HEAD (commit d43e668) is identical to origin/master, <code>git log -S _fenEpSquare</code> traces the fix to that PR, and a repro built directly from the issue's own example (<code>chess.move('e4'); chess.fen({forceEnpassantSquare:true})</code>) passes cleanly, as do edge cases (a-file/h-file pawns, Black's big pawn moves, undo, and a fen()/load() round-trip). No substitute issue was picked; §2B runs with two live bugs instead of three.</li><li>2026-08-20 (pre-run): project-level AGENTS.md/CLAUDE.md/.cursorrules removed from every model worktree in every lane (only anyio ships one) so harness lanes see identical instructions; personal/global instructions already excluded.</li><li>2026-08-20 (pre-run): Qwen re-served with official MTP speculative decoding in vLLM (method mtp, 1 draft token) for parity with DSV4's DSpark; Qwen calibration rows re-run on the final config.</li><li>2026-08-20 (pre-verdict, after first chessground #322 run): frozen repro-322 rewritten to be design-agnostic (any erase-related drawable flag set false must prevent erase on an empty-square click; defaults must still erase) — the original assumed the fix would reuse <code>eraseOnMovablePieceClick</code>, which penalized a valid new-flag design; affected runs re-scored.</li><li>2026-08-20 (pre-verdict, during runs): scorer execution bug fixed — the scorer shelled out via cmd.exe, which cannot launch <code>.venv/Scripts/python</code>; one anyio run had been scored FAIL on a setup error; the scorer now runs every task command through Git Bash (<code>bash -c</code>, explicit path); all affected runs re-scored.</li><li>2026-08-20 (pre-run calibration): calibration item 5 wording aligned across harnesses (the OpenCode probe lacked the "if it fails, fix it" clause OMP's had); item 5 re-run for the OpenCode rows.</li><li>2026-08-20 (pre-verdict, after first hatetris runs): hatetris #301 P1 switched from the upstream PR's test file to a frozen behavioral test (too-short replay → keypress moves the piece): the upstream tests are coupled to an unrelated button-testid refactor in the same PR and fail on any correct fix that does not replicate it (and their throws contaminate later tests in the file); the frozen test is validated fail-on-base / pass-on-upstream-fix / pass-on-both-DSV4-fixes; affected runs re-scored.</li><li>2026-08-20 (pre-verdict): audit of OMP session logs showed OMP's "auto" thinking level sent DeepSeek a top-level reasoning_effort of high/low on every lane-A run (DeepSeek's template renders the full Max preamble only for "max"), so no DeepSeek OMP run had actually been at Max; OMP sends no effort field to the Qwen provider at all, so the Qwen rows (server default xhigh; medium via the local proxy) were correct. Several DeepSeek runs also spawned OMP subagents, whose model roles come from the operator's OMP config rather than the model under test. Fix: DeepSeek's model ref pinned to ':max' (verified by prompt-token render), OMP's subagent/task tools disabled for every lane-A run (--tools read,write,edit,bash,grep,glob), all DeepSeek lane-A runs and the Raptor run archived and re-run; the four Qwen runs interrupted during the pause were also re-queued; two completed Qwen runs (anyio) kept as valid. OpenCode (lane B) gives no visibility into the effort it requests — disclosed as a blind spot; its runs send no effort field by default and are kept.</li><li>2026-08-20 (pre-verdict): lane-C scripted-human runner fixed (file-request parsing for list formats; apply-failure feedback with full-file fallback) after its first runs failed on harness mechanics; affected lane-C runs archived and re-run.</li></ul>
+
+      <footer class="doc-footer">
+        Generated from <code>METHODOLOGY.md</code> and <code>SCORING.md</code> by
+        <code>build_method_html.py</code> &mdash; edits to either source file flow through on
+        the next build. Pre-registered 2026-08-20, before any comparison run.
+      </footer>
+    </main>
+  </div>
+</div>
+<script>
+(function () {
+  try {
+    var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a[href^="#"]'));
+    if (!links.length || !('IntersectionObserver' in window)) return;
+    var map = {};
+    links.forEach(function (a) {
+      var id = a.getAttribute('href').slice(1);
+      var el = document.getElementById(id);
+      if (el) map[id] = a;
+    });
+    var current = null;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var link = map[entry.target.id];
+        if (!link) return;
+        if (entry.isIntersecting) {
+          if (current) current.classList.remove('active');
+          link.classList.add('active');
+          current = link;
+        }
+      });
+    }, { rootMargin: '-10% 0px -70% 0px', threshold: 0 });
+    Object.keys(map).forEach(function (id) {
+      io.observe(document.getElementById(id));
+    });
+  } catch (e) { /* non-essential */ }
+})();
+</script>

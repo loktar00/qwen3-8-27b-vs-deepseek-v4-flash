@@ -152,6 +152,7 @@ hr { border: none; border-top: 1px solid var(--line); margin: 2em 0; }
 .chip.pass { color: var(--good-ink); background: color-mix(in srgb, var(--good) 16%, var(--surface)); border: 1px solid color-mix(in srgb, var(--good) 45%, transparent); }
 .chip.fail { color: var(--critical); background: var(--critical-bg); border: 1px solid color-mix(in srgb, var(--critical) 45%, transparent); }
 .chip.mixed { color: var(--warn); background: var(--warn-bg); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); }
+.chip.error { color: var(--warn); background: var(--warn-bg); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); }
 .chip.unknown { color: var(--ink-muted); background: var(--surface-2); border: 1px solid var(--line); }
 .chip.harness { color: var(--harness); background: var(--harness-bg); border: 1px solid var(--line-strong); }
 .chip::before { content: ""; width: .5em; height: .5em; border-radius: 50%; background: currentColor; flex: none; }
@@ -161,6 +162,7 @@ hr { border: none; border-top: 1px solid var(--line); margin: 2em 0; }
   font-size: .68rem; font-weight: 700; border: 1px solid var(--line-strong); color: var(--ink-muted); background: var(--surface-2); }
 .pip.pass { color: var(--good-ink); background: color-mix(in srgb, var(--good) 18%, var(--surface)); border-color: color-mix(in srgb, var(--good) 50%, transparent); }
 .pip.fail { color: var(--critical); background: var(--critical-bg); border-color: color-mix(in srgb, var(--critical) 50%, transparent); }
+.pip.error { color: var(--warn); background: var(--warn-bg); border-color: color-mix(in srgb, var(--warn) 50%, transparent); }
 .pip.empty { border-style: dashed; }
 
 .star-row { display: inline-flex; gap: .15em; }

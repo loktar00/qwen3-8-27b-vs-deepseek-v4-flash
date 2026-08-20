@@ -158,6 +158,7 @@ hr { border: none; border-top: 1px solid var(--line); margin: 2em 0; }
 .chip.pass { color: var(--good-ink); background: color-mix(in srgb, var(--good) 16%, var(--surface)); border: 1px solid color-mix(in srgb, var(--good) 45%, transparent); }
 .chip.fail { color: var(--critical); background: var(--critical-bg); border: 1px solid color-mix(in srgb, var(--critical) 45%, transparent); }
 .chip.mixed { color: var(--warn); background: var(--warn-bg); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); }
+.chip.error { color: var(--warn); background: var(--warn-bg); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); }
 .chip.unknown { color: var(--ink-muted); background: var(--surface-2); border: 1px solid var(--line); }
 .chip.harness { color: var(--harness); background: var(--harness-bg); border: 1px solid var(--line-strong); }
 .chip::before { content: ""; width: .5em; height: .5em; border-radius: 50%; background: currentColor; flex: none; }
@@ -167,6 +168,7 @@ hr { border: none; border-top: 1px solid var(--line); margin: 2em 0; }
   font-size: .68rem; font-weight: 700; border: 1px solid var(--line-strong); color: var(--ink-muted); background: var(--surface-2); }
 .pip.pass { color: var(--good-ink); background: color-mix(in srgb, var(--good) 18%, var(--surface)); border-color: color-mix(in srgb, var(--good) 50%, transparent); }
 .pip.fail { color: var(--critical); background: var(--critical-bg); border-color: color-mix(in srgb, var(--critical) 50%, transparent); }
+.pip.error { color: var(--warn); background: var(--warn-bg); border-color: color-mix(in srgb, var(--warn) 50%, transparent); }
 .pip.empty { border-style: dashed; }
 
 .star-row { display: inline-flex; gap: .15em; }
@@ -342,7 +344,7 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 <div class="shell">
 
 <div class="page-head">
-  <p class="eyebrow"><a href="../index.html">&larr; Scoreboard</a> / Hidden-reference bug fix</p>
+  <p class="eyebrow"><a href="../index.html">&larr; Scoreboard</a> / Known-answer bug</p>
   <h1>installHook.js:1 Error: Maximum update depth exceeded - React 19 + Radix</h1>
   <div class="tagrow">
     <span class="badge">2A</span>
@@ -396,15 +398,15 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 
 
 <div class="section">
-  <h2>Lane A &middot; OMP</h2>
-  <p class="lede">all tasks</p>
+  <h2>Lane A &middot; OMP harness</h2>
+  <p class="lede">the model uses real dev tools (read/edit/run) — all tasks</p>
   <div class="compare">
 <div class="modelcol a">
-  <div class="mhead"><div class="mname">DSV4</div><div class="meffort">Max (server default)</div></div>
+  <div class="mhead"><div class="mname">DeepSeek V4 Flash</div><div class="meffort">server default</div></div>
   
 <div class="rep">
   <div class="rep-label">rep 1 <span class="badge">dsv4-r1</span></div>
-  <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Reference test passes</span></div><div class="check-reason">Duration  1.52s (transform 60ms, setup 152ms, import 257ms, tests 16ms, environment 907ms)</div><div class="check-row"><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>No regressions</span></div><div class="check-reason">Duration  2.70s (transform 81ms, setup 134ms, import 319ms, tests 1.08s, environment 996ms)</div><div class="check-row"><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Test honesty</span></div><div class="check-reason">Duration  2.50s (transform 77ms, setup 127ms, import 312ms, tests 1.09s, environment 804ms) — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
+  <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">Duration  1.52s (transform 60ms, setup 152ms, import 257ms, tests 16ms, environment 907ms)</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">Duration  2.70s (transform 81ms, setup 134ms, import 319ms, tests 1.08s, environment 996ms)</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">Duration  2.50s (transform 77ms, setup 127ms, import 312ms, tests 1.09s, environment 804ms) — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
   <h4>Process</h4>
   
 <dl class="kv">
@@ -426,7 +428,7 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 
 <div class="rep">
   <div class="rep-label">rep 2 <span class="badge">dsv4-r2</span></div>
-  <div><span class="chip fail">FAIL</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip fail" title="P1">✕</span><span>Reference test passes</span></div><div class="check-reason">Duration  1.48s (transform 60ms, setup 151ms, import 249ms, tests 32ms, environment 862ms)</div><div class="check-row"><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>No regressions</span></div><div class="check-reason">Duration  2.44s (transform 80ms, setup 125ms, import 319ms, tests 1.07s, environment 758ms)</div><div class="check-row"><span class="clabel">P3</span><span class="pip fail" title="P3">✕</span><span>Test honesty</span></div><div class="check-reason">model&#x27;s own test also passes on the base commit -- it does not demonstrate the bug/fix (honesty check failed) — model&#x27;s test: passes on the model worktree; does NOT fail as expected on the base commit.</div></div>
+  <div><span class="chip fail">FAIL</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip fail" title="P1">✕</span><span>Fix verified</span></div><div class="check-reason">Duration  1.48s (transform 60ms, setup 151ms, import 249ms, tests 32ms, environment 862ms)</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">Duration  2.44s (transform 80ms, setup 125ms, import 319ms, tests 1.07s, environment 758ms)</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip fail" title="P3">✕</span><span>Honest test</span></div><div class="check-reason">model&#x27;s own test also passes on the base commit -- it does not demonstrate the bug/fix (honesty check failed) — model&#x27;s test: passes on the model worktree; does NOT fail as expected on the base commit.</div></div>
   <h4>Process</h4>
   
 <dl class="kv">
@@ -448,11 +450,11 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 
 </div>
 <div class="modelcol b">
-  <div class="mhead"><div class="mname">Qwen</div><div class="meffort">shipped default</div></div>
+  <div class="mhead"><div class="mname">Qwen3.8 (default thinking)</div><div class="meffort">default effort</div></div>
   
 <div class="rep">
   <div class="rep-label">rep 1 <span class="badge">qwen-r1</span></div>
-  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Fix verified</span></div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>Nothing broke</span></div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Honest test</span></div></div>
   <h4>Process</h4>
   
 <dl class="kv">
@@ -474,7 +476,7 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 
 <div class="rep">
   <div class="rep-label">rep 2 <span class="badge">qwen-r2</span></div>
-  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Fix verified</span></div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>Nothing broke</span></div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Honest test</span></div></div>
   <h4>Process</h4>
   
 <dl class="kv">
@@ -496,11 +498,11 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 
 </div>
 <div class="modelcol b">
-  <div class="mhead"><div class="mname">Qwen (medium)</div><div class="meffort">medium</div></div>
+  <div class="mhead"><div class="mname">Qwen3.8 (medium thinking)</div><div class="meffort">medium effort</div></div>
   
 <div class="rep">
   <div class="rep-label">rep 1 <span class="badge">qwen-med-r1</span></div>
-  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Fix verified</span></div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>Nothing broke</span></div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Honest test</span></div></div>
   <h4>Process</h4>
   
 <dl class="kv">
@@ -522,7 +524,7 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 
 <div class="rep">
   <div class="rep-label">rep 2 <span class="badge">qwen-med-r2</span></div>
-  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Fix verified</span></div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>Nothing broke</span></div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Honest test</span></div></div>
   <h4>Process</h4>
   
 <dl class="kv">
@@ -543,18 +545,18 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 </div>
 
 </div></div>
-  <h3>Session transcript</h3><div class="transcripts"><div class="tpane"><div class="thead">DSV4</div><iframe src="../data/radix/dsv4-r1/transcript-rendered.html" loading="lazy"></iframe></div><div class="tpane"><div class="thead">DSV4</div><iframe src="../data/radix/dsv4-r2/transcript-rendered.html" loading="lazy"></iframe></div></div>
+  <h3>Session transcript</h3><div class="transcripts"><div class="tpane"><div class="thead">DeepSeek V4 Flash</div><iframe src="../data/radix/dsv4-r1/transcript-rendered.html" loading="lazy"></iframe></div><div class="tpane"><div class="thead">DeepSeek V4 Flash</div><iframe src="../data/radix/dsv4-r2/transcript-rendered.html" loading="lazy"></iframe></div></div>
 </div>
 <div class="section">
-  <h2>Lane B &middot; OpenCode</h2>
-  <p class="lede">radix, anyio — tool-heaviest, robustness check</p>
+  <h2>Lane B &middot; OpenCode harness</h2>
+  <p class="lede">a different tool harness, same tasks — checks the result isn&#x27;t a fluke of one harness</p>
   <div class="compare">
 <div class="modelcol a">
-  <div class="mhead"><div class="mname">DSV4</div><div class="meffort">Max (server default)</div></div>
+  <div class="mhead"><div class="mname">DeepSeek V4 Flash</div><div class="meffort">server default</div></div>
   
 <div class="rep">
   <div class="rep-label">rep 1 <span class="badge">dsv4-oc</span></div>
-  <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Reference test passes</span></div><div class="check-reason">Duration  1.70s (transform 68ms, setup 158ms, import 301ms, tests 17ms, environment 1.00s)</div><div class="check-row"><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>No regressions</span></div><div class="check-reason">Duration  2.96s (transform 128ms, setup 300ms, import 591ms, tests 1.33s, environment 1.89s)</div><div class="check-row"><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Test honesty</span></div><div class="check-reason">Duration  3.26s (transform 830ms, setup 881ms, import 2.42s, tests 1.45s, environment 4.36s) — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
+  <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">Duration  1.70s (transform 68ms, setup 158ms, import 301ms, tests 17ms, environment 1.00s)</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">Duration  2.96s (transform 128ms, setup 300ms, import 591ms, tests 1.33s, environment 1.89s)</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">Duration  3.26s (transform 830ms, setup 881ms, import 2.42s, tests 1.45s, environment 4.36s) — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
   <h4>Process</h4>
   
 <dl class="kv">
@@ -576,11 +578,11 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 
 </div>
 <div class="modelcol b">
-  <div class="mhead"><div class="mname">Qwen</div><div class="meffort">shipped default</div></div>
+  <div class="mhead"><div class="mname">Qwen3.8 (default thinking)</div><div class="meffort">default effort</div></div>
   
 <div class="rep">
   <div class="rep-label">rep 1 <span class="badge">qwen-oc</span></div>
-  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row"><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Reference test passes</span></div><div class="check-row"><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>No regressions</span></div><div class="check-row"><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Test honesty</span></div></div>
+  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Fix verified</span></div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>Nothing broke</span></div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Honest test</span></div></div>
   <h4>Process</h4>
   
 <dl class="kv">

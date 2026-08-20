@@ -219,8 +219,24 @@ before any verdict was drawn, and none were applied to only some of a task's run
 6. **Calibration item 5's wording aligned across harnesses**, so the recover-from-error task in
    [`calibration.md`](./calibration.md) reads identically whether it's driven through OMP or
    OpenCode.
+7. **OMP's "auto" thinking level wasn't giving DeepSeek Max.** A session-log audit found OMP's
+   "auto" setting was sending DeepSeek a top-level `reasoning_effort` of high or low on every
+   lane-A run — DeepSeek's chat template only renders its full Max preamble when the field is
+   literally `"max"` — so no DeepSeek OMP run had actually run at the Max effort level this whole
+   comparison is built around. Qwen was unaffected: OMP sends no effort field to Qwen's provider
+   at all, so its rows (server default xhigh; medium through the local proxy) were correct as
+   run. Separately, several DeepSeek runs had spawned OMP subagents, whose model roles come from
+   the operator's own OMP config rather than the model under test — a second way a "DeepSeek run"
+   could quietly include another model's work. Fix: DeepSeek's model ref was pinned to `:max`
+   (verified by inspecting the actual rendered prompt tokens), OMP's subagent/task tools were
+   disabled for every lane-A run (`--tools read,write,edit,bash,grep,glob`), and every affected
+   DeepSeek lane-A run plus the Raptor run was archived and re-run under the corrected config.
+   Four Qwen runs interrupted mid-run during the pause were re-queued too; two Qwen anyio runs
+   that had already completed correctly were kept as valid. OpenCode (lane B) gives no visibility
+   into what effort setting it actually sends to either model — disclosed here as a blind spot
+   rather than assumed fine — but its runs send no effort field by default and were kept.
 
-The principle behind all six: a frozen check has to pass on *any* correct fix, not just the one
+The principle behind all seven: a frozen check has to pass on *any* correct fix, not just the one
 particular design the test author happened to imagine when writing it. When a check turns out to
 be too narrow, or a script has a bug, that's a defect in our scaffolding, not evidence about a
 model — so it gets fixed, dated, logged here and in `SCORING.md`, and reapplied to every run of

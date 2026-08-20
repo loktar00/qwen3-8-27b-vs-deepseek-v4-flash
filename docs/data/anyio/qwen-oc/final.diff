@@ -1,0 +1,110 @@
+diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py
+index bc7e6ab..49eab08 100644
+--- a/src/anyio/_backends/_asyncio.py
++++ b/src/anyio/_backends/_asyncio.py
+@@ -2077,8 +2077,9 @@ class CapacityLimiter(BaseCapacityLimiter):
+ 
+         # Notify waiting tasks that they have acquired the limiter
+         while self._wait_queue and waiters_to_notify:
+-            event = self._wait_queue.popitem(last=False)[1]
++            borrower, event = self._wait_queue.popitem(last=False)
+             event.set()
++            self._borrowers.add(borrower)
+             waiters_to_notify -= 1
+ 
+     @property
+@@ -2092,8 +2093,9 @@ class CapacityLimiter(BaseCapacityLimiter):
+     def _notify_next_waiter(self) -> None:
+         """Notify the next task in line if this limiter has free capacity now."""
+         if self._wait_queue and len(self._borrowers) < self._total_tokens:
+-            event = self._wait_queue.popitem(last=False)[1]
++            borrower, event = self._wait_queue.popitem(last=False)
+             event.set()
++            self._borrowers.add(borrower)
+ 
+     def acquire_nowait(self) -> None:
+         self.acquire_on_behalf_of_nowait(current_task())
+@@ -2124,11 +2126,10 @@ class CapacityLimiter(BaseCapacityLimiter):
+             except BaseException:
+                 self._wait_queue.pop(borrower, None)
+                 if event.is_set():
++                    self._borrowers.discard(borrower)
+                     self._notify_next_waiter()
+ 
+                 raise
+-
+-            self._borrowers.add(borrower)
+         else:
+             try:
+                 await AsyncIOBackend.cancel_shielded_checkpoint()
+diff --git a/tests/test_synchronization.py b/tests/test_synchronization.py
+index 3ead3c2..ba355d9 100644
+--- a/tests/test_synchronization.py
++++ b/tests/test_synchronization.py
+@@ -993,3 +993,66 @@ class TestCapacityLimiter:
+         limiter.acquire_on_behalf_of_nowait(borrower1)
+         with pytest.raises(WouldBlock):
+             limiter.acquire_on_behalf_of_nowait(borrower2)
++
++    @pytest.mark.parametrize("anyio_backend", asyncio_params)
++    async def test_nowait_acquire_does_not_overgrant_after_release(self) -> None:
++        # Regression test: when a release wakes a waiter, the freed token is
++        # handed to that waiter at notify time. In the gap between the wake-up
++        # and the waiter resuming, the token must be accounted for -- a
++        # non-blocking acquire must raise WouldBlock instead of over-granting
++        # and driving available_tokens negative.
++        limiter = CapacityLimiter(1)
++        limiter.acquire_on_behalf_of_nowait("A")
++
++        async def b() -> None:
++            async with limiter:
++                pass
++
++        async with create_task_group() as tg:
++            tg.start_soon(b)
++            await wait_all_tasks_blocked()
++            assert limiter.statistics().tasks_waiting == 1
++
++            limiter.release_on_behalf_of("A")
++
++            with pytest.raises(WouldBlock):
++                limiter.acquire_on_behalf_of_nowait("X")
++
++            assert limiter.available_tokens == 0
++            assert limiter.borrowed_tokens <= limiter.total_tokens
++
++        assert limiter.statistics().borrowed_tokens == 0
++        assert limiter.statistics().tasks_waiting == 0
++
++    @pytest.mark.parametrize("anyio_backend", asyncio_params)
++    async def test_nowait_acquire_does_not_overgrant_after_total_tokens_raise(
++        self,
++    ) -> None:
++        # Regression test: raising total_tokens while tasks are waiting hands
++        # the newly available tokens to the woken waiters at notify time. In
++        # the gap between the wake-up and the waiters resuming, the tokens
++        # must be accounted for -- a non-blocking acquire must raise
++        # WouldBlock instead of over-granting beyond the new total.
++        limiter = CapacityLimiter(1)
++        limiter.acquire_on_behalf_of_nowait("A")
++
++        async def b() -> None:
++            async with limiter:
++                pass
++
++        async with create_task_group() as tg:
++            tg.start_soon(b)
++            await wait_all_tasks_blocked()
++            assert limiter.statistics().tasks_waiting == 1
++
++            limiter.total_tokens = 2
++
++            with pytest.raises(WouldBlock):
++                limiter.acquire_on_behalf_of_nowait("X")
++
++            assert limiter.available_tokens == 0
++            assert limiter.borrowed_tokens <= limiter.total_tokens
++
++        assert limiter.total_tokens == 2
++        assert limiter.statistics().borrowed_tokens == 1
++        assert limiter.statistics().tasks_waiting == 0

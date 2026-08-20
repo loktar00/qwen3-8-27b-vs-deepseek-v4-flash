@@ -1,0 +1,106 @@
+commit 120a132d0a91065026ef707b0bdd422a31e2a18b
+Author: Dmitri <dmitri666@gmail.com>
+Date:   Thu Dec 12 19:03:21 2024 +0200
+
+    Fix composeRefs in React 19 (#3283)
+
+diff --git a/packages/react/compose-refs/src/composeRefs.tsx b/packages/react/compose-refs/src/composeRefs.tsx
+index 9c6442d7..120af58d 100644
+--- a/packages/react/compose-refs/src/composeRefs.tsx
++++ b/packages/react/compose-refs/src/composeRefs.tsx
+@@ -8,9 +8,9 @@ type PossibleRef<T> = React.Ref<T> | undefined;
+  */
+ function setRef<T>(ref: PossibleRef<T>, value: T) {
+   if (typeof ref === 'function') {
+-    ref(value);
++    return ref(value);
+   } else if (ref !== null && ref !== undefined) {
+-    (ref as React.MutableRefObject<T>).current = value;
++    ref.current = value;
+   }
+ }
+ 
+@@ -19,7 +19,18 @@ function setRef<T>(ref: PossibleRef<T>, value: T) {
+  * Accepts callback refs and RefObject(s)
+  */
+ function composeRefs<T>(...refs: PossibleRef<T>[]) {
+-  return (node: T) => refs.forEach((ref) => setRef(ref, node));
++  return (node: T) => {
++    const cleanups = refs.map((ref) => setRef(ref, node));
++    return () => {
++      cleanups.forEach((cleanup, i) => {
++        if (typeof cleanup == 'function') {
++          cleanup();
++        } else {
++          setRef(refs[i], null);
++        }
++      });
++    };
++  };
+ }
+ 
+ /**
+diff --git a/packages/react/slot/src/Slot.tsx b/packages/react/slot/src/Slot.tsx
+index 070284fa..881e4140 100644
+--- a/packages/react/slot/src/Slot.tsx
++++ b/packages/react/slot/src/Slot.tsx
+@@ -16,7 +16,7 @@ const Slot = React.forwardRef<HTMLElement, SlotProps>((props, forwardedRef) => {
+ 
+   if (slottable) {
+     // the new element to render is the one passed as a child of `Slottable`
+-    const newElement = slottable.props.children as React.ReactNode;
++    const newElement = slottable.props.children;
+ 
+     const newChildren = childrenArray.map((child) => {
+       if (child === slottable) {
+@@ -24,7 +24,7 @@ const Slot = React.forwardRef<HTMLElement, SlotProps>((props, forwardedRef) => {
+         // in grabbing its children (`newElement.props.children`)
+         if (React.Children.count(newElement) > 1) return React.Children.only(null);
+         return React.isValidElement(newElement)
+-          ? (newElement.props.children as React.ReactNode)
++          ? (newElement.props as { children: React.ReactNode }).children
+           : null;
+       } else {
+         return child;
+@@ -62,15 +62,11 @@ const SlotClone = React.forwardRef<any, SlotCloneProps>((props, forwardedRef) =>
+ 
+   if (React.isValidElement(children)) {
+     const childrenRef = getElementRef(children);
+-    const props = {
+-      ...mergeProps(slotProps, children.props),
+-    };
+-
++    const props = mergeProps(slotProps, children.props as AnyProps);
+     // do not pass ref to React.Fragment for React 19 compatibility
+     if (children.type !== React.Fragment) {
+       props.ref = forwardedRef ? composeRefs(forwardedRef, childrenRef) : childrenRef;
+     }
+-
+     return React.cloneElement(children, props);
+   }
+ 
+@@ -91,7 +87,9 @@ const Slottable = ({ children }: { children: React.ReactNode }) => {
+ 
+ type AnyProps = Record<string, any>;
+ 
+-function isSlottable(child: React.ReactNode): child is React.ReactElement {
++function isSlottable(
++  child: React.ReactNode,
++): child is React.ReactElement<React.ComponentProps<typeof Slottable>, typeof Slottable> {
+   return React.isValidElement(child) && child.type === Slottable;
+ }
+ 
+@@ -145,11 +143,11 @@ function getElementRef(element: React.ReactElement) {
+   getter = Object.getOwnPropertyDescriptor(element, 'ref')?.get;
+   mayWarn = getter && 'isReactWarning' in getter && getter.isReactWarning;
+   if (mayWarn) {
+-    return element.props.ref;
++    return (element.props as { ref?: React.Ref<unknown> }).ref;
+   }
+ 
+   // Not DEV
+-  return element.props.ref || (element as any).ref;
++  return (element.props as { ref?: React.Ref<unknown> }).ref || (element as any).ref;
+ }
+ 
+ const Root = Slot;

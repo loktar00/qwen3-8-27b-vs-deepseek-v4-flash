@@ -1,0 +1,98 @@
+diff --git a/packages/react/navigation-menu/src/navigation-menu.tsx b/packages/react/navigation-menu/src/navigation-menu.tsx
+index e363f5e9..a2e31546 100644
+--- a/packages/react/navigation-menu/src/navigation-menu.tsx
++++ b/packages/react/navigation-menu/src/navigation-menu.tsx
+@@ -116,7 +116,7 @@ const NavigationMenu = React.forwardRef<NavigationMenuElement, NavigationMenuPro
+       ...NavigationMenuProps
+     } = props;
+     const [navigationMenu, setNavigationMenu] = React.useState<NavigationMenuElement | null>(null);
+-    const composedRef = useComposedRefs(forwardedRef, (node) => setNavigationMenu(node));
++    const composedRef = useComposedRefs(forwardedRef, setNavigationMenu);
+     const direction = useDirection(dir);
+     const openTimerRef = React.useRef(0);
+     const closeTimerRef = React.useRef(0);
+diff --git a/packages/react/scroll-area/src/scroll-area.tsx b/packages/react/scroll-area/src/scroll-area.tsx
+index fa806b8e..d798e0da 100644
+--- a/packages/react/scroll-area/src/scroll-area.tsx
++++ b/packages/react/scroll-area/src/scroll-area.tsx
+@@ -88,7 +88,7 @@ const ScrollArea = React.forwardRef<ScrollAreaElement, ScrollAreaProps>(
+     const [cornerHeight, setCornerHeight] = React.useState(0);
+     const [scrollbarXEnabled, setScrollbarXEnabled] = React.useState(false);
+     const [scrollbarYEnabled, setScrollbarYEnabled] = React.useState(false);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setScrollArea(node));
++    const composedRefs = useComposedRefs(forwardedRef, setScrollArea);
+     const direction = useDirection(dir);
+ 
+     return (
+@@ -662,7 +662,7 @@ const ScrollAreaScrollbarImpl = React.forwardRef<
+   } = props;
+   const context = useScrollAreaContext(SCROLLBAR_NAME, __scopeScrollArea);
+   const [scrollbar, setScrollbar] = React.useState<ScrollAreaScrollbarElement | null>(null);
+-  const composeRefs = useComposedRefs(forwardedRef, (node) => setScrollbar(node));
++  const composeRefs = useComposedRefs(forwardedRef, setScrollbar);
+   const rectRef = React.useRef<DOMRect | null>(null);
+   const prevWebkitUserSelectRef = React.useRef<string>('');
+   const viewport = context.viewport;
+@@ -780,9 +780,8 @@ const ScrollAreaThumbImpl = React.forwardRef<ScrollAreaThumbImplElement, ScrollA
+     const scrollAreaContext = useScrollAreaContext(THUMB_NAME, __scopeScrollArea);
+     const scrollbarContext = useScrollbarContext(THUMB_NAME, __scopeScrollArea);
+     const { onThumbPositionChange } = scrollbarContext;
+-    const composedRef = useComposedRefs(forwardedRef, (node) =>
+-      scrollbarContext.onThumbChange(node),
+-    );
++    const stableOnThumbChange = useCallbackRef((node) => scrollbarContext.onThumbChange(node));
++    const composedRef = useComposedRefs(forwardedRef, stableOnThumbChange);
+     const removeUnlinkedScrollListenerRef = React.useRef<() => void>(undefined);
+     const debounceScrollEnd = useDebounceCallback(() => {
+       if (removeUnlinkedScrollListenerRef.current) {
+diff --git a/packages/react/select/src/select.tsx b/packages/react/select/src/select.tsx
+index 69a1f0c5..324e4736 100644
+--- a/packages/react/select/src/select.tsx
++++ b/packages/react/select/src/select.tsx
+@@ -560,7 +560,7 @@ const SelectContentImpl = React.forwardRef<SelectContentImplElement, SelectConte
+     const context = useSelectContext(CONTENT_NAME, __scopeSelect);
+     const [content, setContent] = React.useState<SelectContentImplElement | null>(null);
+     const [viewport, setViewport] = React.useState<SelectViewportElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setContent(node));
++    const composedRefs = useComposedRefs(forwardedRef, setContent);
+     const [selectedItem, setSelectedItem] = React.useState<SelectItemElement | null>(null);
+     const [selectedItemText, setSelectedItemText] = React.useState<SelectItemTextElement | null>(
+       null,
+@@ -836,7 +836,7 @@ const SelectItemAlignedPosition = React.forwardRef<
+   const contentContext = useSelectContentContext(CONTENT_NAME, __scopeSelect);
+   const [contentWrapper, setContentWrapper] = React.useState<HTMLDivElement | null>(null);
+   const [content, setContent] = React.useState<SelectItemAlignedPositionElement | null>(null);
+-  const composedRefs = useComposedRefs(forwardedRef, (node) => setContent(node));
++  const composedRefs = useComposedRefs(forwardedRef, setContent);
+   const getItems = useCollection(__scopeSelect);
+   const shouldExpandOnScrollRef = React.useRef(false);
+   const shouldRepositionRef = React.useRef(true);
+@@ -1264,9 +1264,10 @@ const SelectItem = React.forwardRef<SelectItemElement, SelectItemProps>(
+     const isSelected = context.value === value;
+     const [textValue, setTextValue] = React.useState(textValueProp ?? '');
+     const [isFocused, setIsFocused] = React.useState(false);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) =>
++    const stableItemRefCallback = useCallbackRef((node) =>
+       contentContext.itemRefCallback?.(node, value, disabled),
+     );
++    const composedRefs = useComposedRefs(forwardedRef, stableItemRefCallback);
+     const textId = useId();
+     const pointerTypeRef = React.useRef<React.PointerEvent['pointerType']>('touch');
+ 
+@@ -1376,11 +1377,14 @@ const SelectItemText = React.forwardRef<SelectItemTextElement, SelectItemTextPro
+     const itemContext = useSelectItemContext(ITEM_TEXT_NAME, __scopeSelect);
+     const nativeOptionsContext = useSelectNativeOptionsContext(ITEM_TEXT_NAME, __scopeSelect);
+     const [itemTextNode, setItemTextNode] = React.useState<SelectItemTextElement | null>(null);
++    const stableItemTextRefCallback = useCallbackRef((node) =>
++      contentContext.itemTextRefCallback?.(node, itemContext.value, itemContext.disabled),
++    );
+     const composedRefs = useComposedRefs(
+       forwardedRef,
+-      (node) => setItemTextNode(node),
++      setItemTextNode,
+       itemContext.onItemTextChange,
+-      (node) => contentContext.itemTextRefCallback?.(node, itemContext.value, itemContext.disabled),
++      stableItemTextRefCallback,
+     );
+ 
+     const textContent = itemTextNode?.textContent;

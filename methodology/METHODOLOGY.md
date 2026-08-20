@@ -133,12 +133,14 @@ and only aggregate scores are published — no company source. Runs in two phase
 
 The counterweight to memorization risk: porting the shareware sector-1 levels of a 1994 DOS
 shooter (GPL-licensed source) to an HTML5 canvas — something, as far as we could find, never done
-before. Both models get the same fixed budget of scripted milestone turns and wall-clock cap.
-Progress is milestone-based (M1 rendering → M2 controls → M3 combat → M4 HUD/audio → M5 full
-sector loop), each with a scripted, automated check (Playwright, SSIM against a reference DOSBox
-frame, exposed state hooks) — not a human's impression of "does it look right." Both ports are
-published in one repository, as separate trees with per-milestone branches, so any claimed
-milestone can be checked against the actual commit.
+before. Both models get the same fixed budget: the same 6 scripted milestone turns. Wall-clock is
+reported (time-to-milestone) but is not a cap — the only time limit is a 4-hour-per-turn runaway
+guard applied identically to both models, so neither is penalized just for being slower. Progress
+is milestone-based (M1 rendering → M2 controls → M3 combat → M4 HUD/audio → M5 full sector loop),
+each with a scripted, automated check (Playwright, SSIM against a reference DOSBox frame, exposed
+state hooks) — not a human's impression of "does it look right." Both ports are published in one
+repository, as separate trees with per-milestone branches, so any claimed milestone can be
+checked against the actual commit.
 
 ## 5. Calibration gate
 
@@ -235,8 +237,17 @@ before any verdict was drawn, and none were applied to only some of a task's run
    that had already completed correctly were kept as valid. OpenCode (lane B) gives no visibility
    into what effort setting it actually sends to either model — disclosed here as a blind spot
    rather than assumed fine — but its runs send no effort field by default and were kept.
+8. **Raptor's budget was turns, not a wall-clock cap.** The original rule set both a scripted
+   milestone-turn budget and a wall-clock cap (e.g. 6h) per model. Jason's ruling: the wall-clock
+   cap penalized the slower model just for being slower, which isn't what this task is meant to
+   measure. Raptor is now budgeted purely by the same 6 scripted milestone turns for both models;
+   wall-clock is still reported (time-to-milestone) so speed is visible, but it is no longer a
+   cap. The only time limit left is a 4-hour-per-turn runaway guard, applied identically to both
+   models, replacing an earlier 90-minute-per-turn setting that would have had the same
+   slower-model-penalty problem. Both in-flight Raptor runs were restarted under the new rule and
+   the earlier attempts archived.
 
-The principle behind all seven: a frozen check has to pass on *any* correct fix, not just the one
+The principle behind all eight: a frozen check has to pass on *any* correct fix, not just the one
 particular design the test author happened to imagine when writing it. When a check turns out to
 be too narrow, or a script has a bug, that's a defect in our scaffolding, not evidence about a
 model — so it gets fixed, dated, logged here and in `SCORING.md`, and reapplied to every run of

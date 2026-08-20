@@ -69,7 +69,7 @@ Tertiary (Jason, NOT blinded — he drives the session and knows the model; repo
 Published: aggregate scores only (company code).
 
 ### 2D. Raptor → web port ladder (shareware sector 1 only)
-Fixed budget per model: same number of scripted milestone turns and the same wall-clock cap (set before run; e.g. 6h).
+Fixed budget per model: the same 6 scripted milestone turns. Wall-clock is REPORTED (time-to-milestone) but is not a cap; the only time limit is a 4-hour-per-turn runaway guard applied identically to both models.
 Primary: **highest milestone with its acceptance check passing** (0–5), each check scripted in Playwright against the
 model's build:
 - M1 level-1 background + player ship rendered on canvas from the real GLB data: screenshot similarity (SSIM) to a DOSBox

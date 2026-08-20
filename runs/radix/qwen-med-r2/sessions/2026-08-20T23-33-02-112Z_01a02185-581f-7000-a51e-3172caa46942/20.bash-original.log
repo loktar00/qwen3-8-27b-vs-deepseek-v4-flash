@@ -1,0 +1,120 @@
+commit 9067c4370c7944e2712def701693f2adff0f13e1
+Author: Chance Strickland <hi@chance.dev>
+Date:   Mon Jun 1 18:04:32 2026 -0700
+
+    Slot: Fix infinite re-render loop in React 19 due to unstable ref (#3899)
+    
+    * Slot: Fix infinite re-render loop in React 19 due to unstable ref
+    
+    ---------
+    
+    Co-authored-by: =?UTF-8?q?Yannis=20G=C3=BCdel?= <me@yannisguedel.ch>
+
+diff --git a/.changeset/honest-dancers-stay.md b/.changeset/honest-dancers-stay.md
+new file mode 100644
+index 00000000..cee11a10
+--- /dev/null
++++ b/.changeset/honest-dancers-stay.md
+@@ -0,0 +1,5 @@
++---
++'@radix-ui/react-slot': patch
++---
++
++Fixed infinite re-render loop in React 19 caused by `Slot` creating a new ref callback on every render
+diff --git a/packages/react/slot/src/slot-ref-stability.test.tsx b/packages/react/slot/src/slot-ref-stability.test.tsx
+new file mode 100644
+index 00000000..8d2a3964
+--- /dev/null
++++ b/packages/react/slot/src/slot-ref-stability.test.tsx
+@@ -0,0 +1,55 @@
++import * as React from 'react';
++import { act, cleanup, render } from '@testing-library/react';
++import { afterEach, describe, it, expect } from 'vitest';
++import { Slot } from './slot';
++
++// Regression tests for https://github.com/radix-ui/primitives/issues/3799
++describe('Slot ref stability', () => {
++  afterEach(cleanup);
++  it('does not cause an infinite render loop when attaching the ref triggers a render', () => {
++    let renderCount = 0;
++
++    function App() {
++      renderCount++;
++      const [, forceRender] = React.useReducer((c) => c + 1, 0);
++      const ref = React.useCallback((node: HTMLElement | null) => {
++        if (node) forceRender();
++      }, []);
++
++      return (
++        <Slot ref={ref}>
++          <button type="button">Click me</button>
++        </Slot>
++      );
++    }
++
++    expect(() => render(<App />)).not.toThrow();
++    expect(renderCount).toBeLessThan(25);
++  });
++
++  it('passes a single stable composed ref to the child across re-renders', () => {
++    const refIdentities = new Set<unknown>();
++    let bump!: () => void;
++
++    const Child = React.forwardRef<HTMLButtonElement>(function Child(_props, ref) {
++      refIdentities.add(ref);
++      return <button type="button" ref={ref} />;
++    });
++
++    function App() {
++      const [, forceRender] = React.useReducer((c) => c + 1, 0);
++      bump = forceRender;
++      const forwardedRef = React.useRef<HTMLButtonElement>(null);
++      return (
++        <Slot ref={forwardedRef}>
++          <Child />
++        </Slot>
++      );
++    }
++
++    render(<App />);
++    act(() => bump());
++    act(() => bump());
++    expect(refIdentities.size).toBe(1);
++  });
++});
+diff --git a/packages/react/slot/src/slot.tsx b/packages/react/slot/src/slot.tsx
+index acb7e7bb..739a2a2f 100644
+--- a/packages/react/slot/src/slot.tsx
++++ b/packages/react/slot/src/slot.tsx
+@@ -1,5 +1,5 @@
+ import * as React from 'react';
+-import { composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ 
+ declare module 'react' {
+   interface ReactElement {
+@@ -59,6 +59,9 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       slottableElement = children;
+     }
+ 
++    const slottableElementRef = slottableElement ? getElementRef(slottableElement) : undefined;
++    const composedRef = useComposedRefs(forwardedRef, slottableElementRef);
++
+     if (!slottableElement) {
+       // Empty/falsy children (`null`, `undefined`, `false`, no children, etc.) are valid and
+       // render nothing. Anything else is content we couldn't slot onto a single element, which
+@@ -71,13 +74,11 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       return children;
+     }
+ 
+-    const slottableElementRef = getElementRef(slottableElement);
+-    const composedRefs = composeRefs(forwardedRef, slottableElementRef);
+     const mergedProps = mergeProps(slotProps, slottableElement.props ?? {});
+ 
+     // do not pass ref to React.Fragment for React 19 compatibility
+     if (slottableElement.type !== React.Fragment) {
+-      mergedProps.ref = forwardedRef ? composedRefs : slottableElementRef;
++      mergedProps.ref = forwardedRef ? composedRef : slottableElementRef;
+     }
+ 
+     return React.cloneElement(slottableElement, mergedProps);

@@ -1,0 +1,169 @@
+---
+diff --git a/packages/react/dismissable-layer/src/dismissable-layer.tsx b/packages/react/dismissable-layer/src/dismissable-layer.tsx
+index a59c7347..d7d6b4a9 100644
+--- a/packages/react/dismissable-layer/src/dismissable-layer.tsx
++++ b/packages/react/dismissable-layer/src/dismissable-layer.tsx
+@@ -73,7 +73,7 @@ const DismissableLayer = React.forwardRef<DismissableLayerElement, DismissableLa
+     const [node, setNode] = React.useState<DismissableLayerElement | null>(null);
+     const ownerDocument = node?.ownerDocument ?? globalThis?.document;
+     const [, force] = React.useState({});
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setNode(node));
++    const composedRefs = useComposedRefs(forwardedRef, setNode);
+     const layers = Array.from(context.layers);
+     const [highestLayerWithOutsidePointerEventsDisabled] = [...context.layersWithOutsidePointerEventsDisabled].slice(-1); // prettier-ignore
+     const highestLayerWithOutsidePointerEventsDisabledIndex = layers.indexOf(highestLayerWithOutsidePointerEventsDisabled!); // prettier-ignore
+diff --git a/packages/react/dropdown-menu/src/dropdown-menu.tsx b/packages/react/dropdown-menu/src/dropdown-menu.tsx
+index 8744ee76..4c898dea 100644
+--- a/packages/react/dropdown-menu/src/dropdown-menu.tsx
++++ b/packages/react/dropdown-menu/src/dropdown-menu.tsx
+@@ -1,6 +1,6 @@
+ import * as React from 'react';
+ import { composeEventHandlers } from '@radix-ui/primitive';
+-import { composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ import { createContextScope } from '@radix-ui/react-context';
+ import { useControllableState } from '@radix-ui/react-use-controllable-state';
+ import { Primitive } from '@radix-ui/react-primitive';
+@@ -101,6 +101,7 @@ const DropdownMenuTrigger = React.forwardRef<DropdownMenuTriggerElement, Dropdow
+     const { __scopeDropdownMenu, disabled = false, ...triggerProps } = props;
+     const context = useDropdownMenuContext(TRIGGER_NAME, __scopeDropdownMenu);
+     const menuScope = useMenuScope(__scopeDropdownMenu);
++    const composedTriggerRef = useComposedRefs(forwardedRef, context.triggerRef);
+     return (
+       <MenuPrimitive.Anchor asChild {...menuScope}>
+         <Primitive.button
+@@ -113,7 +114,7 @@ const DropdownMenuTrigger = React.forwardRef<DropdownMenuTriggerElement, Dropdow
+           data-disabled={disabled ? '' : undefined}
+           disabled={disabled}
+           {...triggerProps}
+-          ref={composeRefs(forwardedRef, context.triggerRef)}
++          ref={composedTriggerRef}
+           onPointerDown={composeEventHandlers(props.onPointerDown, (event) => {
+             // only call handler if it's the left button (mousedown gets triggered by all mouse buttons)
+             // but not when the control key is pressed (avoiding MacOS right click)
+diff --git a/packages/react/focus-scope/src/focus-scope.tsx b/packages/react/focus-scope/src/focus-scope.tsx
+index 605c1e79..6125675a 100644
+--- a/packages/react/focus-scope/src/focus-scope.tsx
++++ b/packages/react/focus-scope/src/focus-scope.tsx
+@@ -57,7 +57,7 @@ const FocusScope = React.forwardRef<FocusScopeElement, FocusScopeProps>((props,
+   const onMountAutoFocus = useCallbackRef(onMountAutoFocusProp);
+   const onUnmountAutoFocus = useCallbackRef(onUnmountAutoFocusProp);
+   const lastFocusedElementRef = React.useRef<HTMLElement | null>(null);
+-  const composedRefs = useComposedRefs(forwardedRef, (node) => setContainer(node));
++  const composedRefs = useComposedRefs(forwardedRef, setContainer);
+ 
+   const focusScope = React.useRef({
+     paused: false,
+diff --git a/packages/react/menu/src/menu.tsx b/packages/react/menu/src/menu.tsx
+index dff0c1e9..32181492 100644
+--- a/packages/react/menu/src/menu.tsx
++++ b/packages/react/menu/src/menu.tsx
+@@ -1,7 +1,7 @@
+ import * as React from 'react';
+ import { composeEventHandlers } from '@radix-ui/primitive';
+ import { createCollection } from '@radix-ui/react-collection';
+-import { useComposedRefs, composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ import { createContextScope } from '@radix-ui/react-context';
+ import { useDirection } from '@radix-ui/react-direction';
+ import { DismissableLayer } from '@radix-ui/react-dismissable-layer';
+@@ -1044,6 +1044,7 @@ const MenuSubTrigger = React.forwardRef<MenuSubTriggerElement, MenuSubTriggerPro
+       };
+     }, [pointerGraceTimerRef, onPointerGraceIntentChange]);
+ 
++    const composedSubTriggerRef = useComposedRefs(forwardedRef, subContext.onTriggerChange);
+     return (
+       <MenuAnchor asChild {...scope}>
+         <MenuItemImpl
+@@ -1053,7 +1054,7 @@ const MenuSubTrigger = React.forwardRef<MenuSubTriggerElement, MenuSubTriggerPro
+           aria-controls={subContext.contentId}
+           data-state={getOpenState(context.open)}
+           {...props}
+-          ref={composeRefs(forwardedRef, subContext.onTriggerChange)}
++          ref={composedSubTriggerRef}
+           // This is redundant for mouse users but we cannot determine pointer type from
+           // click event and we cannot use pointerup event (see git history for reasons why)
+           onClick={(event) => {
+diff --git a/packages/react/popper/src/popper.tsx b/packages/react/popper/src/popper.tsx
+index a7a74529..bfd91fd9 100644
+--- a/packages/react/popper/src/popper.tsx
++++ b/packages/react/popper/src/popper.tsx
+@@ -180,7 +180,7 @@ const PopperContent = React.forwardRef<PopperContentElement, PopperContentProps>
+     const context = usePopperContext(CONTENT_NAME, __scopePopper);
+ 
+     const [content, setContent] = React.useState<HTMLDivElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setContent(node));
++    const composedRefs = useComposedRefs(forwardedRef, setContent);
+ 
+     const [arrow, setArrow] = React.useState<HTMLSpanElement | null>(null);
+     const arrowSize = useSize(arrow);
+diff --git a/packages/react/radio-group/src/radio.tsx b/packages/react/radio-group/src/radio.tsx
+index 8daca0c2..7db9822b 100644
+--- a/packages/react/radio-group/src/radio.tsx
++++ b/packages/react/radio-group/src/radio.tsx
+@@ -43,7 +43,7 @@ const Radio = React.forwardRef<RadioElement, RadioProps>(
+       ...radioProps
+     } = props;
+     const [button, setButton] = React.useState<HTMLButtonElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setButton(node));
++    const composedRefs = useComposedRefs(forwardedRef, setButton);
+     const hasConsumerStoppedPropagationRef = React.useRef(false);
+     // We set this to true by default so that events bubble to forms without JS (SSR)
+     const isFormControl = button ? form || !!button.closest('form') : true;
+diff --git a/packages/react/slider/src/slider.tsx b/packages/react/slider/src/slider.tsx
+index c23521ba..fcc15aae 100644
+--- a/packages/react/slider/src/slider.tsx
++++ b/packages/react/slider/src/slider.tsx
+@@ -253,7 +253,7 @@ const SliderHorizontal = React.forwardRef<SliderHorizontalElement, SliderHorizon
+       ...sliderProps
+     } = props;
+     const [slider, setSlider] = React.useState<SliderImplElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setSlider(node));
++    const composedRefs = useComposedRefs(forwardedRef, setSlider);
+     const rectRef = React.useRef<DOMRect>(undefined);
+     const direction = useDirection(dir);
+     const isDirectionLTR = direction === 'ltr';
+@@ -541,7 +541,7 @@ const SliderThumb = React.forwardRef<SliderThumbElement, SliderThumbProps>(
+   (props: ScopedProps<SliderThumbProps>, forwardedRef) => {
+     const getItems = useCollection(props.__scopeSlider);
+     const [thumb, setThumb] = React.useState<SliderThumbImplElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setThumb(node));
++    const composedRefs = useComposedRefs(forwardedRef, setThumb);
+     const index = React.useMemo(
+       () => (thumb ? getItems().findIndex((item) => item.ref.current === thumb) : -1),
+       [getItems, thumb],
+@@ -562,7 +562,7 @@ const SliderThumbImpl = React.forwardRef<SliderThumbImplElement, SliderThumbImpl
+     const context = useSliderContext(THUMB_NAME, __scopeSlider);
+     const orientation = useSliderOrientationContext(THUMB_NAME, __scopeSlider);
+     const [thumb, setThumb] = React.useState<HTMLSpanElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setThumb(node));
++    const composedRefs = useComposedRefs(forwardedRef, setThumb);
+     // We set this to true by default so that events bubble to forms without JS (SSR)
+     const isFormControl = thumb ? context.form || !!thumb.closest('form') : true;
+     const size = useSize(thumb);
+diff --git a/packages/react/switch/src/switch.tsx b/packages/react/switch/src/switch.tsx
+index 1be64519..53ebbdf8 100644
+--- a/packages/react/switch/src/switch.tsx
++++ b/packages/react/switch/src/switch.tsx
+@@ -45,7 +45,7 @@ const Switch = React.forwardRef<SwitchElement, SwitchProps>(
+       ...switchProps
+     } = props;
+     const [button, setButton] = React.useState<HTMLButtonElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setButton(node));
++    const composedRefs = useComposedRefs(forwardedRef, setButton);
+     const hasConsumerStoppedPropagationRef = React.useRef(false);
+     // We set this to true by default so that events bubble to forms without JS (SSR)
+     const isFormControl = button ? form || !!button.closest('form') : true;
+diff --git a/packages/react/toast/src/toast.tsx b/packages/react/toast/src/toast.tsx
+index db040cc4..8d05add2 100644
+--- a/packages/react/toast/src/toast.tsx
++++ b/packages/react/toast/src/toast.tsx
+@@ -480,7 +480,7 @@ const ToastImpl = React.forwardRef<ToastImplElement, ToastImplProps>(
+     } = props;
+     const context = useToastProviderContext(TOAST_NAME, __scopeToast);
+     const [node, setNode] = React.useState<ToastImplElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setNode(node));
++    const composedRefs = useComposedRefs(forwardedRef, setNode);
+     const pointerStartRef = React.useRef<{ x: number; y: number } | null>(null);
+     const swipeDeltaRef = React.useRef<{ x: number; y: number } | null>(null);
+     const duration = durationProp || context.duration;

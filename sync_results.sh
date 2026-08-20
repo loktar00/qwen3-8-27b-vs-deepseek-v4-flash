@@ -19,6 +19,14 @@
 # also does a post-copy sanity check (src has files => dst ends up non-empty)
 # and treats a false "success" that copied nothing as a real failure.
 #
+# Size guard: GitHub rejects any pushed file over 100MB. Both wrappers pass
+# robocopy /MAX so it never even copies a file over MAX_FILE_BYTES in the first
+# place (cheap, avoids the I/O), and after ALL copying is done there's also a
+# full-tree scan (big_file_guard) that deletes and logs anything over the limit
+# that slipped through some other way (e.g. a plain `cp` copy, or a file that
+# grew between the size check and the push). Belt and suspenders on purpose —
+# a rejected push here blocks every future sync until someone notices.
+#
 # Source of truth lives outside this repo, in the private working tree at
 # D:\dev\ab-tasks (and D:\dev\style-pilot\labs\qwen38-day0\ab for methodology).
 # This script never touches D:\devNewman (company-confidential) and never copies
@@ -45,6 +53,7 @@ AB="D:/dev/style-pilot/labs/qwen38-day0/ab"
 DST="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOCKDIR="$DST/.sync.lock"
 STALE_SECS=600
+MAX_FILE_BYTES=$((95 * 1024 * 1024))   # 95 MiB; GitHub's hard limit is 100MB
 
 log() { echo "[sync_results] $*" >&2; }
 
@@ -84,6 +93,8 @@ trap 'rm -rf "$LOCKDIR"' EXIT
 # Sanity check: if src has any files, dst must end up with at least one too.
 # Catches robocopy "succeeding" (exit <8) while having silently copied nothing
 # (e.g. because it was handed a POSIX-style destination it can't write to).
+# NOTE: a src dir consisting ENTIRELY of oversized files (all skipped by /MAX)
+# would also trip this; that's fine -- it means investigate, not paper over.
 verify_copied() {
   local src="$1" dst="$2"
   local src_n dst_n
@@ -100,14 +111,15 @@ verify_copied() {
 # what it did), only >=8 means real failure. Wrap so callers can treat this like
 # any other command returning 0/1 under set -o pipefail without robocopy's normal
 # nonzero-on-success codes tripping anything. /MIR mirrors (deletes dst extras),
-# so only use robomirror on dirs with no hand-authored files worth protecting. ---
+# so only use robomirror on dirs with no hand-authored files worth protecting.
+# /MAX:MAX_FILE_BYTES on every call: never even attempt to copy an oversized file. ---
 robomirror() {
   local src="$1" dst="$2"; shift 2
   local rc=0 src_win dst_win
   mkdir -p "$dst"
   src_win="$(cygpath -w "$src" 2>/dev/null || echo "$src")"
   dst_win="$(cygpath -w "$dst" 2>/dev/null || echo "$dst")"
-  robocopy "$src_win" "$dst_win" /MIR /NFL /NDL /NJH /NJS /NP "$@" >/dev/null 2>&1
+  robocopy "$src_win" "$dst_win" /MIR /MAX:"$MAX_FILE_BYTES" /NFL /NDL /NJH /NJS /NP "$@" >/dev/null 2>&1
   rc=$?
   [ "$rc" -ge 8 ] && return 1
   verify_copied "$src" "$dst" || return 1
@@ -122,7 +134,7 @@ robocopy_update() {
   mkdir -p "$dst"
   src_win="$(cygpath -w "$src" 2>/dev/null || echo "$src")"
   dst_win="$(cygpath -w "$dst" 2>/dev/null || echo "$dst")"
-  robocopy "$src_win" "$dst_win" /E /NFL /NDL /NJH /NJS /NP "$@" >/dev/null 2>&1
+  robocopy "$src_win" "$dst_win" /E /MAX:"$MAX_FILE_BYTES" /NFL /NDL /NJH /NJS /NP "$@" >/dev/null 2>&1
   rc=$?
   [ "$rc" -ge 8 ] && return 1
   verify_copied "$src" "$dst" || return 1
@@ -147,24 +159,47 @@ cp -f "$SRC/_raptor-support/GLB-FORMAT.md" "$SRC/_raptor-support/brief-draft.md"
   || fail "raptor-support docs copy"
 
 # --- runs/ (all tasks except deeweb*, and except the _matrix/calibration pseudo-tasks) ---
+# Any top-level _runs/<name> starting with "_" (besides _matrix, handled explicitly
+# above) is orchestrator scratch/quarantine space, not a task -- e.g. _invalid-effort-*,
+# _invalid-harness-*, _restarted-*, created when a run gets invalidated and redone.
+# Publishing those alongside real results would present retracted/broken runs as if
+# they were live data, so they're skipped the same way _matrix and deeweb* are.
 mkdir -p "$DST/runs/_matrix"
 cp -f "$SRC/_runs/_matrix/status.tsv" "$DST/runs/_matrix/" || fail "matrix status.tsv copy"
 for d in "$SRC/_runs"/*/; do
   t="$(basename "$d")"
   case "$t" in
-    _matrix) continue ;;
+    _*) log "skipping orchestrator scratch dir: $t"; continue ;;
     calibration) continue ;;
     deeweb*) log "skipping excluded task dir: $t"; continue ;;
   esac
-  robomirror "$d" "$DST/runs/$t" /XD "worktree*" node_modules __pycache__ /XF "*.pyc" \
+  robomirror "$d" "$DST/runs/$t" /XD "worktree*" node_modules __pycache__ /XF "*.pyc" "*.bash.log" \
     || fail "runs/$t copy"
 done
 
 # --- calibration/ ---
-robomirror "$SRC/_runs/calibration" "$DST/calibration" /XD __pycache__ /XF "*.pyc" || fail "calibration copy"
+robomirror "$SRC/_runs/calibration" "$DST/calibration" /XD __pycache__ /XF "*.pyc" "*.bash.log" \
+  || fail "calibration copy"
 
 # --- answer-keys/ (keep our own README.md, refresh the rest, no deletion) ---
 robocopy_update "$SRC/_hidden" "$DST/answer-keys" /XF README.md || fail "answer-keys copy"
+
+# --- final safety net: nothing over MAX_FILE_BYTES may enter the repo, regardless
+# of which mechanism copied it (robocopy /MAX above, or a plain `cp`). Scans the
+# whole working tree except .git, deletes and logs any offender before staging. ---
+big_file_guard() {
+  local f size any=0
+  while IFS= read -r -d '' f; do
+    size="$(stat -c %s "$f" 2>/dev/null || echo 0)"
+    if [ "$size" -gt "$MAX_FILE_BYTES" ]; then
+      log "removing oversized file (${size} bytes > ${MAX_FILE_BYTES}): $f"
+      rm -f "$f"
+      any=1
+    fi
+  done < <(find "$DST" -type d -name .git -prune -o -type f -print0)
+  return $any
+}
+big_file_guard || log "one or more oversized files were dropped from this sync (see lines above)"
 
 log "sync complete, checking git status..."
 cd "$DST" || fail "cd to repo"
@@ -183,7 +218,14 @@ if [ -z "$CHANGES" ]; then
 fi
 
 git commit -q -m "results sync $(date -u +%FT%TZ)" || fail "git commit"
-git push -q || fail "git push"
+
+PUSH_OUT="$(git push -q 2>&1)"
+PUSH_RC=$?
+if [ "$PUSH_RC" -ne 0 ]; then
+  FIRST_LINE="$(printf '%s\n' "$PUSH_OUT" | grep -m1 -E '^(remote: )?error:')"
+  [ -z "$FIRST_LINE" ] && FIRST_LINE="$(printf '%s\n' "$PUSH_OUT" | grep -m1 .)"
+  fail "git push: ${FIRST_LINE:-no output}"
+fi
 
 SHA="$(git rev-parse --short HEAD)"
 echo "synced: $SHA"

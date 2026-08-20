@@ -1,0 +1,164 @@
+commit e59256f16bd71c0456c62030f3e6433ba2c23e72
+Author: Chance Strickland <hi@chance.dev>
+Date:   Mon May 19 11:20:31 2025 -0700
+
+    Revert Slot changes causing RSC errors (#3554)
+
+diff --git a/.changeset/twenty-apples-stay.md b/.changeset/twenty-apples-stay.md
+new file mode 100644
+index 00000000..b906866f
+--- /dev/null
++++ b/.changeset/twenty-apples-stay.md
+@@ -0,0 +1,5 @@
++---
++'@radix-ui/react-slot': patch
++---
++
++Revert slot changes causing errors in server components
+diff --git a/packages/react/slot/src/index.ts b/packages/react/slot/src/index.ts
+index aa7c2bfa..49742e14 100644
+--- a/packages/react/slot/src/index.ts
++++ b/packages/react/slot/src/index.ts
+@@ -1,4 +1,3 @@
+-'use client';
+ export {
+   Slot,
+   Slottable,
+diff --git a/packages/react/slot/src/slot.test.tsx b/packages/react/slot/src/slot.test.tsx
+index 0541e4ff..21b2eb30 100644
+--- a/packages/react/slot/src/slot.test.tsx
++++ b/packages/react/slot/src/slot.test.tsx
+@@ -1,4 +1,4 @@
+-import React, { useState } from 'react';
++import * as React from 'react';
+ import { cleanup, render, screen, fireEvent } from '@testing-library/react';
+ import userEvent from '@testing-library/user-event';
+ import { Slot, Slottable } from './slot';
+@@ -140,7 +140,9 @@ describe('given a Button with Slottable', () => {
+   });
+ });
+ 
+-describe('given an Input', () => {
++// TODO: Unskip when underlying issue is resolved
++// Reverted in https://github.com/radix-ui/primitives/pull/3554
++describe.skip('given an Input', () => {
+   const handleRef = vi.fn();
+ 
+   beforeEach(() => {
+@@ -199,7 +201,7 @@ const Input = React.forwardRef<
+   }
+ >(({ asChild, children, ...props }, forwardedRef) => {
+   const Comp = asChild ? Slot : 'input';
+-  const [value, setValue] = useState('');
++  const [value, setValue] = React.useState('');
+ 
+   return (
+     <Comp
+diff --git a/packages/react/slot/src/slot.tsx b/packages/react/slot/src/slot.tsx
+index 33fba7ba..7e31d665 100644
+--- a/packages/react/slot/src/slot.tsx
++++ b/packages/react/slot/src/slot.tsx
+@@ -1,5 +1,5 @@
+ import * as React from 'react';
+-import { useComposedRefs } from '@radix-ui/react-compose-refs';
++import { composeRefs } from '@radix-ui/react-compose-refs';
+ 
+ /* -------------------------------------------------------------------------------------------------
+  * Slot
+@@ -66,14 +66,13 @@ interface SlotCloneProps {
+ /* @__NO_SIDE_EFFECTS__ */ function createSlotClone(ownerName: string) {
+   const SlotClone = React.forwardRef<any, SlotCloneProps>((props, forwardedRef) => {
+     const { children, ...slotProps } = props;
+-    const childrenRef = React.isValidElement(children) ? getElementRef(children) : undefined;
+-    const ref = useComposedRefs(childrenRef, forwardedRef);
+ 
+     if (React.isValidElement(children)) {
++      const childrenRef = getElementRef(children);
+       const props = mergeProps(slotProps, children.props as AnyProps);
+       // do not pass ref to React.Fragment for React 19 compatibility
+       if (children.type !== React.Fragment) {
+-        props.ref = ref;
++        props.ref = forwardedRef ? composeRefs(forwardedRef, childrenRef) : childrenRef;
+       }
+       return React.cloneElement(children, props);
+     }
+commit f64d78158a5502debfdc2005a6fa863a02c8c2f9
+Author: Rafi Adnan <rafiadnan47@gmail.com>
+Date:   Tue Apr 22 13:26:33 2025 -0400
+
+    use stable composed refs in SlotClone (#3477)
+
+diff --git a/packages/react/slot/src/slot.test.tsx b/packages/react/slot/src/slot.test.tsx
+index a6b3c909..2d2c39ea 100644
+--- a/packages/react/slot/src/slot.test.tsx
++++ b/packages/react/slot/src/slot.test.tsx
+@@ -1,5 +1,6 @@
+-import React from 'react';
++import React, { useState } from 'react';
+ import { cleanup, render, screen, fireEvent } from '@testing-library/react';
++import userEvent from '@testing-library/user-event';
+ import { Slot, Slottable } from './slot';
+ import { afterEach, describe, it, beforeEach, vi, expect } from 'vitest';
+ 
+@@ -139,6 +140,36 @@ describe('given a Button with Slottable', () => {
+   });
+ });
+ 
++describe('given an Input', () => {
++  const handleRef = vi.fn();
++
++  beforeEach(() => {
++    handleRef.mockReset();
++  });
++
++  afterEach(cleanup);
++
++  describe('without asChild', () => {
++    it('should only call function refs once', async () => {
++      render(<Input ref={handleRef} />);
++      await userEvent.type(screen.getByRole('textbox'), 'foo');
++      expect(handleRef).toHaveBeenCalledTimes(1);
++    });
++  });
++
++  describe('with asChild', () => {
++    it('should only call function refs once', async () => {
++      render(
++        <Input asChild ref={handleRef}>
++          <input />
++        </Input>
++      );
++      await userEvent.type(screen.getByRole('textbox'), 'foo');
++      expect(handleRef).toHaveBeenCalledTimes(1);
++    });
++  });
++});
++
+ type TriggerProps = React.ComponentProps<'button'> & { as: React.ElementType };
+ 
+ const Trigger = ({ as: Comp = 'button', ...props }: TriggerProps) => <Comp {...props} />;
+@@ -160,3 +191,24 @@ const Button = React.forwardRef<
+     </Comp>
+   );
+ });
++
++const Input = React.forwardRef<
++  React.ElementRef<'input'>,
++  React.ComponentProps<'input'> & {
++    asChild?: boolean;
++  }
++>(({ asChild, children, ...props }, forwardedRef) => {
++  const Comp = asChild ? Slot : 'input';
++  const [value, setValue] = useState('');
++
++  return (
++    <Comp
++      {...props}
++      onChange={(event) => setValue(event.target.value)}
++      ref={forwardedRef}
++      value={value}
++    >
++      {children}
++    </Comp>
++  );
++});

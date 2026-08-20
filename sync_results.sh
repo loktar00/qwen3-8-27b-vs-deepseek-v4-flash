@@ -139,6 +139,11 @@ robocopy_update "$SRC/_hidden" "$DST/answer-keys" /XF README.md || fail "answer-
 log "sync complete, checking git status..."
 cd "$DST" || fail "cd to repo"
 
+# Release the lock before staging so .sync.lock/ is never present for `git add -A`
+# to pick up (the EXIT trap still covers early-failure paths above this point).
+rm -rf "$LOCKDIR"
+trap - EXIT
+
 git add -A || fail "git add"
 CHANGES="$(git status --porcelain)"
 

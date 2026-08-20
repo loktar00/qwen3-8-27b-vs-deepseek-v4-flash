@@ -219,6 +219,10 @@ details.strow[open] .st-title::before { transform: rotate(90deg); }
 .st-glyph.pass { color: var(--good); } .st-glyph.fail { color: var(--critical); }
 .st-glyph.split { color: var(--warn); font-size: 1rem; } .st-glyph.error { color: var(--warn); }
 .st-glyph.none { color: var(--ink-muted); font-weight: 400; }
+.st-split { display: flex; align-items: center; justify-content: center; gap: .25em; font-family: var(--mono); }
+.st-mini { font-size: 1.05rem; font-weight: 700; }
+.st-mini.pass { color: var(--good); } .st-mini.fail { color: var(--critical); }
+.st-split-n { font-size: .68rem; color: var(--ink-muted); margin-left: .1em; }
 .strow-body { padding: .3em 1.1em 1.2rem 2.6rem; background: var(--surface); border-top: 1px dashed var(--line); }
 .strow-model { margin-top: .9em; } .strow-model:first-child { margin-top: 0; }
 .stm-head { font-family: var(--mono); font-weight: 700; font-size: .8rem; color: var(--ink); margin-bottom: .3em; }

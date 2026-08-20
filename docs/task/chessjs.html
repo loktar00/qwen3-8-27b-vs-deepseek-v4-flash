@@ -219,6 +219,10 @@ details.strow[open] .st-title::before { transform: rotate(90deg); }
 .st-glyph.pass { color: var(--good); } .st-glyph.fail { color: var(--critical); }
 .st-glyph.split { color: var(--warn); font-size: 1rem; } .st-glyph.error { color: var(--warn); }
 .st-glyph.none { color: var(--ink-muted); font-weight: 400; }
+.st-split { display: flex; align-items: center; justify-content: center; gap: .25em; font-family: var(--mono); }
+.st-mini { font-size: 1.05rem; font-weight: 700; }
+.st-mini.pass { color: var(--good); } .st-mini.fail { color: var(--critical); }
+.st-split-n { font-size: .68rem; color: var(--ink-muted); margin-left: .1em; }
 .strow-body { padding: .3em 1.1em 1.2rem 2.6rem; background: var(--surface); border-top: 1px dashed var(--line); }
 .strow-model { margin-top: .9em; } .strow-model:first-child { margin-top: 0; }
 .stm-head { font-family: var(--mono); font-weight: 700; font-size: .8rem; color: var(--ink); margin-bottom: .3em; }
@@ -411,7 +415,7 @@ chess.moves({ square: &#x27;h8&#x27;, verbose: true }))</code></pre>
   <div class="rep-label">run 1
     <span class="badge mono" title="raw run label on disk">dsv4-c &rarr; DeepSeek V4 Flash, Plain chat (no tools), run 1</span>
   </div>
-  <div><span class="chip error">TOOL GLITCH</span> <span class="badge">not the model's fault</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip error" title="P1">!</span><span>Fix verified</span></div><div class="check-reason">no worktree</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip error" title="P2">!</span><span>Nothing broke</span></div><div class="check-reason">no worktree</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip error" title="P3">!</span><span>Honest test</span></div><div class="check-reason">no worktree</div></div>
+  <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">[2m   Duration [22m 513ms[2m (transform 66ms, setup 0ms, collect 121ms, tests 3ms, environment 0ms, prepare 132ms)[22m</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">[2m   Duration [22m 2.05s[2m (transform 1.92s, setup 0ms, collect 7.68s, tests 1.95s, environment 8ms, prepare 9.38s)[22m</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">[2m   Duration [22m 466ms[2m (transform 65ms, setup 0ms, collect 107ms, tests 5ms, environment 0ms, prepare 131ms)[22m — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
   <h4>Process</h4>
   
 <dl class="kv">

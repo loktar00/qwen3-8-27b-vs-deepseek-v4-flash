@@ -1,0 +1,62 @@
+diff --git a/__tests__/regression.test.ts b/__tests__/regression.test.ts
+index e77035a..5104371 100644
+--- a/__tests__/regression.test.ts
++++ b/__tests__/regression.test.ts
+@@ -308,4 +308,44 @@ describe('Regression Tests', () => {
+     const chess = new Chess('kb4r1/p2n3P/1PP5/1P6/8/8/6p1/R3KR2 b KQkq - 0 19')
+     expect(chess.isGameOver()).toBe(false) // this was crashing due to invalid castling moves being generated
+   })
++
++  it('BigInt error when generating moves for pawns on edge ranks', () => {
++    // a pawn on its last rank must not generate off-board moves (previously
++    // crashed with "Cannot mix BigInt and other types")
++    for (const [color, square] of [
++      ['w', 'a8'],
++      ['w', 'h8'],
++      ['b', 'a1'],
++      ['b', 'h1'],
++    ] as const) {
++      const chess = new Chess()
++      chess.setTurn(color)
++      chess.put({ type: 'p', color }, square)
++      expect(chess.moves({ square, verbose: true })).toEqual([])
++      expect(() => chess.moves()).not.toThrow()
++    }
++  })
++
++  it('promotion moves for pawns on the 7th rank are still generated', () => {
++    // the edge-rank fix must not break pawn pushes onto the last rank
++    for (const [fen, square, expected] of [
++      [
++        '4k3/1P6/8/8/8/8/8/4K3 w - - 0 1',
++        'b7',
++        ['b8=B', 'b8=N', 'b8=Q+', 'b8=R+'],
++      ],
++      [
++        '4k3/8/8/8/8/8/1p6/4K3 b - - 0 1',
++        'b2',
++        ['b1=B', 'b1=N', 'b1=Q+', 'b1=R+'],
++      ],
++    ] as const) {
++      const chess = new Chess(fen)
++      const sans = chess
++        .moves({ square, verbose: true })
++        .map((move) => move.san)
++        .sort()
++      expect(sans).toEqual(expected)
++    }
++  })
+ })
+diff --git a/src/chess.ts b/src/chess.ts
+index 5efdb74..2ab4a11 100644
+--- a/src/chess.ts
++++ b/src/chess.ts
+@@ -1575,7 +1575,7 @@ export class Chess {
+ 
+         // single square, non-capturing
+         to = from + PAWN_OFFSETS[us][0]
+-        if (!this._board[to]) {
++        if (!(to & 0x88) && !this._board[to]) {
+           addMove(moves, us, from, to, PAWN)
+ 
+           // double square

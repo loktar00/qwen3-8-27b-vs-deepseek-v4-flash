@@ -675,4 +675,21 @@ including harness re-runs. No cherry-picking. See the <a href="method.html">Meth
   apply(saved);
   function label(){
     var t = root.getAttribute('data-theme');
-    return t === 'dark' ? 'dark' : (
+    return t === 'dark' ? 'dark' : (t === 'light' ? 'light' : 'auto');
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    var btn = document.getElementById('theme-toggle');
+    if(!btn) return;
+    btn.textContent = 'theme: ' + label();
+    btn.addEventListener('click', function(){
+      var cur = root.getAttribute('data-theme');
+      var next = cur === null ? 'dark' : (cur === 'dark' ? 'light' : null);
+      apply(next);
+      try { if(next) localStorage.setItem(KEY, next); else localStorage.removeItem(KEY); } catch(e){}
+      btn.textContent = 'theme: ' + label();
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -307,3 +307,8 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   set to match) — so on Raptor, DeepSeek ran at its max effort and Qwen at medium. This is a cost decision by the study
   owner after the context-cap error made the xhigh run unusable; it is an asymmetry in Qwen's disfavor and is stated
   wherever the Raptor result appears. Same 6 scripted turns, same checker version, same 3×M5 rule.
+  Compaction audit (lanes A/B, all 41 finished runs): Qwen — 16 OMP compactions across 27 runs (max 4 in one run; max
+  single-call input 98,588 — OMP compacts at ≈75% of its configured window, so Qwen's calls clustered at 96–98k);
+  DeepSeek — 16 compactions across 14 runs (triggered at 45–92k, i.e. not by its window; two radix runs used 133k–191k
+  context with no compaction). Conclusion: outside Raptor the 131k cap did not produce a one-sided handicap; no lane-A/B
+  re-runs. Lane-B (OpenCode) compaction detection is uncertain (no explicit event type) and is stated as such.

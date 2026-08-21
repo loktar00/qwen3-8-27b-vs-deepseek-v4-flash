@@ -1,0 +1,236 @@
+### region 1 (bash, ~581 tok)
+
+ℹ tests 147
+ℹ suites 57
+ℹ pass 147
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 108296.0901
+ℹ start of coverage report
+ℹ -------------------------------------------------------------------------------
+ℹ file                           | line % | branch % | funcs % | uncovered lines
+ℹ -------------------------------------------------------------------------------
+ℹ register.js                    | 100.00 |   100.00 |  100.00 | 
+ℹ src                            |        |          |         | 
+ℹ  components                    |        |          |         | 
+ℹ   Game                         |        |          |         | 
+ℹ    Game.tsx                    | 100.00 |   100.00 |  100.00 | 
+ℹ    logic.ts                    | 100.00 |   100.00 |  100.00 | 
+ℹ   Well                         |        |          |         | 
+ℹ    Well.tsx                    | 100.00 |   100.00 |  100.00 | 
+ℹ  enemy-ais                     |        |          |         | 
+ℹ   brzustowski.ts               | 100.00 |   100.00 |  100.00 | 
+ℹ   burgiel.ts                   | 100.00 |   100.00 |  100.00 | 
+ℹ   hatetris-ai.ts               | 100.00 |   100.00 |  100.00 | 
+ℹ   hatetris-mild.ts             | 100.00 |   100.00 |  100.00 | 
+ℹ   lovetris-ai.ts               | 100.00 |   100.00 |  100.00 | 
+ℹ  replay-codecs                 |        |          |         | 
+ℹ   base2048.ts                  | 100.00 |   100.00 |  100.00 | 
+ℹ   base65536.ts                 | 100.00 |   100.00 |  100.00 | 
+ℹ   hatetris-replay-codec.ts     | 100.00 |   100.00 |  100.00 | 
+ℹ   hex.ts                       | 100.00 |   100.00 |  100.00 | 
+ℹ   raw.ts                       | 100.00 |   100.00 |  100.00 | 
+ℹ   run-length.ts                | 100.00 |   100.00 |  100.00 | 
+ℹ   uint8Array.ts                | 100.00 |   100.00 |  100.00 | 
+ℹ  rotation-systems              |        |          |         | 
+ℹ   hatetris-rotation-system.ts  | 100.00 |   100.00 |  100.00 | 
+ℹ -------------------------------------------------------------------------------
+ℹ all files                      | 100.00 |   100.00 |  100.00 | 
+ℹ -------------------------------------------------------------------------------
+ℹ end of coverage report
+
+
+Wall time: 127.52 seconds
+
+### region 2 (grep, ~47 tok)
+
+ 299|                  error: null,
+*300|                  mode: 'REPLAYING',
+ 301|                  wellStateId: -1,
+ 302|                  wellStates: [],
+ 303|                  replay,
+
+### region 3 (grep, ~45 tok)
+
+ 317|                      ...state,
+*318|                      ...await logic.handleMove(state, move)
+ 319|                    }
+ 320|                  }
+ 321|                }
+
+### region 4 (read, ~1514 tok)
+
+describe('logic', () => {
+  describe('check known replays', function () {
+    const runs = [
+…
+      {
+…
+        aiRuns: [
+          {
+            /*
+…
+              #......###
+              ##....####
+              ###..#####
+              ##....####
+              #....#####
+              ##....####
+              ###..#####
+              ##..######
+              ###.######
+              ####.#...#
+              .##.#####.
+            */
+            name: 'knewjade loop',
+            expectedScore: 95 + 10 * 7, // ranking = 105
+            replays: {
+              raw: (
+                'RRRDDDDDDDDDDDDDDDDDDUURRRDDDDDDDDDDDDDDDDDUULLDDDDDDDDDDDDDDDDDDURRRDDDDDDDDDDDDDDUULLLDDDDDDDDDDDDDDDDDULLLLLDDDDDDDDDDDDDDDULLLLLDDDDDDDDDDDURRRRDDDDDDDDDDDDDDDUUULLLDDDDDDDDDDDDDDDURRRDDDDDDDDDDDDUUULLLLDDDDDDDDURRRRDDDDDDDDDDDLLLLDDDDDUURRRRDDDDDDDDDULDDDDDDDDDDDDDDLDUDDDDDDDDDDDDDDDDDUUURDDDDDDDDDDDDDDDDUDULLDDDDDDDDDDDDLLDURRRRDDDDDDDDULLDDDDDDDDDDDDDLDRRRDDDDDDUURRDDDDDDUUDDDDDDULLLLDDDDDDULLDDDDDDDDDDRRRDDDDUDDDLLDDDDDDDDDLDULLDDDDDDDRDDDDDDDDDUUULLDDDDDDDDDRDDDDDDRRDUDULLDDDDDDDDDRDDDDDDRURRDULLLLLDDDDDDURRRRDDDDDDDRRDDDDDDDDDULLDDDDDDDDDRDDDDRUDDDUUULLDDDDDDDDDDDRDDDULUDULLDDDDDDDDDDDRDDDRRUDDDULLDDDDDDDDDDDDRDDDDURRRRDDDDDDDDUUULLLLDDDDDDDUURRRRDDDDDDUULDDDDDDDDDDDLDDURDRRRUDDURUDULLLLDDDDDUUDDDDDDDDDDDLDDURRRRDDDDUURRDDDDDRDUULD…
+                'UUULDDDDDDDDDDDDDUDDDDDDDDRDLLDDDDDDDDDDDURRRRDDDDDDDDUUULLLLDDDDDDDDDUURRRRDDDDDDUURDDDDDDDUUULLDDDDDDDDDRRDUDUURRRDDDDDDULLDDDDDDDDDDDDDUDULLLLDDDDDDDDULLDDDDDDDDDUDUUULDDDDDDDDDDDDDUDLLDDDDDDDDDDDUUURRRRDDDDDDDDDUURRDDDDDDDDURRRRDDDDDDDRRRDDDDDDUURDDDDDDDUUULLLLDDDDDDDDDUUULLDDDDDDDDDRRDUDULLDDDDDDDDDDDDDUDULLLLDDDDDDDDULLDDDDDDDDDUDURRRDDDDDD'.repeat(7)
+              )
+            }
+          },
+          {
+            name: 'Tim loop',
+            expectedScore: 68 + 16 * 11, // ranking = 84
+            replays: {
+              raw: (
+                'DDDDDDDDDDDDDDDDDRRRDDDDDDDDDDDDDDDDDDLLLDDDDDDDDDDDDDDDDDRRDDDDDDDDDDDDDDDDLLLLDDUDDDDDDDDDDDDDRRRRDDUDDDDDDDDDDRRRRDUDDDDDDDDDDDDDLLLLLDDUUDDDDDDDDDDDDDDRRRDUDDDDDDDDDDDRRRDUUDDDDDDDDDRRRDUUDDDDDDDDDDDDDRRDUUUDDDDDDDDDDDLLLLDUUUDDDDDDDDLLLLDUUUDDDDDDDDDDDDLDDLLDUDDDDDDRRRRDUUUDDDDDDDDDDDDLDDDDRUDUDDDDRRRRDDDDDDDDDDDDRDDDDDDDDDDRRDUDDDDDDLDLDDDDLDDDDDDDLLLLDUUUDDDDDDDLDLDDDRDDDDDUDUUUDDDDDDDDLDLDDDRUDDDLUDUDDDDDDDDLDLDDDRDDDDDDDDDDLLLLDDUDDDDDDLLLDUDDDDDDDDLLDUDDDDDDDRDRRDUUDDDDDDDDDDRRDUDDDDDDDDDUDDLULDDDRDRDRUDDDDDDDDRRRDUDDDDDDDDDDUDDLULDDDRDRUDUUDDDDDDRRRRDUUDDDDDRRDUUDDDDRDUDRRDRDDDUDRRRRDDDUUUDDDLLDDDLLDUDDLLDDDDRDDRDDDUDDLULDDDRUDUDDDLLDLLDUDDDLLDDDUDUDDDDLDDDDDRURDDUDDDRRRRDUDDDDLLLLDUDDDDDLDDDDDDUUUDDDDDDDLDDDRDRUDUUUDDDDDLLLDDDDDD…
+                'DDDDDDDLDLDDDDDDDDDDDDLDLDLLDUDDDDDDRRRRDDDUUUDDDDDDDDLDDDULLUDDDDDDDDDDDLDDUDDDDDDDDRRRDUDDDDDDDDLLDDDUDUUUDDDDDDDDDDDDDDDDRUDUDDDDDDDRRRDRDDUUDDDDDDDDDDDLLLDUUUDDDDDDDDDLLLLDDUUDDDDDDDDDDDRRDUUUDDDDDDDLLLLDUUUDDDDLLLLDUDDDDDDRRRRDUDDDRRRRDUDDDDDDDDDLDDDDURRRDUDDDDDDDDDLDDDDDDRURDDUDDDDDDDDDDLDDDDDDUDDDDDDDDRRRDDDDRRRDDDDRDDDLDLDDDDDDDDRDDDDLDLDLLDUDDLDDDDDDDDLDDDUDDDLDDDUDDDDDRDRDDDDDDDLDDUDDDDLLLLLDDDDDDDRRDUDDDRRRRDDUDDDRRRDUDDDLDLDDDDDDDDRDDDDDDDLDLDDDDLDUUUDDDDDLDLDDDRUDDDLLDUDUUUDDDDDDLDLDDDRDDDDRDRUDDDDDDRDUDDDLDDDDLDDDRDDDUDRRDDUDDDDLDDDDLDDDRDRRRRDUUUDDDDDLDDDDLDDDRUDDDLUDUDDDDDLDDDDLDDDRDDDD'.repeat(11)
+              )
+            }
+          }
+        ]
+      },
+      {
+        aiName: 'Brzustowski',
+        enemy: brz,
+        aiRuns: [
+          {
+            name: 'demo',
+            expectedScore: 55,
+            replays: {
+              Base2048: 'ౚටฅٽ௨෨ଈݚСචƘݷౚ೯ບߢ௨චÐݺɷගÐݚɷ౾ܖࠆಛقຽঅ௩قଭݪ௧ڠଭɟ௨ගɑݸ౻ටПݹ౻ඪܖࢭࢶටະऔ௨ชІݶಒටତݹ௮੬ໃए௨ඩషݹࢳΟໃঅ௩Ϻසݶ౻ටลɒƐปໄஈб೯ܘމலڄໃѣҳబຽࢭ௧پܖࠇமقܬݶసطДݺஶϺ༠ɖɷڠПݚݫට༨অ௩Ѳໃףذචʃݹ୦Ѹໃɠ௨ಀІݪɷలฅהԥೱ൧ݺذගІܭϟقܯஈলටݕݺɷඪ൧ރ௧ڠໞݶಏكɑקযඤʃܭدڠЖܭИටКђ௬ට༠ݹଛʈໄຍ௩Ϻໄຍஶشܙਨ௩ѸແࡨߛࡆІܭЬقଚԓஶѮໄຍ४ΟฦݶƖقФ୬௧ٴະࡆذ౾ಊݪСඦബঅࢴඥܨІةɤໃקਙชІࢭরइໄЅЗࡄฅݹઽඨƞݷసقʃࢭࠒΟฆݹߝɈฅђߝԚໄŦ௬ॴ༠הభ൝Іࢭஜу༨ঀಇΘuঅఴуଞݺد෪ງڝࢶ੬ПܭɷٯฦݚСಀഫɟஜضÐɝɴฃ༥މభ෨ܐঔਆ'
+            }
+          }
+        ]
+      }
+    ]
+
+    runs.forEach(({ aiName, enemy, aiRuns }) => {
+      describe(aiName, () => {
+        aiRuns.forEach(({ name, expectedScore, replays }) => {
+          describe(name, () => {
+            Object.entries(replays).forEach(([encoding, string]: [string, string]) => {
+              it(encoding, async () => {
+                const replay = hatetrisReplayCodec.decode(string)
+
+                const firstState: GameState = {
+                  customAiCode: '',
+                  displayEnemy: false,
+                  enemy,
+                  error: null,
+                  mode: 'REPLAYING',
+                  wellStateId: -1,
+                  wellStates: [],
+                  replay,
+                  replayCopiedTimeoutId: undefined,
+                  replayTimeoutId: undefined
+                }
+
+                firstState.wellStates.push(await logic.getFirstWellState(firstState))
+                firstState.wellStateId++
+
+                let state = firstState
+                for (const move of replay) {
+                  if (state.mode === 'GAME_OVER') {
+                    // ignore the remaining moves
+                  } else {
+                    state = {
+                      ...state,
+                      ...await logic.handleMove(state, move)
+                    }
+                  }
+                }
+
+                assert.equal(state.error, null)
+                assert.equal(state.wellStates[state.wellStateId].core.score,
+                  expectedScore)
+              })
+            })
+          })
+        })
+      })
+    })
+  })
+})
+
+[Some lines truncated to 768 chars]
+
+### region 5 (edit, ~25 tok)
+
+Successfully replaced text in D:/dev/ab-tasks/hatetris-dsv4-r2/test/components/Game/Game.test.tsx.
+
+### region 6 (bash, ~107 tok)
+
+[Command timed out after 180 seconds]
+error: interrupted
+  ✔ errors out if your custom AI returns a bad piece (568.2937ms)
+  ✔ errors out if your custom AI throws an error on a later piece (7322.0851ms)
+  ✔ lets you decide not to replay anything (77.0135ms)
+  ✔ lets you replay a too-long replay (3807.0462ms)
+  ✔ lets you undo and stops replaying when a replay is in progress (882.0883ms)
+
+
+Wall time: 180.12 seconds
+
+### region 7 (bash, ~65 tok)
+
+[Command timed out after 120 seconds]
+error: interrupted
+Your app (or one of its dependencies) is using an outdated JSX transform. Update to the modern JSX transform for faster performance: https://react.dev/link/new-jsx-transform
+
+
+Wall time: 120.35 seconds
+
+### region 8 (bash, ~65 tok)
+
+[Command timed out after 120 seconds]
+error: interrupted
+Your app (or one of its dependencies) is using an outdated JSX transform. Update to the modern JSX transform for faster performance: https://react.dev/link/new-jsx-transform
+
+
+Wall time: 120.36 seconds
+
+### region 9 (bash, ~9 tok)
+
+exit: 124
+
+
+Wall time: 90.27 seconds
+
+### region 10 (read, ~44 tok)
+
+Your app (or one of its dependencies) is using an outdated JSX transform. Update to the modern JSX transform for faster performance: https://react.dev/link/new-jsx-transform
+
+### region 11 (bash, ~103 tok)
+
+exit: 0
+Your app (or one of its dependencies) is using an outdated JSX transform. Update to the modern JSX transform for faster performance: https://react.dev/link/new-jsx-transform
+▶ <Game>
+  ✔ lets you replay a too-long replay (3577.4188ms)
+✔ <Game> (3578.3186ms)
+ℹ tests 1
+ℹ suites 1
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5368.2797
+
+
+Wall time: 6.52 seconds

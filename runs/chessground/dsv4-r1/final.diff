@@ -1,0 +1,111 @@
+diff --git a/src/chessground.ts b/src/chessground.ts
+index bece308..1632e32 100644
+--- a/src/chessground.ts
++++ b/src/chessground.ts
+@@ -44,7 +44,7 @@ export function Chessground(element: HTMLElement, config?: Config): Api {
+     state.drawable.prevSvgHash = '';
+     updateBounds(state);
+     redrawNow(false);
+-    events.bindBoard(state, onResize);
++    events.bindBoard(state);
+     if (!prevUnbind) state.dom.unbind = events.bindDocument(state, onResize);
+     state.events.insert?.(elements);
+     return state;
+diff --git a/src/events.ts b/src/events.ts
+index 756dd50..b632e47 100644
+--- a/src/events.ts
++++ b/src/events.ts
+@@ -8,11 +8,12 @@ import { isRightButton } from './util.js';
+ type MouchBind = (e: cg.MouchEvent) => void;
+ type StateMouchBind = (d: State, e: cg.MouchEvent) => void;
+ 
+-export function bindBoard(s: State, onResize: () => void): void {
++// binds events to managed nodes,
++// i.e. nodes that can be created and deleted by chessground.
++// Unbinding these is not necessary, as they will be garbage collected with the nodes.
++export function bindBoard(s: State): void {
+   const boardEl = s.dom.elements.board;
+ 
+-  if ('ResizeObserver' in window) new ResizeObserver(onResize).observe(s.dom.elements.wrap);
+-
+   if (s.disableContextMenu || s.drawable.enabled) {
+     boardEl.addEventListener('contextmenu', e => e.preventDefault());
+   }
+@@ -34,9 +35,14 @@ export function bindBoard(s: State, onResize: () => void): void {
+ export function bindDocument(s: State, onResize: () => void): cg.Unbind {
+   const unbinds: cg.Unbind[] = [];
+ 
++  if ('ResizeObserver' in window) {
++    const ro = new ResizeObserver(onResize);
++    ro.observe(s.dom.elements.wrap);
++    unbinds.push(() => ro.disconnect());
++  }
+   // Old versions of Edge and Safari do not support ResizeObserver. Send
+   // chessground.resize if a user action has changed the bounds of the board.
+-  if (!('ResizeObserver' in window)) unbinds.push(unbindable(document.body, 'chessground.resize', onResize));
++  else unbinds.push(unbindable(document.body, 'chessground.resize', onResize));
+ 
+   if (!s.viewOnly) {
+     const onmove = dragOrDraw(s, drag.move, draw.move);
+diff --git a/tests/resizeObserver.test.ts b/tests/resizeObserver.test.ts
+new file mode 100644
+index 0000000..64f2c30
+--- /dev/null
++++ b/tests/resizeObserver.test.ts
+@@ -0,0 +1,56 @@
++import { Chessground } from '../src/chessground';
++
++// jsdom does not implement ResizeObserver, so track instances manually.
++class ResizeObserverMock {
++  static instances: ResizeObserverMock[] = [];
++  callback: ResizeObserverCallback;
++  observed = new Set<Element>();
++  constructor(callback: ResizeObserverCallback) {
++    this.callback = callback;
++    ResizeObserverMock.instances.push(this);
++  }
++  observe(el: Element): void {
++    this.observed.add(el);
++  }
++  unobserve(el: Element): void {
++    this.observed.delete(el);
++  }
++  disconnect(): void {
++    this.observed.clear();
++  }
++}
++
++beforeEach(() => {
++  window.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
++  ResizeObserverMock.instances = [];
++});
++
++const makeWrap = (): HTMLDivElement => {
++  const wrap = document.createElement('div');
++  wrap.style.cssText = 'width:200px;height:200px';
++  document.body.appendChild(wrap);
++  return wrap;
++};
++
++test('destroy disconnects the ResizeObserver', () => {
++  const wrap = makeWrap();
++  const cg = Chessground(wrap, { viewOnly: true });
++  const ro = ResizeObserverMock.instances[0];
++  expect(ro.observed).toContain(wrap);
++  cg.destroy();
++  expect(ro.observed.size).toBe(0);
++  wrap.remove();
++});
++
++test('redraws do not accumulate ResizeObservers', () => {
++  const wrap = makeWrap();
++  const cg = Chessground(wrap, { viewOnly: true });
++  expect(ResizeObserverMock.instances).toHaveLength(1);
++  cg.redrawAll();
++  cg.redrawAll();
++  cg.toggleOrientation();
++  expect(ResizeObserverMock.instances).toHaveLength(1);
++  cg.destroy();
++  expect(ResizeObserverMock.instances[0].observed.size).toBe(0);
++  wrap.remove();
++});

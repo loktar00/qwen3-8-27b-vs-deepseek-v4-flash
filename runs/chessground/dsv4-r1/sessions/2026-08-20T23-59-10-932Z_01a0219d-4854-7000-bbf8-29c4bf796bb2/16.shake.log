@@ -1,0 +1,536 @@
+### region 1 (read, ~406 tok)
+
+import { Chessground } from '../src/chessground';
+
+// jsdom does not implement ResizeObserver, so track instances manually.
+class ResizeObserverMock {
+  static instances: ResizeObserverMock[] = [];
+  callback: ResizeObserverCallback;
+  observed = new Set<Element>();
+  constructor(callback: ResizeObserverCallback) {
+    this.callback = callback;
+    ResizeObserverMock.instances.push(this);
+  }
+  observe(el: Element): void {
+    this.observed.add(el);
+  }
+  unobserve(el: Element): void {
+    this.observed.delete(el);
+  }
+  disconnect(): void {
+    this.observed.clear();
+  }
+}
+
+beforeEach(() => {
+  window.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
+  ResizeObserverMock.instances = [];
+});
+
+const makeWrap = (): HTMLDivElement => {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'width:200px;height:200px';
+  document.body.appendChild(wrap);
+  return wrap;
+};
+
+test('destroy disconnects the ResizeObserver', () => {
+  const wrap = makeWrap();
+  const cg = Chessground(wrap, { viewOnly: true });
+  const ro = ResizeObserverMock.instances[0];
+  expect(ro.observed).toContain(wrap);
+  cg.destroy();
+  expect(ro.observed.size).toBe(0);
+  wrap.remove();
+});
+
+test('redraws do not accumulate ResizeObservers', () => {
+  const wrap = makeWrap();
+  const cg = Chessground(wrap, { viewOnly: true });
+  expect(ResizeObserverMock.instances).toHaveLength(1);
+  cg.redrawAll();
+  cg.redrawAll();
+  cg.toggleOrientation();
+  expect(ResizeObserverMock.instances).toHaveLength(1);
+  cg.destroy();
+  expect(ResizeObserverMock.instances[0].observed.size).toBe(0);
+  wrap.remove();
+});
+
+### region 2 (bash, ~111 tok)
+
+
+> @lichess-org/chessground@10.1.1 test
+> vitest run
+
+
+ RUN  v3.2.4 D:/dev/ab-tasks/chessground-dsv4-r1
+
+ ✓ tests/fen.test.ts (2 tests) 3ms
+ ✓ tests/premove.test.ts (1 test) 6ms
+ ✓ tests/resizeObserver.test.ts (2 tests) 24ms
+
+ Test Files  3 passed (3)
+      Tests  5 passed (5)
+   Start at  20:01:07
+   Duration  1.82s (transform 198ms, setup 0ms, collect 508ms, tests 33ms, environment 2.82s, prepare 797ms)
+
+
+
+Wall time: 3.23 seconds
+
+### region 3 (read, ~283 tok)
+
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chessground Demo</title>
+
+    <link rel="stylesheet" type="text/css" href="assets/chessground.base.css" />
+    <link rel="stylesheet" type="text/css" href="assets/chessground.brown.css" />
+    <link rel="stylesheet" type="text/css" href="assets/chessground.cburnett.css" />
+    <style>
+      body {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      body > div {
+        margin: 10px;
+      }
+
+      .chessground {
+        width: 500px;
+        height: 500px;
+      }
+
+      cg-board {
+        background-color: #bfcfdd;
+      }
+    </style>
+
+    <script type="module">
+…
+    </script>
+  </head>
+  <body>
+    <div>
+      basic board, default config
+      <div class="chessground" id="board-1"></div>
+    </div>
+    <div>
+      board with a fen
+      <div class="chessground" id="board-2"></div>
+    </div>
+    <div>
+…
+    </div>
+    <div>
+…
+    </div>
+    <div>
+…
+    </div>
+  </body>
+</html>
+
+[…69ln elided; re-read needed ranges, e.g. demo.html:32-94,107-108]
+
+### region 4 (bash, ~8 tok)
+
+exit=0
+
+
+Wall time: 2.27 seconds
+
+### region 5 (read, ~321 tok)
+
+    <style>
+…
+    </style>
+
+    <script type="module">
+      import { Chessground } from './dist/chessground.js';
+
+      Chessground(document.getElementById('board-1'), {});
+      Chessground(document.getElementById('board-2'), {
+        fen: 'r2q2k1/1p6/p2p4/2pN1rp1/N1Pb2Q1/8/PP1B4/R6K b - - 2 25',
+      });
+      Chessground(document.getElementById('board-3'), {
+        drawable: {
+          autoShapes: [
+            {
+              orig: 'a2',
+              dest: 'a6',
+              brush: 'green',
+              label: { text: 'A' },
+              modifiers: {
+                hilite: '#fff',
+              },
+            },
+            {
+              orig: 'b2',
+              dest: 'b6',
+              brush: 'blue',
+              label: { text: 'B' },
+              modifiers: {
+                lineWidth: 6,
+              },
+            },
+            {
+              orig: 'c2',
+              dest: 'c4',
+              brush: 'red',
+              label: { text: 'C' },
+            },
+            {
+              orig: 'd2',
+              dest: 'd3',
+              brush: 'green',
+              label: { text: 'D' },
+            },
+            {
+              orig: 'f1',
+              dest: 'h3',
+…
+    </script>
+
+[Showing lines 29-73 of 119. Use :74 to continue]
+
+### region 6 (read, ~1155 tok)
+
+# mcp__node_repl_js — node_repl/js
+
+Run JavaScript in a persistent Node-backed kernel with top-level await. This is the JavaScript execution tool for the `node_repl` MCP server; use it whenever instructions say to use `node_repl`, the Node REPL MCP, or run Node REPL code. If `timeout_ms` is omitted, execution times out after 30000 ms (30 seconds); pass a larger `timeout_ms` for slow browser automation or other long-running operations. Use `nodeRepl.cwd`, `nodeRepl.homeDir`, and `nodeRepl.tmpDir` to inspect host paths. Use `nodeRepl.requestMeta` to inspect the current MCP request `_meta` object during a tool call. Use `nodeRepl.setResponseMeta(meta)` to attach top-level MCP result `_meta`; repeated calls shallow-merge object keys for the current tool call. Use `nodeRepl.write(value)` to add output without a newline. Strings are unchanged; other values use console-style formatting, including BigInt and circular objects. Prefer it over `console.log(...)` for final output; `console.log(...)` remains useful for debugging or multiple values. Use `await nodeRepl.emitImage(imageLike)` to return images; each call adds one image to the outer tool result, so call it multiple times to emit multiple images. Supported image inputs are a data URL, inferred PNG/JPEG/WebP bytes, or `{ bytes, mimeType }`. Saved references to `nodeRepl.write(...)` and `nodeRepl.emitImage(...)` stay reusable across calls, but async callbacks that fire after a call finishes still fail because no exec is active. Top-level bindings persist across calls until `js_reset`. If a call throws, prior bindings remain available and bindings that finished initializing before the throw often remain reusable. For reusable names that may be assigned again later, prefer top-level `var name = ...`; `var` can be redeclared across calls. If you hit `SyntaxError: Identifier 'x' has already been declared`, reuse the existing binding if possible, reassign it only if it was declared with `let` or `var`, or pick a new name instead of resetting immediately; a previous `const x` cannot be changed into `var x`. Use a short `{ ... }` block only for temporary scratch names, and do not wrap an entire call in block scope if you want those names reusable later. Use dynamic imports like `await import("playwright")`, `await import("pkg")`, or `await import("./file.js")`; top-level static `import` is not supported. Import packages by package name after installing them into a directory added with `js_add_node_module_dir`, `NODE_REPL_NODE_MODULE_DIRS`, or the working directory. Do not import package entrypoints by filesystem path such as `./node_modules/playwright/index.mjs`. Imported local files must be ESM `.js` or `.mjs` files and run in the context chosen at their dynamic-import boundary, so they can also use `nodeRepl.*`, the captured `console`, and `import.meta` helpers. Bare imports from model code and local files resolve from the REPL-wide search roots (`NODE_REPL_NODE_MODULE_DIRS`, then directories later added with `js_add_node_module_dir`, then cwd); dependencies of trusted ESM packages use Node's package-relative lookup. Imported local files may statically import other local `.js` / `.mjs` files, available packages, and allowed Node builtins. `import.meta.resolve()` returns importable strings such as `file://...`, bare package names, and `node:...` specifiers. Local file modules reload between execs; trusted package entrypoints retain singleton identity. `node:` builtins are generally available via dynamic import, but model code cannot import `process` / `node:process` because the current Rust-server-to-Node-child transport runs over stdio and raw process streams can corrupt it. Trusted modules that import or reference `process` receive only a frozen metadata-only process shim with `arch`, `cwd()`, `env`, `pid`, and `platform`. Prefer `nodeRepl.write(...)` for text or formatted values and `nodeRepl.emitImage(...)` for images.
+
+## Schema
+```ts
+type Args = {
+  /** JavaScript source to execute in the persistent Node-backed kernel. The code runs with top-level await and can use the `nodeRepl` helpers. Examples: `nodeRepl.write(nodeRepl.cwd)`, `const { chromium } = await import("playwright")`, or `await nodeRepl.emitImage(pngBuffer)`. */
+  code: string;
+  /** Optional execution timeout in milliseconds. Defaults to 30000 (30 seconds) when omitted. */
+  timeout_ms?: number;
+  /** Short user-facing description of what this code block is doing. Use a few words, for example `Inspect package metadata` or `Render chart preview`. */
+  title?: string;
+};
+```
+Execute by writing JSON to xd://mcp__node_repl_js.
+
+### region 7 (read, ~99 tok)
+
+{
+  "include": ["src/*.ts"],
+  "exclude": [],
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "noEmitOnError": false,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "target": "ES2020",
+    "lib": ["DOM", "ES2020"]
+  }
+}
+
+### region 8 (bash, ~177 tok)
+
+anim.d.ts
+anim.js
+anim.js.map
+api.d.ts
+api.js
+api.js.map
+autoPieces.d.ts
+autoPieces.js
+autoPieces.js.map
+board.d.ts
+board.js
+board.js.map
+chessground.d.ts
+chessground.js
+chessground.js.map
+config.d.ts
+config.js
+config.js.map
+drag.d.ts
+drag.js
+drag.js.map
+draw.d.ts
+draw.js
+draw.js.map
+drop.d.ts
+drop.js
+drop.js.map
+events.d.ts
+events.js
+events.js.map
+explosion.d.ts
+explosion.js
+explosion.js.map
+fen.d.ts
+fen.js
+fen.js.map
+premove.d.ts
+premove.js
+premove.js.map
+render.d.ts
+render.js
+render.js.map
+state.d.ts
+state.js
+state.js.map
+svg.d.ts
+svg.js
+svg.js.map
+sync.d.ts
+sync.js
+sync.js.map
+types.d.ts
+types.js
+types.js.map
+util.d.ts
+util.js
+util.js.map
+wrap.d.ts
+wrap.js
+wrap.js.map
+
+
+Wall time: 0.00 seconds
+
+### region 9 (write, ~26 tok)
+
+playwright OK | puppeteer: Module not found: puppeteer | cdp: Module not found: chrome-remote-interface
+
+### region 10 (write, ~33 tok)
+
+Error: browserType.launch: EPERM: operation not permitted, mkdtemp 'C:\Users\lokta\AppData\Local\Temp\playwright-artifacts-XXXXXX'
+
+### region 11 (write, ~14 tok)
+
+Error: Identifier 'chromium' has already been declared
+
+### region 12 (write, ~4 tok)
+
+js kernel reset
+
+### region 13 (write, ~24 tok)
+
+Error: EPERM: operation not permitted, mkdir 'D:\dev\ab-tasks\chessground-dsv4-r1\.browsertmp'
+
+### region 14 (write, ~12 tok)
+
+Error: Identifier 'os' has already been declared
+
+### region 15 (write, ~56 tok)
+
+C:\Users\lokta\AppData\Local\Temp -> mkdir ERR EPERM
+D:/dev/ab-tasks/chessground-dsv4-r1 -> mkdir ERR EPERM
+C:/Users/lokta -> mkdir ERR EPERM
+D:/ -> mkdir ERR EPERM
+read repo package.json: true
+playwright resolve: playwright
+
+### region 16 (write, ~8 tok)
+
+Error: process is not defined
+
+### region 17 (write, ~13 tok)
+
+Error: Identifier 'mod' has already been declared
+
+### region 18 (write, ~34 tok)
+
+req: req err: Cannot find module 'playwright/package.json'
+Require stack:
+- D:\dev\ab-tasks\chessground-dsv4-r1\.node_repl_cell_5.mjs
+
+### region 19 (bash, ~96 tok)
+
+INFO: Could not find files for the given pattern(s).
+---
+C:/Program Files/Google/Chrome/Application/chrome.exe
+ls: cannot access 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe': No such file or directory
+ls: cannot access 'C:\Users\lokta\AppData\Local/Google/Chrome/Application/chrome.exe': No such file or directory
+
+
+Wall time: 0.12 seconds
+
+Command exited with code 2
+
+### region 20 (bash, ~77 tok)
+
+C:\Program Files\nodejs -> .\
+├── @earendil-works/pi-coding-agent@0.74.0
+├── @higgsfield/cli@1.1.20
+├── @openai/codex@0.147.0
+├── corepack@0.34.6
+├── npm@11.8.0
+├── opencode-ai@1.14.29
+└── pnpm@10.30.3
+
+---npx playwright---
+Version 1.62.1
+
+
+Wall time: 4.59 seconds
+
+### region 21 (bash, ~108 tok)
+
+npm error npx canceled due to missing packages and no YES option: ["node@26.7.0"]
+npm error A complete log of this run can be found in: C:\Users\lokta\AppData\Local\npm-cache\_logs\2026-08-21T00_02_25_869Z-debug-0.log
+---ms-playwright---
+.links
+b
+chromium-1140
+chromium-1148
+chromium-1169
+chromium-1194
+chromium-1200
+chromium-1208
+chromium-1217
+chromium-1223
+---browsers env---
+
+
+Wall time: 1.25 seconds
+
+Command exited with code 1
+
+### region 22 (grep, ~266 tok)
+
+# src/
+## events.ts
+ 17|  if (s.disableContextMenu || s.drawable.enabled) {
+*18|    boardEl.addEventListener('contextmenu', e => e.preventDefault());
+ 19|  }
+ 20|
+ 21|  if (s.viewOnly) return;
+...
+ 25|  const onStart = startDragOrDraw(s);
+*26|  boardEl.addEventListener('touchstart', onStart as EventListener, {
+ 27|    passive: false,
+ 28|  });
+*29|  boardEl.addEventListener('mousedown', onStart as EventListener, {
+ 30|    passive: false,
+ 31|  });
+ 32|}
+...
+ 37|
+*38|  if ('ResizeObserver' in window) {
+*39|    const ro = new ResizeObserver(onResize);
+ 40|    ro.observe(s.dom.elements.wrap);
+ 41|    unbinds.push(() => ro.disconnect());
+ 42|  }
+*43|  // Old versions of Edge and Safari do not support ResizeObserver. Send
+ 44|  // chessground.resize if a user action has changed the bounds of the board.
+ 45|  else unbinds.push(unbindable(document.body, 'chessground.resize', onResize));
+ 46|
+...
+ 68|): cg.Unbind {
+*69|  el.addEventListener(eventName, callback, options);
+ 70|  return () => el.removeEventListener(eventName, callback, options);
+ 71|}
+ 72|
+
+### region 23 (read, ~778 tok)
+
+import * as drag from './drag.js';
+import * as draw from './draw.js';
+import { drop } from './drop.js';
+import { type State } from './state.js';
+import type * as cg from './types.js';
+import { isRightButton } from './util.js';
+
+type MouchBind = (e: cg.MouchEvent) => void;
+type StateMouchBind = (d: State, e: cg.MouchEvent) => void;
+
+// binds events to managed nodes,
+// i.e. nodes that can be created and deleted by chessground.
+// Unbinding these is not necessary, as they will be garbage collected with the nodes.
+export function bindBoard(s: State): void {
+  const boardEl = s.dom.elements.board;
+
+  if (s.disableContextMenu || s.drawable.enabled) {
+    boardEl.addEventListener('contextmenu', e => e.preventDefault());
+  }
+
+  if (s.viewOnly) return;
+
+  // Cannot be passive, because we prevent touch scrolling and dragging of
+  // selected elements.
+  const onStart = startDragOrDraw(s);
+  boardEl.addEventListener('touchstart', onStart as EventListener, {
+    passive: false,
+  });
+  boardEl.addEventListener('mousedown', onStart as EventListener, {
+    passive: false,
+  });
+}
+
+// returns the unbind function
+export function bindDocument(s: State, onResize: () => void): cg.Unbind {
+  const unbinds: cg.Unbind[] = [];
+
+  if ('ResizeObserver' in window) {
+    const ro = new ResizeObserver(onResize);
+    ro.observe(s.dom.elements.wrap);
+    unbinds.push(() => ro.disconnect());
+  }
+  // Old versions of Edge and Safari do not support ResizeObserver. Send
+  // chessground.resize if a user action has changed the bounds of the board.
+  else unbinds.push(unbindable(document.body, 'chessground.resize', onResize));
+
+  if (!s.viewOnly) {
+    const onmove = dragOrDraw(s, drag.move, draw.move);
+    const onend = dragOrDraw(s, drag.end, draw.end);
+
+    for (const ev of ['touchmove', 'mousemove'])
+      unbinds.push(unbindable(document, ev, onmove as EventListener));
+    for (const ev of ['touchend', 'mouseup']) unbinds.push(unbindable(document, ev, onend as EventListener));
+
+    const onScroll = () => s.dom.bounds.clear();
+    unbinds.push(unbindable(document, 'scroll', onScroll, { capture: true, passive: true }));
+    unbinds.push(unbindable(window, 'resize', onScroll, { passive: true }));
+  }
+
+  return () => unbinds.forEach(f => f());
+}
+
+function unbindable(
+  el: EventTarget,
+  eventName: string,
+  callback: EventListener,
+  options?: AddEventListenerOptions,
+): cg.Unbind {
+  el.addEventListener(eventName, callback, options);
+  return () => el.removeEventListener(eventName, callback, options);
+}
+
+const startDragOrDraw =
+  (s: State): MouchBind =>
+  e => {
+    if (s.draggable.current) drag.cancel(s);
+    else if (s.drawable.current) draw.cancel(s);
+    else if (e.shiftKey || isRightButton(e)) {
+      if (s.drawable.enabled) draw.start(s, e);
+    } else if (!s.viewOnly) {
+      if (s.dropmode.active) drop(s, e);
+      else drag.start(s, e);
+    }
+  };
+
+const dragOrDraw =
+  (s: State, withDrag: StateMouchBind, withDraw: StateMouchBind): MouchBind =>
+  e => {
+    if (s.drawable.current) {
+      if (s.drawable.enabled) withDraw(s, e);
+    } else if (!s.viewOnly) withDrag(s, e);
+  };

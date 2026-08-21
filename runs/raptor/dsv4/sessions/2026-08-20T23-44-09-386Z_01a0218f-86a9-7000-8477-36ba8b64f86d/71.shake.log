@@ -1,0 +1,887 @@
+### region 1 (grep, ~322 tok)
+
+ 24|
+*25|const EB_EASY_LEVEL = 8, EB_MED_LEVEL = 16, EB_HARD_LEVEL = 32, EB_NOT_USED = 64;
+ 26|const E_EASY_LEVEL = 3, E_MED_LEVEL = 4, E_HARD_LEVEL = 5;
+ 27|
+ 28|const S_FORWARD_GUNS = 0, S_PLASMA_GUNS = 1, S_MICRO_MISSLE = 2, S_DUMB_MISSLE = 3,
+...
+ 438|    // normal difficulty: easy + med
+*439|    this.cur_diff = EB_EASY_LEVEL | EB_MED_LEVEL;
+ 440|    for (let loop = 0; loop < this.csprite.length; loop++) {
+ 441|      const curfld = this.csprite[loop];
+ 442|      let lvl = curfld.level;
+ 443|      if (lvl === 0) lvl = 1; else if (lvl === 1) lvl = 2; else if (lvl === 2) lvl = 4;
+*444|      else if (lvl === E_EASY_LEVEL) lvl = EB_EASY_LEVEL;
+*445|      else if (lvl === E_MED_LEVEL) lvl = EB_MED_LEVEL;
+*446|      else if (lvl === E_HARD_LEVEL) lvl = EB_HARD_LEVEL;
+*447|      else lvl = EB_NOT_USED;
+ 448|      curfld.level = lvl;
+*449|      if (!(lvl & this.cur_diff)) curfld.level = EB_NOT_USED;
+ 450|      const lib = this.spriteLib[curfld.slib];
+*451|      if (!lib || !lib.iname) curfld.level = EB_NOT_USED;
+ 452|    }
+ 453|  }
+ 454|
+...
+ 824|          const old_enemy = this.cur_enemy;
+*825|          if (this.csprite[this.cur_enemy].level !== EB_NOT_USED) {
+ 826|            this.enemyAdd(this.csprite[this.cur_enemy]);
+ 827|            spawnAny = true;
+ 828|          }
+
+### region 2 (read, ~403 tok)
+
+  tileSetup() {
+…
+    for (let loop = 0; loop < MAP_SIZE; loop++) {
+…
+      const item = this.startflat + flatsIdx;
+      const eitem = this.startflat + lib.linkflat;
+      this.tilepics[loop] = item;
+      this.tileepics[loop] = eitem;
+      this.tileHits[loop] = (eitem !== item) ? lib.bonus : 1;
+    }
+  }
+
+  enemyLoad() {
+    this.numships = 0; this.numboss = 0; this.end_waveflag = false;
+    this.cur_enemy = 0;
+    this.cur_visable = 0;
+    this.boss_sound = false;
+    this.enemies = [];
+    // normal difficulty: easy + med
+    this.cur_diff = EB_EASY_LEVEL | EB_MED_LEVEL;
+    for (let loop = 0; loop < this.csprite.length; loop++) {
+      const curfld = this.csprite[loop];
+      let lvl = curfld.level;
+      if (lvl === 0) lvl = 1; else if (lvl === 1) lvl = 2; else if (lvl === 2) lvl = 4;
+      else if (lvl === E_EASY_LEVEL) lvl = EB_EASY_LEVEL;
+      else if (lvl === E_MED_LEVEL) lvl = EB_MED_LEVEL;
+      else if (lvl === E_HARD_LEVEL) lvl = EB_HARD_LEVEL;
+      else lvl = EB_NOT_USED;
+      curfld.level = lvl;
+      if (!(lvl & this.cur_diff)) curfld.level = EB_NOT_USED;
+      const lib = this.spriteLib[curfld.slib];
+      if (!lib || !lib.iname) curfld.level = EB_NOT_USED;
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Objects
+  // -------------------------------------------------------------------------
+  objsUse(type) {
+    if (type === S_FORWARD_GUNS) this.shootForwardGuns();
+  }
+
+  shootForwardGuns() {
+    if (this.shotCooldown[S_FORWARD_GUNS] > 0) return false;
+…
+  }
+
+[Showing lines 424-463 of 1656. Use :464 to continue]
+
+### region 3 (bash, ~47 tok)
+
+file:///D:/tmp/test_rawlevels.mjs:8
+g.loadLevel(0);
+  ^
+
+TypeError: g.loadLevel is not a function
+    at file:///D:/tmp/test_rawlevels.mjs:8:3
+
+Node.js v24.13.1
+
+
+Wall time: 0.09 seconds
+
+### region 4 (bash, ~144 tok)
+
+237:    this.csprite = [];
+323:  startWave(wave) {
+375:    this.csprite = [];
+379:      this.csprite.push({
+440:    for (let loop = 0; loop < this.csprite.length; loop++) {
+441:      const curfld = this.csprite[loop];
+821:      while (this.cur_enemy < this.csprite.length && this.csprite[this.cur_enemy].y === tiley) {
+825:          if (this.csprite[this.cur_enemy].level !== EB_NOT_USED) {
+826:            this.enemyAdd(this.csprite[this.cur_enemy]);
+829:          if (this.cur_enemy === this.csprite.length - 1) { this.end_waveflag = true; break; }
+
+
+Wall time: 0.01 seconds
+
+### region 5 (read, ~330 tok)
+
+    for (let i = 0; i < MAP_SIZE; i++) {
+      this.mapGrid.push({
+        flats: v.getUint16(12 + i * 4, true),
+        fgame: v.getUint16(12 + i * 4 + 2, true),
+      });
+    }
+    this.csprite = [];
+    const base = 12 + MAP_SIZE * 4;
+    for (let i = 0; i < this.ml.numsprites; i++) {
+      const o = base + i * 24;
+      this.csprite.push({
+        link: v.getInt32(o, true),
+        slib: v.getInt32(o + 4, true),
+        x: v.getInt32(o + 8, true),
+        y: v.getInt32(o + 12, true),
+        game: v.getInt32(o + 16, true),
+        level: v.getUint32(o + 20, true),
+      });
+    }
+    // flat lib (game 0 = FLATSG1_ITM)
+    const flats = this.glb1.raw('FLATSG1_ITM');
+    const fv = new DataView(flats.buffer, flats.byteOffset, flats.byteLength);
+    this.flatlib = [];
+    for (let i = 0; i < Math.floor(flats.length / 8); i++) {
+      this.flatlib.push({
+        linkflat: fv.getInt32(i * 8, true),
+        bonus: fv.getInt16(i * 8 + 4, true),
+        bounty: fv.getInt16(i * 8 + 6, true),
+      });
+    }
+    // sprite lib (game 0 = SPRITE1_ITM)
+    this.spriteLib = parseSpriteLib(this.glb1.raw('SPRITE1_ITM'));
+    this.startflat = 863 + 1; // STARTG1TILES + 1
+    // resolve sprite item ids by name
+    for (const s of this.spriteLib) {
+…
+    }
+
+[Showing lines 369-403 of 1656. Use :404 to continue]
+
+### region 6 (bash, ~55 tok)
+
+file:///D:/tmp/test_rawlevels.mjs:8
+const item = g.glb1.get(254);
+                    ^
+
+TypeError: g.glb1.get is not a function
+    at file:///D:/tmp/test_rawlevels.mjs:8:21
+
+Node.js v24.13.1
+
+
+Wall time: 0.15 seconds
+
+### region 7 (bash, ~9 tok)
+
+(no output)
+
+Wall time: 0.00 seconds
+
+### region 8 (read, ~851 tok)
+
+// glb.js — Reader for Raptor's .GLB archive format (GLBAPI.C).
+//
+// File layout:
+//   [0..27]  header KEYFILE, ENCRYPTED with key "32768GLB", SEED 0x19
+//             (its `offset` field holds the item count)
+//   [28..]    item descriptor table: `count` KEYFILE entries, ENCRYPTED
+//             (per-entry, independent cipher state)
+//   each item  { DWORD opt; DWORD offset; DWORD filesize; CHAR name[16]; }
+//   optional per-item payload encryption (opt == GLB_ENCODED)
+//
+// The payload encryption is the same chained cipher as the headers.
+
+const SEED = 0x19;
+const SERIAL = '32768GLB';
+const KLEN = SERIAL.length;
+const KIDX0 = SEED % KLEN;          // 1 -> key[1] = '2'
+
+// In-place decrypt of a Uint8Array/ArrayBuffer view (returns a new copy).
+export function decrypt(buf) {
+  const out = new Uint8Array(buf.byteLength ?? buf.length);
+  out.set(buf instanceof Uint8Array ? buf : new Uint8Array(buf));
+  let prev = SERIAL.charCodeAt(KIDX0);
+  let kidx = KIDX0;
+  for (let i = 0; i < out.length; i++) {
+    const byte = out[i];
+    let d = (byte - SERIAL.charCodeAt(kidx) - prev) % 256;
+    if (d < 0) d += 256;
+    out[i] = d;
+    prev = byte;
+    kidx = (kidx + 1) % KLEN;
+  }
+  return out;
+}
+
+const dv = (b, o) => new DataView(b.buffer, b.byteOffset + o, b.byteLength - o);
+
+export class GLBFile {
+  // `data` is an ArrayBuffer of the whole .GLB file.
+  constructor(data) {
+    this.data = data;
+    const head = decrypt(new Uint8Array(data, 0, 28));
+    this.count = dv(head, 4).getUint32(0, true);
+    this.items = [];
+    const idt = new Uint8Array(data);
+    for (let i = 0; i < this.count; i++) {
+      const e = decrypt(idt.subarray(28 + i * 28, 28 + (i + 1) * 28));
+      const v = dv(e, 0);
+      this.items.push({
+        index: i,
+        opt: v.getUint32(0, true),
+        offset: v.getUint32(4, true),
+        filesize: v.getUint32(8, true),
+        name: String.fromCharCode(...e.subarray(12, 28)).split('\0')[0],
+      });
+    }
+    this._byName = new Map();
+    for (const it of this.items) this._byName.set(it.name, it);
+  }
+
+  itemSize(nameOrIndex) {
+    const it = typeof nameOrIndex === 'number' ? this.items[nameOrIndex] : this._byName.get(nameOrIndex);
+    return it ? it.filesize : 0;
+  }
+
+  // Return a Uint8Array view of the decoded item payload.
+  raw(nameOrIndex) {
+    const it = typeof nameOrIndex === 'number' ? this.items[nameOrIndex] : this._byName.get(nameOrIndex);
+    if (!it) throw new Error('GLB item not found: ' + nameOrIndex);
+    const raw = new Uint8Array(this.data, it.offset, it.filesize);
+    return it.opt === 1 ? decrypt(raw) : raw.slice();
+  }
+
+  find(nameOrIndex) {
+    const it = typeof nameOrIndex === 'number' ? this.items[nameOrIndex] : this._byName.get(nameOrIndex);
+    return it;
+  }
+}
+
+export async function loadGLB(path) {
+  // Node: read directly from disk. Browser: fetch.
+  if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+    const fs = await import('node:fs');
+    let p = path;
+    if (p.startsWith('file://')) p = new URL(p).pathname.replace(/^\/([A-Za-z]:)/, '$1');
+    const data = fs.readFileSync(p);
+    return new GLBFile(data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength));
+  }
+  const res = await fetch(path);
+  if (!res.ok) throw new Error('GLB fetch failed: ' + path + ' (' + res.status + ')');
+  const ab = await res.arrayBuffer();
+  return new GLBFile(ab);
+}
+
+### region 9 (bash, ~28 tok)
+
+raw level counts { '0': 1, '1': 1, '2': 2, '3': 130, '4': 68, '5': 97 } numsprites 299
+
+
+Wall time: 0.09 seconds
+
+### region 10 (read, ~950 tok)
+
+  shotThink() {
+…
+    for (let si = 0; si < this.shots.length; si++) {
+      const s = this.shots[si];
+      s.pic = this.getItem(NMSHOT + s.curframe);
+      // move up
+      if (s.speed < 16) s.speed++;
+      s.curframe++;
+      if (s.curframe >= 4) s.curframe = 0;
+      s.move.y -= s.speed;
+      s.x = s.move.x;
+      s.y = s.move.y;
+      if (s.y < 0 || s.y > 200) { this.shots.splice(si, 1); si--; continue; }
+      // hit test
+      if (this.enemyDamageAll(s.x, s.y, 1)) {
+        if (this.rand.random(2)) this.startAnim(A_BLUE_SPARK, s.x, s.y);
+        else this.startAnim(A_ORANGE_SPARK, s.x, s.y);
+        this.shots.splice(si, 1); si--;
+        continue;
+      }
+      if (this.tileIsHit(1, s.x, s.y)) { this.shots.splice(si, 1); si--; continue; }
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Enemy shots
+  // -------------------------------------------------------------------------
+  eshotShoot(enemy, gunNum) {
+    let x = enemy.x + enemy.lib.shootx[gunNum];
+    let y = enemy.y + enemy.lib.shooty[gunNum];
+    if (x < 0 || x >= 320) return;
+    if (y < 0 || y >= 200) return;
+    const type = enemy.lib.shoot_type[gunNum];
+    const libs = this.eshotLibs();
+    const e = {
+      type, lib: libs[0], curframe: 0, speed: 0, pos: 0,
+      move: { x, y, x2: 0, y2: 0 }, done: false,
+      en: enemy, gunNum, x: 0, y: 0, cnt: 0,
+    };
+    switch (type) {
+      case ES_ATPLAYER:
+        this.playSfx(28);
+        e.lib = libs[1]; e.move.x -= e.lib.xoff; e.move.y -= e.lib.yoff;
+        e.move.x2 = this.player_cx; e.move.y2 = this.player_cy; e.speed = 1;
+        break;
+      case ES_ATDOWN:
+        this.playSfx(28);
+        e.lib = libs[0]; e.move.x -= e.lib.xoff; e.move.y -= e.lib.yoff;
+        e.move.x2 = e.move.x; e.move.y2 = 200; e.speed = e.lib.speed >> 1;
+        break;
+      case ES_ANGLELEFT:
+        this.playSfx(28);
+        e.lib = libs[0]; e.move.x -= e.lib.xoff; e.move.y -= e.lib.yoff;
+        e.move.x2 = e.move.x - 32; e.move.y2 = e.move.y + 32; e.speed = e.lib.speed >> 1;
+        break;
+      case ES_ANGLERIGHT:
+        this.playSfx(28);
+        e.lib = libs[0]; e.move.x -= e.lib.xoff; e.move.y -= e.lib.yoff;
+        e.move.x2 = e.move.x + 32; e.move.y2 = e.move.y + 32; e.speed = e.lib.speed >> 1;
+        break;
+      case ES_MISSLE:
+        this.playSfx(30);
+        e.lib = libs[2]; e.move.x -= e.lib.xoff; e.move.y -= e.lib.yoff;
+        e.move.x2 = e.move.x; e.move.y2 = 200; e.speed = enemy.speed + 1;
+        break;
+      case ES_MINES:
+        this.playSfx(28);
+        e.lib = libs[3]; e.x = e.move.x; e.y = e.move.y;
+        e.move.x2 = 320; e.move.y2 = 200; e.speed = 150; e.pos = this.rand.random(16);
+        break;
+      case ES_LASER:
+        this.playSfx(29);
+        e.lib = libs[4]; e.move.x -= e.lib.xoff;
+        e.move.x2 = e.move.x; e.move.y2 = 200; e.speed = enemy.speed;
+        break;
+      case ES_PLASMA:
+        this.playSfx(31);
+        e.lib = libs[5]; e.move.x -= e.lib.xoff;
+        e.move.x2 = e.move.x; e.move.y2 = 200; e.speed = 8;
+        break;
+      case ES_COCONUTS:
+        this.playSfx(this.rand.random(6) + 1);
+        e.lib = libs[6]; e.move.x -= e.lib.xoff; e.move.y -= e.lib.yoff;
+        e.move.x2 = this.player_cx; e.move.y2 = this.player_cy; e.speed = 1;
+        break;
+    }
+    this.initMobj(e.move);
+    this.moveSobj(e.move, 1);
+    if (e.move.x < 0 || e.move.x >= 320) e.done = true;
+    if (e.move.y < 0 || e.move.y >= 200) e.done = true;
+    if (!e.done) this.eshots.push(e);
+  }
+
+  _eshotLibs = null;
+  eshotLibs() {
+    if (this._eshotLibs) return this._eshotLibs;
+    const mk = (item, num, xoff, yoff, speed, hits) => {
+      const h = this.picHeader(this.getItem(item));
+…
+    };
+…
+  }
+
+[Showing lines 1219-1313 of 1656. Use :1314 to continue]
+
+### region 11 (read, ~2023 tok)
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+  
+#include "raptor.h"
+#include "file0001.inc"
+
+#define MAX_ESHOT 80
+
+typedef struct 
+{
+   DWORD             item;             // BASE ITEM NUMBER
+   BYTE  *           pic[10];          // POINTER TO PICS
+   INT               num_frames;       // NUMBER OF FRAMES
+   BOOL              smokeflag;        // TRUE = SMOKETRAIL
+   INT               speed;            // SPEED OF SHOT
+   INT               xoff;             // X CENTER OFFSET
+   INT               yoff;             // Y CENTER OFFSET
+   INT               hits;             // HIT POINT DAMAGE TO PLAYER
+}ESHOT_LIB;
+
+typedef struct ESHOT_S
+{
+   struct ESHOT_S *  prev;             // LINK LIST PREV
+   struct ESHOT_S *  next;             // LINK LIST NEXT
+   BYTE  *           pic;              // POINTER TO CUR FRAME PIC
+   INT               curframe;         // CURRENT ANIM FRAME
+   INT               x;                // CUR SHOT CENTER X
+   INT               y;                // CUR SHOT CENTER Y
+   MOVEOBJ           move;             // MOVE STUFF
+   BOOL              doneflag;         // SHOT DONE = TRUE
+   ESHOT_LIB   *     lib;              // POINTER TO LIB
+   INT               cnt;
+   INT               speed;
+   INT               pos;
+   INT               type;
+   SPRITE_SHIP *     en;
+   INT               gun_num;
+}ESHOT;
+
+typedef enum
+{
+  LIB_NORMAL,
+  LIB_ATPLAY,
+  LIB_MISSLE,
+  LIB_LASER,
+  LIB_MINES,
+  LIB_PLASMA,
+  LIB_COCO,
+  LIB_LASTPIC
+} LIB_PIC;
+
+PRIVATE ESHOT_LIB plib [ LIB_LASTPIC ];
+
+PRIVATE ESHOT     eshots [ MAX_ESHOT ];
+  
+PRIVATE ESHOT     first_eshot;
+PRIVATE ESHOT     last_eshot;
+PRIVATE ESHOT *   free_eshot;
+PRIVATE INT       xpos [ 16 ] = { -1, 0, 1, 2, 3, 3, 3, 2, 1, 0, -1, -2, -3, -3, -3, -2 };
+PRIVATE INT       ypos [ 16 ] = { -3,-3,-3,-2,-1, 0, 1, 2, 3, 3, 3, 2, 1, 0, -1, -2 };
+PRIVATE BYTE *    elaspow[4];
+
+extern BYTE *     lashit[];
+
+PUBLIC INT        eshotnum  = 0;
+PUBLIC INT        eshothigh = 0;
+
+PRIVATE DEFX      monkeys [ 6 ] = { FX_MON1, FX_MON2, FX_MON3, FX_MON4, FX_MON5, FX_MON6 };
+                            
+/***************************************************************************
+ESHOT_Clear () - Clears out ESHOT Linklist
+ ***************************************************************************/
+VOID
+ESHOT_Clear (
+VOID
+)
+{
+   INT loop;
+  
+   eshotnum = 0;
+
+   first_eshot.prev = NUL;
+   first_eshot.next = &last_eshot;
+  
+   last_eshot.prev  = &first_eshot;
+   last_eshot.next  = NUL;
+  
+   free_eshot       = eshots;
+  
+   memset ( eshots, 0, sizeof ( eshots ) );
+  
+   for ( loop = 0; loop < MAX_ESHOT-1; loop++ )
+      eshots[ loop ].next = &eshots [ loop + 1 ];
+}
+
+/*-------------------------------------------------------------------------*
+ESHOT_Get () - gets a Free ESHOT OBJECT from linklist
+ *-------------------------------------------------------------------------*/
+PRIVATE ESHOT *
+ESHOT_Get (
+VOID
+)
+{
+   ESHOT * new;
+  
+   if ( !free_eshot )
+      return ( NUL );
+  
+   eshotnum++;
+   if ( eshothigh < eshotnum )
+      eshothigh = eshotnum;
+
+   new = free_eshot;
+   free_eshot = free_eshot->next;
+  
+   memset ( new, 0 ,sizeof ( ESHOT ) );
+  
+   new->next = &last_eshot;
+   new->prev = last_eshot.prev;
+   last_eshot.prev = new;
+   new->prev->next = new;
+  
+   return ( new );
+}
+  
+/*-------------------------------------------------------------------------*
+ESHOT_Remove () - Removes SHOT OBJECT from linklist
+ *-------------------------------------------------------------------------*/
+PRIVATE ESHOT *
+ESHOT_Remove (
+ESHOT * sh
+)
+{
+   ESHOT * next;
+  
+   eshotnum--;
+
+   next = sh->prev;
+  
+   sh->next->prev = sh->prev;
+   sh->prev->next = sh->next;
+  
+   memset ( sh, 0, sizeof ( ESHOT ) );
+  
+   sh->next = free_eshot;
+  
+   free_eshot = sh;
+  
+   return ( next );
+}
+  
+/***************************************************************************
+ESHOT_Init () - Inits ESHOT system and clears link list
+ ***************************************************************************/
+VOID
+ESHOT_Init (
+VOID
+)
+{
+   ESHOT_LIB  *   cur;
+   INT            loop;
+   GFX_PIC    *   h;
+   DWORD          item;
+
+   for ( loop = 0; loop < 4; loop++ )
+   {
+      item = ELASEPOW_BLK + (DWORD)loop ;
+      elaspow [ loop ] = GLB_LockItem ( item );
+   }
+
+   ESHOT_Clear();
+
+   memset ( plib, 0, sizeof ( plib ) );
+
+   cur = &plib [ LIB_NORMAL ];
+   cur->hits            = 2;
+   cur->item            = ESHOT_BLK;
+   cur->num_frames      = 2;
+   cur->smokeflag       = FALSE;
+   cur->speed           = 6;
+   for ( loop = 0; loop < cur->num_frames; loop++ )
+   {
+      item = cur->item + (DWORD)loop;
+      cur->pic [ loop ] = GLB_LockItem ( item );
+   }
+   h = ( GFX_PIC * )cur->pic [ 0 ];
+   cur->xoff            = h->width>>1;
+   cur->yoff            = h->height>>1;
+
+   cur = &plib [ LIB_ATPLAY ];
+   cur->hits            = 1;
+   cur->item            = ESHOT_BLK;
+   cur->num_frames      = 2;
+   cur->smokeflag       = FALSE;
+   cur->speed           = 6;
+   for ( loop = 0; loop < cur->num_frames; loop++ )
+   {
+      item = cur->item + (DWORD)loop;
+      cur->pic [ loop ] = GLB_LockItem ( item );
+   }
+   h = ( GFX_PIC * )cur->pic [ 0 ];
+   cur->xoff            = h->width>>1;
+   cur->yoff            = h->height>>1;
+
+   cur = &plib [ LIB_MISSLE ];
+   cur->hits            = 4;
+   cur->item            = EMISLE_BLK;
+   cur->num_frames      = 2;
+   cur->smokeflag       = TRUE;
+   cur->speed           = 10;
+   for ( loop = 0; loop < cur->num_frames; loop++ )
+   {
+      item = cur->item + (DWORD)loop;
+      cur->pic [ loop ] = GLB_LockItem ( item );
+   }
+   h = ( GFX_PIC * )cur->pic [ 0 ];
+   cur->xoff            = h->width>>1;
+   cur->yoff            = h->height>>1;
+
+   cur = &plib [ LIB_MINES ];
+   cur->hits            = 16;
+   cur->item            = MINE_BLK;
+   cur->num_frames      = 2;
+   cur->smokeflag       = FALSE;
+   cur->speed           = 0;
+   for ( loop = 0; loop < cur->num_frames; loop++ )
+   {
+      item = cur->item + (DWORD)loop;
+      cur->pic [ loop ] = GLB_LockItem ( item );
+   }
+   h = ( GFX_PIC * )cur->pic [ 0 ];
+   cur->xoff            = h->width>>1;
+   cur->yoff            = h->height>>1;
+
+   cur = &plib [ LIB_LASER ];
+   cur->hits            = 12;
+   cur->item            = ELASER_BLK;
+   cur->num_frames      = 4;
+   cur->smokeflag       = FALSE;
+   cur->speed           = 6;
+   for ( loop = 0; loop < cur->num_frames; loop++ )
+   {
+      item = cur->item + (DWORD)loop;
+      cur->pic [ loop ] = GLB_LockItem ( item );
+   }
+   h = ( GFX_PIC * )cur->pic [ 0 ];
+   cur->xoff            = h->width>>1;
+   cur->yoff            = h->height>>1;
+
+   cur = &plib [ LIB_PLASMA ];
+   cur->hits            = 15;
+   cur->item            = EPLASMA_PIC;
+   cur->num_frames      = 1;
+   cur->smokeflag       = FALSE;
+   cur->speed           = 10;
+   for ( loop = 0; loop < cur->num_frames; loop++ )
+   {
+      item = cur->item + (DWORD)loop;
+      cur->pic [ loop ] = GLB_LockItem ( item );
+   }
+   h = ( GFX_PIC * )cur->pic [ 0 ];
+   cur->xoff            = h->width>>1;
+   cur->yoff            = h->height>>1;
+
+
+   cur = &plib [ LIB_COCO ];
+   cur->hits            = 1;
+   cur->item            = COCONUT_PIC;
+   cur->num_frames      = 4;
+   cur->smokeflag       = FALSE;
+   cur->speed           = 6;
+   for ( loop = 0; loop < cur->num_frames; loop++ )
+   {
+      item = cur->item + (DWORD)loop;
+      cur->pic [ loop ] = GLB_LockItem ( item );
+   }
+   h = ( GFX_PIC * )cur->pic [ 0 ];
+   cur->xoff            = h->width>>1;
+   cur->yoff            = h->height>>1;
+}
+
+/***************************************************************************
+ESHOT_Shoot() - Shoots ENEMY GUNS
+ ***************************************************************************/
+VOID
+ESHOT_Shoot (
+SPRITE_SHIP * enemy,       // INPUT : pointer to Enemy stuff
+INT           gun_num      // INPUT : gun number to shoot
+)
+{
+   ESHOT *     cur;
+   INT         x;
+   INT         y;
+
+   x = enemy->x + enemy->lib->shootx [ gun_num ];
+   y = enemy->y + enemy->lib->shooty [ gun_num ];
+
+   if ( x < 0 && x >= 320 )
+      return;
+…
+}
+
+[Showing lines 1-300 of 580. Use :301 to continue]
+
+### region 12 (read, ~1303 tok)
+
+{
+…
+   if ( x < 0 && x >= 320 )
+      return;
+
+   if ( y < 0 && y >= 200 )
+      return;
+
+   cur = ESHOT_Get();
+   if ( !cur ) return;
+  
+   cur->move.x  = x;
+   cur->move.y  = y;
+   cur->en      = enemy;
+   cur->gun_num = gun_num;
+
+   switch ( ( ESHOT_TYPE )enemy->lib->shoot_type [ gun_num ] )
+   {
+      default:
+         EXIT_Error ("ESHOT_Shoot() - Invalid EShot type");
+         break;
+
+      case ES_ATPLAYER:
+         SND_3DPatch ( FX_ENEMYSHOT, x, y );
+         cur->lib       = &plib [ LIB_ATPLAY ];
+         cur->move.x -= cur->lib->xoff;
+         cur->move.y -= cur->lib->yoff;
+         cur->move.x2   = player_cx;
+         cur->move.y2   = player_cy;
+         cur->speed     = 1;
+         cur->type      = ES_ATPLAYER;
+         break;
+
+      case ES_ATDOWN:
+         SND_3DPatch ( FX_ENEMYSHOT, x, y );
+         cur->lib       = &plib [ LIB_NORMAL ];
+         cur->move.x -= cur->lib->xoff;
+         cur->move.y -= cur->lib->yoff;
+         cur->move.x2   = cur->move.x;
+         cur->move.y2   = 200;
+         cur->speed     = cur->lib->speed>>1;
+         cur->type      = ES_ATDOWN;
+         break;
+
+      case ES_ANGLELEFT:
+         SND_3DPatch ( FX_ENEMYSHOT, x, y );
+         cur->lib       = &plib [ LIB_NORMAL ];
+         cur->move.x -= cur->lib->xoff;
+         cur->move.y -= cur->lib->yoff;
+         cur->move.x2   = cur->move.x - 32;
+         cur->move.y2   = cur->move.y + 32;
+         cur->speed     = cur->lib->speed>>1;
+         cur->type      = ES_ANGLELEFT;
+         break;
+
+      case ES_ANGLERIGHT:
+         SND_3DPatch ( FX_ENEMYSHOT, x, y );
+         cur->lib       = &plib [ LIB_NORMAL ];
+         cur->move.x -= cur->lib->xoff;
+         cur->move.y -= cur->lib->yoff;
+         cur->move.x2   = cur->move.x + 32;
+         cur->move.y2   = cur->move.y + 32;
+         cur->speed     = cur->lib->speed>>1;
+         cur->type      = ES_ANGLERIGHT;
+         break;
+
+      case ES_MISSLE:
+         SND_3DPatch ( FX_ENEMYMISSLE, x, y );
+         cur->lib       = &plib [ LIB_MISSLE ];
+         cur->move.x   -= cur->lib->xoff;
+         cur->move.x2   = cur->move.x;
+         cur->move.y2   = 200;
+         cur->speed     = enemy->speed+1;
+         cur->type      = ES_MISSLE;
+         break;
+
+      case ES_MINES:
+         SND_3DPatch ( FX_ENEMYSHOT, x, y );
+         cur->lib       = &plib [ LIB_MINES ];
+         cur->x         = cur->move.x;
+         cur->y         = cur->move.y;
+         cur->move.x2   = 320;
+         cur->move.y2   = 200;
+         cur->speed     = 150;
+         cur->pos       = random ( 16 );
+         cur->type      = ES_MINES;
+         break;
+
+      case ES_LASER:
+         SND_3DPatch ( FX_ENEMYLASER, x, y );
+         cur->lib       = &plib [ LIB_LASER ];
+         cur->move.x   -= cur->lib->xoff;
+         cur->move.x2   = cur->move.x;
+         cur->move.y2   = 200;
+         cur->speed     = enemy->speed;
+         cur->type      = ES_LASER;
+         break;
+
+      case ES_PLASMA:
+         SND_3DPatch ( FX_ENEMYPLASMA, x, y );
+         cur->lib       = &plib [ LIB_PLASMA ];
+         cur->move.x   -= cur->lib->xoff;
+         cur->move.x2   = cur->move.x;
+         cur->move.y2   = 200;
+         cur->speed     = 8;
+         cur->type      = ES_PLASMA;
+         break;
+
+      case ES_COCONUTS:
+         SND_3DPatch ( monkeys [ random ( 6 ) ], x, y );
+         cur->lib       = &plib [ LIB_COCO ];
+         cur->move.x -= cur->lib->xoff;
+         cur->move.y -= cur->lib->yoff;
+         cur->move.x2   = player_cx;
+         cur->move.y2   = player_cy;
+         cur->speed     = 1;
+         cur->type      = ES_COCONUTS;
+         break;
+   }
+
+   InitMobj ( &cur->move );
+   MoveSobj ( &cur->move, 1 );
+
+   if ( cur->move.x < 0 || cur->move.x >= 320 )
+      cur->move.done = TRUE;
+
+   if ( cur->move.y < 0 || cur->move.y >= 200 )
+      cur->move.done = TRUE;
+
+   if ( cur->move.done )
+      ESHOT_Remove ( cur );
+}
+  
+/***************************************************************************
+ESHOT_Think () - Does All Thinking for shot system
+ ***************************************************************************/
+VOID
+ESHOT_Think (
+VOID
+)
+{
+   ESHOT       *  shot;
+   ESHOT_LIB   *  lib;
+   INT            dx;
+   INT            dy;
+  
+   for ( shot=first_eshot.next; shot!=&last_eshot; shot=shot->next )
+   {
+      lib = shot->lib;
+
+      shot->pic = lib->pic [ shot->curframe ];
+
+      shot->curframe++;
+
+      switch ( shot->type )
+      {
+         case ES_LASER:
+            if ( shot->curframe < lib->num_frames)
+            {
+               shot->x        = shot->en->x + shot->en->lib->shootx [ shot->gun_num ] - 4;
+               shot->y        = shot->en->y + shot->en->lib->shooty [ shot->gun_num ];
+               shot->move.y2  = 200;
+
+               dx = abs ( shot->x - player_cx );
+
+               if ( dx < ( PLAYERWIDTH/2 ) && shot->y < player_cy )
+               {
+                  shot->move.y2 = player_cy + random(4) - 2;
+                  OBJS_SubEnergy ( lib->hits );
+               }
+            }
+            else
+               shot->doneflag = TRUE;
+            break;
+
+         default:
+            if ( shot->curframe >= lib->num_frames )
+…
+      }
+…
+   }
+}
+
+[Showing lines 299-473 of 580. Use :474 to continue]
+
+### region 13 (read, ~15 tok)
+
+Path 'D:/dev/ab-tasks/raptor-dsv4/SOURCE/IPT.C' not found
+
+### region 14 (bash
+<｜DSML｜parameter name="i" string="true, ~16 tok)
+
+Tool bash
+<｜DSML｜parameter name="i" string="true not found

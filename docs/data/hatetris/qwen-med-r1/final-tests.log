@@ -1,0 +1,26 @@
+
+> hatetris@1.2.0 unit
+> node --enable-source-maps --import ./register.js --require global-jsdom/register --test --experimental-test-coverage --test-coverage-functions=100 --test-coverage-lines=100 --test-coverage-branches=100 --test-coverage-exclude "**/*.test.{ts,tsx}" -- "**/*.test.{ts,tsx}"
+
+Your app (or one of its dependencies) is using an outdated JSX transform. Update to the modern JSX transform for faster performance: https://react.dev/link/new-jsx-transform
+▶ <Game>
+  ✔ rejects a rotation system with no pieces (34.1889ms)
+  ✔ rejects a well depth below the bar (3.1367ms)
+  ✔ rejects a well width less than 4 (2.2518ms)
+  ✔ ignores all keystrokes before the game has begun (350.7206ms)
+  ✔ lets you play a few moves (521.3039ms)
+  ✔ just lets you play if you enter an empty replay (74.2879ms)
+  ✔ lets you select a different AI and play a full game with it and provides a replay which you can copy (6434.9585ms)
+  ✔ lets you use a custom AI (665.7681ms)
+  ✔ supports a custom AI with state (2132.531ms)
+  ✔ lets you decide NOT to use a custom AI (259.5328ms)
+  ✔ errors out if your custom AI is invalid JavaScript, but you can dismiss it (538.5946ms)
+  ✔ errors out if your custom AI throws an error on the first piece (1247.9485ms)
+  ✔ errors out if your custom AI returns a bad piece (633.1821ms)
+  ✔ errors out if your custom AI throws an error on a later piece (8452.4435ms)
+  ✔ lets you decide not to replay anything (91.9309ms)
+  ✔ lets you replay a too-long replay (4108.5659ms)
+  ✔ lets you continue playing from the state an incomplete replay left the game in (6817.583ms)
+  ✔ keeps the game over screen when a complete replay ends the game on its last move (2001.5174ms)
+  ✔ lets you undo and stops replaying when a replay is in progress (778.1235ms)
+✔ <Game> (35150.853ms)

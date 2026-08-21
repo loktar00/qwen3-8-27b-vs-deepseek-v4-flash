@@ -1,0 +1,118 @@
+diff --git a/src/components/Game/Game.tsx b/src/components/Game/Game.tsx
+index d6e4cfa..bb20a7c 100644
+--- a/src/components/Game/Game.tsx
++++ b/src/components/Game/Game.tsx
+@@ -249,6 +249,12 @@ class Game extends React.Component<GameProps, GameState> {
+ 
+       if (wellStateId + 1 in replay) {
+         nextReplayTimeoutId = setTimeout(this.handleReplayTimeout, replayTimeout)
++      } else {
++        // The replay is over.  If the game didn't end
++        // on its last move, return control back to the player
++        this.setState(state => state.mode === 'REPLAYING'
++          ? { mode: 'PLAYING' }
++          : state)
+       }
+     } else {
+       console.warn('Ignoring input replay step because mode is', mode)
+diff --git a/test/components/Game/Game.test.tsx b/test/components/Game/Game.test.tsx
+index c297b35..0af7244 100644
+--- a/test/components/Game/Game.test.tsx
++++ b/test/components/Game/Game.test.tsx
+@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react'
+ import * as React from 'react'
+ import * as sinon from 'sinon'
+ import Game from '../../../src/components/Game/Game.tsx'
++import hatetrisReplayCodec from '../../../src/replay-codecs/hatetris-replay-codec.ts'
+ import type { GameProps } from '../../../src/components/Game/Game.tsx'
+ import hatetrisRotationSystem from '../../../src/rotation-systems/hatetris-rotation-system.ts'
+ 
+@@ -375,6 +376,88 @@ describe('<Game>', () => {
+     warn.restore()
+   })
+ 
++  it('lets you continue playing from the state an incomplete replay left the game in', async () => {
++    const warn = sinon.stub(console, 'warn')
++
++    const game = renderGame()
++
++    await user.click(screen.getByTestId('select-ai'))
++    await user.click(screen.queryAllByTestId('enemy')[2])
++
++    // A one-move replay doesn't end the game
++    const prompt = sinon.stub(window, 'prompt')
++    prompt.returns('D')
++    await user.click(screen.getByTestId('replay-button'))
++    assert.deepEqual(prompt.getCalls().map(call => call.args), [
++      ['Paste replay string...']
++    ])
++    prompt.restore()
++
++    // The replay plays its single move and control
++    // returns to the player
++    await advanceReplaySteps(2)
++
++    const replayingText = screen.queryByText('replaying...')
++    const downCount = screen.queryAllByTestId('down').length
++    const liveRows = screen.getAllByRole('row')
++      .map((row, y) => (
++        Array.from(row.querySelectorAll('td')).some(cell =>
++          cell.classList.contains('well__cell--live')
++        ) ? y : null
++      ))
++      .filter((y): y is number => y !== null)
++
++    // Lovetris always sends I pieces, and the replayed 'D'
++    // dropped the first one from row 1 to row 2.  The player
++    // finishes the game from that state - 186 more downs, 187
++    // in total (see the full-game test above) - no reload
++    for (let i = 0; i < 186; i++) {
++      await user.keyboard('{Down}')
++    }
++
++    const replayOut = screen.getByTestId('replay-out').textContent
++    const warnCount = warn.getCalls().length
++
++    game.unmount()
++    warn.restore()
++
++    assert.equal(replayingText, null)
++    assert.equal(downCount, 1)
++    assert.deepEqual(liveRows, [2])
++    assert.equal(replayOut, hatetrisReplayCodec.encode('D'.repeat(187).split('')))
++    assert.equal(warnCount, 0)
++  })
++
++  it('keeps the game over screen when a complete replay ends the game on its last move', async () => {
++    const warn = sinon.stub(console, 'warn')
++
++    const game = renderGame()
++
++    await user.click(screen.getByTestId('select-ai'))
++    await user.click(screen.queryAllByTestId('enemy')[2])
++
++    // Lovetris always sends I pieces, and 187 downs ends the
++    // game on the last move (see the full-game test above)
++    const moves = 'D'.repeat(187)
++    const prompt = sinon.stub(window, 'prompt')
++    prompt.returns(moves)
++    await user.click(screen.getByTestId('replay-button'))
++    prompt.restore()
++
++    await advanceReplaySteps(190)
++
++    const replayOut = screen.getByTestId('replay-out').textContent
++    const downCount = screen.queryAllByTestId('down').length
++    const warnCount = warn.getCalls().length
++
++    game.unmount()
++    warn.restore()
++
++    assert.equal(replayOut, hatetrisReplayCodec.encode(moves.split('')))
++    assert.equal(downCount, 0)
++    assert.equal(warnCount, 0)
++  })
++
+   it('lets you undo and stops replaying when a replay is in progress', async () => {
+     const game = renderGame()
+ 

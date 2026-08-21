@@ -1,0 +1,49 @@
+diff --git a/__tests__/edge-rank-pawns.test.ts b/__tests__/edge-rank-pawns.test.ts
+new file mode 100644
+index 0000000..da7e40b
+--- /dev/null
++++ b/__tests__/edge-rank-pawns.test.ts
+@@ -0,0 +1,30 @@
++import { describe, test, expect } from 'vitest'
++import { Chess, type Square } from '../src/chess'
++
++// Regression: a pawn (the side to move) on an edge rank used to generate an
++// off-board "advance" move, which then crashed in _movePiece with
++// "TypeError: Cannot mix BigInt and other types".
++const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const
++
++describe('pawn move generation on edge ranks', () => {
++  for (const f of FILES) {
++    test(`white pawn on ${f}8 (to move) does not throw`, () => {
++      const chess = new Chess()
++      const square = `${f}8` as Square
++      chess.put({ type: 'p', color: 'w' }, square)
++      expect(() => chess.moves({ square, verbose: true })).not.toThrow()
++      expect(chess.moves({ square })).toEqual([])
++    })
++  }
++
++  for (const f of FILES) {
++    test(`black pawn on ${f}1 (to move) does not throw`, () => {
++      const chess = new Chess()
++      const square = `${f}1` as Square
++      chess.put({ type: 'p', color: 'b' }, square)
++      chess.setTurn('b')
++      expect(() => chess.moves({ square, verbose: true })).not.toThrow()
++      expect(chess.moves({ square })).toEqual([])
++    })
++  }
++})
+diff --git a/src/chess.ts b/src/chess.ts
+index 5efdb74..2ab4a11 100644
+--- a/src/chess.ts
++++ b/src/chess.ts
+@@ -1575,7 +1575,7 @@ export class Chess {
+ 
+         // single square, non-capturing
+         to = from + PAWN_OFFSETS[us][0]
+-        if (!this._board[to]) {
++        if (!(to & 0x88) && !this._board[to]) {
+           addMove(moves, us, from, to, PAWN)
+ 
+           // double square

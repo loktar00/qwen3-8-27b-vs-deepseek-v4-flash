@@ -230,8 +230,15 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   completed at 20:16 and been scored (PASS) — the earlier run had been launched outside the matrix's own state. The
   second dispatch reused the existing worktree and therefore started from the first run's uncommitted edits (its test-file
   insertions stacked 61→127), so it is not an independent repetition. Rule applied: the FIRST valid run per (task, model,
-  rep) is canonical; the duplicate is quarantined under `_runs/_extra-20260820/anyio/qwen-r2-dup/` and excluded. The run
+  rep) is canonical; the duplicate is quarantined under `_runs/_invalid-dup-20260820/anyio/qwen-r2-dup/` and excluded. The run
   dir and worktree were restored to the first run's end state (its final.diff recovered from the public repo history, its
   OMP session transcript intact; its raw turn-*.json captures were overwritten and are lost) and the first run was
   re-scored on the restored tree to confirm the recorded PASS. No other job was dispatched twice (verified from the
   matrix state and driver.logs).
+
+- 2026-08-20 (pre-verdict, harness event): radix/qwen-r2 (started 19:32, before the per-turn OMP runaway guard was raised
+  from 90 to 240 min) had its third scripted turn aborted by the old 90-minute guard at 88m44s ("Deadline exceeded",
+  mid-reasoning); the driver still recorded rc=0 and DONE, so the scorer's transcript check (stopReason/errorMessage per
+  turn), not the exit code, is what catches this. Archived under `_invalid-harness-20260820/radix/qwen-r2-guard90/` and
+  re-run under the 240-min guard; its sibling radix/qwen-r1 completed normally (longest turn 62 min). This is the only run
+  the old guard truncated (all other finished runs audited: no turn ≥ 85 min, no abort events).

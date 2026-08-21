@@ -342,6 +342,10 @@ dl.kv dd { margin: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywher
 .mstep .mfill { height: 100%; }
 .mstep.a .mfill { background: var(--accent-a); } .mstep.b .mfill { background: var(--accent-b); } .mstep.c .mfill { background: var(--harness); }
 .mstep .mtime { font-family: var(--mono); font-size: .78rem; color: var(--ink-2); min-width: 5em; text-align: right; }
+.mstep .mmark { width: 1.3em; text-align: center; flex: none; }
+.mstep .mtime.fail { color: var(--critical); text-align: left; }
+.rstrip { display: block; font-family: var(--mono); font-size: .68rem; color: var(--ink-muted); margin-top: .15em; }
+.rmark.pass { color: var(--good); } .rmark.fail { color: var(--critical); font-weight: 700; } .rmark.none { color: var(--ink-muted); }
 .shot-pair { display: grid; grid-template-columns: 1fr 1fr; gap: .8em; margin-top: .6em; }
 .shot { border: 1px dashed var(--line-strong); border-radius: 4px; aspect-ratio: 320/200; display: flex; align-items: center;
   justify-content: center; color: var(--ink-muted); font-family: var(--mono); font-size: .72rem; background: var(--surface-2); text-align: center; padding: .5em; }

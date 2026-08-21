@@ -342,6 +342,10 @@ dl.kv dd { margin: 0; font-variant-numeric: tabular-nums; overflow-wrap: anywher
 .mstep .mfill { height: 100%; }
 .mstep.a .mfill { background: var(--accent-a); } .mstep.b .mfill { background: var(--accent-b); } .mstep.c .mfill { background: var(--harness); }
 .mstep .mtime { font-family: var(--mono); font-size: .78rem; color: var(--ink-2); min-width: 5em; text-align: right; }
+.mstep .mmark { width: 1.3em; text-align: center; flex: none; }
+.mstep .mtime.fail { color: var(--critical); text-align: left; }
+.rstrip { display: block; font-family: var(--mono); font-size: .68rem; color: var(--ink-muted); margin-top: .15em; }
+.rmark.pass { color: var(--good); } .rmark.fail { color: var(--critical); font-weight: 700; } .rmark.none { color: var(--ink-muted); }
 .shot-pair { display: grid; grid-template-columns: 1fr 1fr; gap: .8em; margin-top: .6em; }
 .shot { border: 1px dashed var(--line-strong); border-radius: 4px; aspect-ratio: 320/200; display: flex; align-items: center;
   justify-content: center; color: var(--ink-muted); font-family: var(--mono); font-size: .72rem; background: var(--surface-2); text-align: center; padding: .5em; }
@@ -553,7 +557,7 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <div class="rep-label">
     <span class="badge mono" title="raw run label on disk: qwen-r2">OMP harness, run 2 (qwen-r2)</span>
   </div>
-  <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">197 passed, 60 skipped in 7.88s</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">200 passed, 61 skipped in 8.13s</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">200 passed, 61 skipped in 8.31s — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
+  <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">197 passed, 60 skipped in 8.84s</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">200 passed, 61 skipped in 8.58s</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">200 passed, 61 skipped in 9.54s — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
   <h4>Process</h4>
   
 <dl class="kv">

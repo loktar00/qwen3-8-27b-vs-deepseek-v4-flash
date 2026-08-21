@@ -1,0 +1,76 @@
+diff --git a/__tests__/regression.test.ts b/__tests__/regression.test.ts
+index e77035a..2d194cb 100644
+--- a/__tests__/regression.test.ts
++++ b/__tests__/regression.test.ts
+@@ -308,4 +308,58 @@ describe('Regression Tests', () => {
+     const chess = new Chess('kb4r1/p2n3P/1PP5/1P6/8/8/6p1/R3KR2 b KQkq - 0 19')
+     expect(chess.isGameOver()).toBe(false) // this was crashing due to invalid castling moves being generated
+   })
++
++  it('BigInt error when generating moves for pawns on edge ranks', () => {
++    const chess = new Chess()
++    chess.put({ type: 'p', color: 'w' }, 'h8')
++    expect(() => chess.moves({ square: 'h8', verbose: true })).not.toThrow()
++    expect(chess.moves({ square: 'h8', verbose: true })).toEqual([])
++    expect(chess.moves({ square: 'h8' })).toEqual([])
++
++    // black pawn on rank 1 (black to move) hits the same off-board target
++    const chess2 = new Chess()
++    chess2.put({ type: 'p', color: 'b' }, 'a1')
++    chess2.setTurn('b')
++    expect(() => chess2.moves({ square: 'a1', verbose: true })).not.toThrow()
++    expect(chess2.moves({ square: 'a1', verbose: true })).toEqual([])
++    expect(chess2.moves({ square: 'a1' })).toEqual([])
++  })
++
++  it('7th rank pawn promotions are unaffected by edge-rank fix', () => {
++    // white pawn on rank 7: advance + capture promotions (a-file, next to edge)
++    const white = new Chess('1r6/P7/8/8/8/8/8/K6k w - - 0 1')
++    expect(white.moves({ square: 'a7' })).toEqual([
++      'a8=N',
++      'a8=B+',
++      'a8=R',
++      'a8=Q+',
++      'axb8=N',
++      'axb8=B',
++      'axb8=R',
++      'axb8=Q',
++    ])
++    expect(white.moves({ square: 'a7', verbose: true }).map((m) => m.promotion)).toEqual([
++      'n',
++      'b',
++      'r',
++      'q',
++      'n',
++      'b',
++      'r',
++      'q',
++    ])
++
++    // black pawn on rank 2 (black's promotion rank): advance + capture promotions
++    const black = new Chess('k7/8/8/8/8/8/p7/1R5K b - - 0 1')
++    expect(black.moves({ square: 'a2' })).toEqual([
++      'a1=N',
++      'a1=B',
++      'a1=R',
++      'a1=Q',
++      'axb1=N',
++      'axb1=B',
++      'axb1=R+',
++      'axb1=Q+',
++    ])
++  })
+ })
+diff --git a/src/chess.ts b/src/chess.ts
+index 5efdb74..2ab4a11 100644
+--- a/src/chess.ts
++++ b/src/chess.ts
+@@ -1575,7 +1575,7 @@ export class Chess {
+ 
+         // single square, non-capturing
+         to = from + PAWN_OFFSETS[us][0]
+-        if (!this._board[to]) {
++        if (!(to & 0x88) && !this._board[to]) {
+           addMove(moves, us, from, to, PAWN)
+ 
+           // double square

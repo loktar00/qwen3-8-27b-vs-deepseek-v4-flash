@@ -1,0 +1,110 @@
+{
+  "task": "radix",
+  "label": "qwen-med-r2",
+  "worktree": "D:\\dev\\ab-tasks\\radix-qwen-med-r2",
+  "run_dir": "D:\\dev\\ab-tasks\\_runs\\radix\\qwen-med-r2",
+  "overall_pass": true,
+  "P1": {
+    "status": "PASS",
+    "files": [
+      "packages/react/slot/src/zz-upstream-slot-ref-stability.test.tsx"
+    ],
+    "rc": 0,
+    "cmd": "npx --no-install vitest run \"packages/react/slot/src/zz-upstream-slot-ref-stability.test.tsx\"",
+    "conflicts": [
+      "packages/react/slot/src/zz-upstream-slot-ref-stability.test.tsx"
+    ],
+    "log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-qwen-med-r2\n\n\n Test Files  1 passed (1)\n      Tests  2 passed (2)\n   Start at  20:40:36\n   Duration  2.15s (transform 77ms, setup 204ms, import 352ms, tests 15ms, environment 1.33s)\n\n"
+  },
+  "P2": {
+    "status": "PASS",
+    "rc": 0,
+    "cmd": "pnpm vitest run packages/react/slot",
+    "log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-qwen-med-r2\n\n\n Test Files  2 passed (2)\n      Tests  33 passed | 2 skipped (35)\n   Start at  20:40:39\n   Duration  3.22s (transform 154ms, setup 364ms, import 715ms, tests 1.12s, environment 2.68s)\n\n"
+  },
+  "P3": {
+    "files": [
+      "packages/react/dropdown-menu/src/dropdown-menu.test.tsx",
+      "packages/react/focus-scope/src/focus-scope.test.tsx",
+      "packages/react/slot/src/slot-ref-stability.test.tsx"
+    ],
+    "cmd": "npx --no-install vitest run \"packages/react/dropdown-menu/src/dropdown-menu.test.tsx\" \"packages/react/focus-scope/src/focus-scope.test.tsx\" \"packages/react/slot/src/slot-ref-stability.test.tsx\"",
+    "model_worktree_pass": true,
+    "model_log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-qwen-med-r2\n\n\n Test Files  3 passed (3)\n      Tests  13 passed (13)\n   Start at  20:40:44\n   Duration  4.00s (transform 1.06s, setup 708ms, import 3.00s, tests 597ms, environment 4.25s)\n\n",
+    "base_worktree_fail_as_expected": true,
+    "base_sha": "bd41d038",
+    "base_log_tail": "tion] to not throw an error but 'Error: Maximum update depth exceeded.\u2026' was thrown\n\n- Expected:\nundefined\n\n+ Received:\n\"Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.\"\n\n \u276f packages/react/dropdown-menu/src/dropdown-menu.test.tsx:31:39\n     29|     }\n     30|\n     31|     expect(() => render(<App />)).not.toThrow();\n       |                                       ^\n     32|     expect(renderCount).toBeLessThan(25);\n     33|   });\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/10]\u23af\n\n FAIL  packages/react/dropdown-menu/src/dropdown-menu.test.tsx > DropdownMenu ref stability > does not re-invoke the trigger ref callback across parent re-renders\n FAIL  packages/react/dropdown-menu/src/dropdown-menu.test.tsx > DropdownMenu ref stability > does not re-invoke the trigger ref callback across parent re-renders\nAssertionError: expected \"vi.fn()\" to be called 1 times, but got 7 times\n \u276f packages/react/dropdown-menu/src/dropdown-menu.test.tsx:55:20\n     53|     // The composed ref attached to the trigger must be stable, so the\n     54|     // user's ref callback fires exactly once (on mount) with the DOM \u2026\n     55|     expect(refSpy).toHaveBeenCalledTimes(1);\n       |                    ^\n     56|     expect(refSpy).toHaveBeenLastCalledWith(expect.any(HTMLButtonEleme\u2026\n     57|   });\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[2/10]\u23af\n\n FAIL  packages/react/focus-scope/src/focus-scope.test.tsx > FocusScope > ref stability > does not re-invoke the ref callback across parent re-renders\n FAIL  packages/react/focus-scope/src/focus-scope.test.tsx > FocusScope > ref stability > does not re-invoke the ref callback across parent re-renders\nAssertionError: expected \"vi.fn()\" to be called 1 times, but got 7 times\n \u276f packages/react/focus-scope/src/focus-scope.test.tsx:142:22\n    140|       act(() => bump());\n    141|\n    142|       expect(refSpy).toHaveBeenCalledTimes(1);\n       |                      ^\n    143|       expect(refSpy).toHaveBeenLastCalledWith(expect.any(HTMLButtonEle\u2026\n    144|     });\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[3/10]\u23af\n\n FAIL  packages/react/slot/src/slot-ref-stability.test.tsx > Slot ref stability > does not cause an infinite render loop when attaching the ref triggers a render\n FAIL  packages/react/slot/src/slot-ref-stability.test.tsx > Slot ref stability > does not cause an infinite render loop when attaching the ref triggers a render\nAssertionError: expected [Function] to not throw an error but 'Error: Maximum update depth exceeded.\u2026' was thrown\n\n- Expected:\nundefined\n\n+ Received:\n\"Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.\"\n\n \u276f packages/react/slot/src/slot-ref-stability.test.tsx:26:39\n     24|     }\n     25|\n     26|     expect(() => render(<App />)).not.toThrow();\n       |                                       ^\n     27|     expect(renderCount).toBeLessThan(25);\n     28|   });\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[4/10]\u23af\n\n FAIL  packages/react/slot/src/slot-ref-stability.test.tsx > Slot ref stability > passes a single stable composed ref to the child across re-renders\n FAIL  packages/react/slot/src/slot-ref-stability.test.tsx > Slot ref stability > passes a single stable composed ref to the child across re-renders\nAssertionError: expected 3 to be 1 // Object.is equality\n\n- Expected\n+ Received\n\n- 1\n+ 3\n\n \u276f packages/react/slot/src/slot-ref-stability.test.tsx:53:32\n     51|     act(() => bump());\n     52|     act(() => bump());\n     53|     expect(refIdentities.size).toBe(1);\n       |                                ^\n     54|   });\n     55|\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[5/10]\u23af\n\n\n Test Files  3 failed (3)\n      Tests  5 failed | 8 passed (13)\n   Start at  20:40:50\n   Duration  2.76s (transform 1.08s, setup 558ms, import 2.33s, tests 674ms, environment 2.86s)\n\n",
+    "status": "PASS"
+  },
+  "secondary": {
+    "loc_added": 262,
+    "loc_removed": 36,
+    "files_touched": [
+      ".changeset/honest-dancers-stay.md",
+      ".changeset/stable-refs-react-19.md",
+      "packages/react/dismissable-layer/src/dismissable-layer.tsx",
+      "packages/react/dropdown-menu/src/dropdown-menu.test.tsx",
+      "packages/react/dropdown-menu/src/dropdown-menu.tsx",
+      "packages/react/focus-scope/src/focus-scope.test.tsx",
+      "packages/react/focus-scope/src/focus-scope.tsx",
+      "packages/react/menu/src/menu.tsx",
+      "packages/react/navigation-menu/src/navigation-menu.tsx",
+      "packages/react/popper/src/popper.tsx",
+      "packages/react/radio-group/src/radio.tsx",
+      "packages/react/scroll-area/src/scroll-area.tsx",
+      "packages/react/select/src/select.tsx",
+      "packages/react/slider/src/slider.tsx",
+      "packages/react/slot/src/slot-ref-stability.test.tsx",
+      "packages/react/slot/src/slot.tsx",
+      "packages/react/switch/src/switch.tsx",
+      "packages/react/toast/src/toast.tsx"
+    ],
+    "files_touched_count": 18,
+    "non_test_files_touched": [
+      ".changeset/honest-dancers-stay.md",
+      ".changeset/stable-refs-react-19.md",
+      "packages/react/dismissable-layer/src/dismissable-layer.tsx",
+      "packages/react/dropdown-menu/src/dropdown-menu.tsx",
+      "packages/react/focus-scope/src/focus-scope.tsx",
+      "packages/react/menu/src/menu.tsx",
+      "packages/react/navigation-menu/src/navigation-menu.tsx",
+      "packages/react/popper/src/popper.tsx",
+      "packages/react/radio-group/src/radio.tsx",
+      "packages/react/scroll-area/src/scroll-area.tsx",
+      "packages/react/select/src/select.tsx",
+      "packages/react/slider/src/slider.tsx",
+      "packages/react/slot/src/slot.tsx",
+      "packages/react/switch/src/switch.tsx",
+      "packages/react/toast/src/toast.tsx"
+    ],
+    "upstream_non_test_files": [
+      ".changeset/honest-dancers-stay.md",
+      "packages/react/slot/src/slot.tsx"
+    ],
+    "precision_subset_of_upstream": false
+  },
+  "events": {
+    "event_source": "turn-json",
+    "raw_ndjson_parse_errors": 0,
+    "tool_call_counts": {
+      "read": 86,
+      "glob": 12,
+      "bash": 212,
+      "write": 21,
+      "grep": 26,
+      "edit": 39
+    },
+    "tool_call_count_source": "toolCall-blocks",
+    "test_run_tool_calls": 56,
+    "reproduced_before_first_edit": false,
+    "harness_parse_errors": 0,
+    "total_tool_errors": 0,
+    "prompt_tokens_sum": null,
+    "completion_tokens_sum": null,
+    "reasoning_tokens_sum": null,
+    "cache_read_tokens_sum": null,
+    "cache_write_tokens_sum": null,
+    "assistant_turns": null
+  },
+  "wallclock_seconds": 4017
+}

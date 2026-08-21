@@ -317,3 +317,13 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   milestone "metro" strip, table styling) was produced by Qwen3.8-27B (FP8, on the study owner's local server) in a
   sandboxed session and merged by hand; data, wording, counts, the no-verdict gate and the privacy rules are unchanged by
   it. Logo marks are the models' public GitHub organisation avatars, used for identification only.
+
+- 2026-08-21 ~00:25 EDT (study owner's call, cost): the lane-C (no-harness) chess.js run for Qwen at xhigh effort is
+  CANCELLED after its two earlier attempts were invalidated by the serving cap / pre-patch runner; it is reported as
+  "not run — cancelled for cost" and the planned total becomes 48 runs. The lane-C chess.js Qwen-medium run continues
+  (uncapped). Completeness for the verdict gate is 48/48.
+
+- 2026-08-21 00:40 EDT (deeweb §2C subjective part): both implementations pass the 9-criteria checklist 9/9. The study
+  owner's disclosed subjective UX pick is Qwen's approach ("the same approach I took" in the shipped PR); the judge also
+  notes, for Qwen, a "Done" control in the PINNED heading that discards (acts as Cancel) while the real Save/Cancel pair
+  sits at the bottom of the list. Recorded in both judgment files as `owner_ux_pick`; shown on the site as subjective.

@@ -80,7 +80,7 @@ model's build:
 - M5 sector-1 loop: wave counter advances to 9 and the sector-complete screen appears (autoplay harness allowed).
 Secondary: time-to-each-milestone; tokens; tool calls; reverts/dead-ends (count of `git checkout -- .`/mass deletions);
 SSIM at M1/M3.
-Tertiary (Jason, 1–5): fidelity and feel.
+Tertiary: none — no subjective rating for Raptor (removed 2026-08-21, see change log).
 
 ## 3. Lanes
 A = OMP (all tasks)  ·  B = OpenCode (radix, anyio — tool-heaviest; robustness check)  ·  C = no-harness scripted human
@@ -327,3 +327,9 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   owner's disclosed subjective UX pick is Qwen's approach ("the same approach I took" in the shipped PR); the judge also
   notes, for Qwen, a "Done" control in the PINNED heading that discards (acts as Cancel) while the real Save/Cancel pair
   sits at the bottom of the list. Recorded in both judgment files as `owner_ux_pick`; shown on the site as subjective.
+
+- 2026-08-21 01:45 EDT (Raptor §2D): the subjective "fidelity / feel" tertiary rating by the study owner is REMOVED from
+  Raptor entirely (owner's decision: it could bias the result and is not needed); Raptor is reported on its milestone ladder,
+  checker outputs and secondary numbers only. Site labels for Qwen's medium-effort Raptor run state the fact and the reason
+  (restarted at medium effort after the serving-cap error) without attributing the decision by name. The deeweb UX pick (§2C)
+  is unchanged (explicitly recorded as disclosed-subjective).

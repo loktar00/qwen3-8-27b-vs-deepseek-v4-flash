@@ -1,0 +1,75 @@
+ src/components/Game/logic.ts       | 12 +++++++++++-
+ test/components/Game/Game.test.tsx | 38 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 49 insertions(+), 1 deletion(-)
+diff --git a/src/components/Game/logic.ts b/src/components/Game/logic.ts
+index 928e996..5886a43 100644
+--- a/src/components/Game/logic.ts
++++ b/src/components/Game/logic.ts
+@@ -335,7 +335,17 @@ export const getLogic = ({
+     // row (bar - 1), so there is only one line which we need to check.
+     const gameIsOver = nextWellState.core.well[bar - 1] !== 0
+ 
+-    const nextMode = gameIsOver ? 'GAME_OVER' : mode
++    // If we're replaying and the replay has run out of moves, and the
++    // game is still going, then the replay is over; hand control back
++    // to the player
++    let nextMode: string
++    if (gameIsOver) {
++      nextMode = 'GAME_OVER'
++    } else if (mode === 'REPLAYING' && !(nextWellStateId in nextReplay)) {
++      nextMode = 'PLAYING'
++    } else {
++      nextMode = mode
++    }
+ 
+     // no live piece? make a new one
+     // suited to the new world, of course
+diff --git a/test/components/Game/Game.test.tsx b/test/components/Game/Game.test.tsx
+index c297b35..7485203 100644
+--- a/test/components/Game/Game.test.tsx
++++ b/test/components/Game/Game.test.tsx
+@@ -375,6 +375,44 @@ describe('<Game>', () => {
+     warn.restore()
+   })
+ 
++  it('lets you keep playing after an incomplete replay runs out of moves', async () => {
++    const game = renderGame()
++
++    // Replay is a single move which does not end the game
++    const prompt = sinon.stub(window, 'prompt')
++    prompt.returns('D')
++    await user.click(screen.getByTestId('replay-button'))
++    assert.deepEqual(prompt.getCalls().map(call => call.args), [
++      ['Paste replay string...']
++    ])
++    prompt.restore()
++
++    // Play back the one move of the supplied replay
++    await advanceReplaySteps(1)
++
++    // The replay is finished but the game isn't over. The player must
++    // not be stuck on the "replaying..." screen: the move buttons must
++    // be back, and moves must work.
++    assert.equal(screen.queryAllByTestId('down').length, 1)
++
++    await user.keyboard('{Down}')
++    // The first piece is an S: after the replay's D plus this one,
++    // two of its cells are on the bar
++    assert.equal(screen.queryAllByTestId('well__cell well__cell--live').length, 2)
++    assert.equal(screen.queryAllByTestId('well__cell well__cell--bar well__cell--live').length, 2)
++
++    // The game loop keeps working past the end of the replay: the
++    // piece can still be dropped (15 more moves to the floor) and
++    // locked (the 16th Down), and a new piece is dealt in PLAYING mode
++    for (let i = 0; i < 16; i++) {
++      await user.keyboard('{Down}')
++    }
++    assert.equal(screen.queryAllByTestId('well__cell well__cell--landed').length, 4)
++    assert.equal(screen.queryAllByTestId('well__cell well__cell--live').length, 4)
++    assert.equal(screen.queryAllByTestId('down').length, 1)
++    game.unmount()
++  })
++
+   it('lets you undo and stops replaying when a replay is in progress', async () => {
+     const game = renderGame()
+ 

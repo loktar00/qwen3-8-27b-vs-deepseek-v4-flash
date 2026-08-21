@@ -435,10 +435,13 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <h4>Process</h4>
   
 <dl class="kv">
-  <dt>tokens (p/c/r)</dt><dd>42,655,451 / 691,792 / <span title="thinking content is present as text deltas (assistantMessageEvent thinking_delta) but no separate reasoning-token count is exposed in the usage dict; &#x27;output&#x27; likely already includes thinking tokens for this reasoning model, undifferentiated from the final visible completion">not recorded</span></dd>
+  <dt>input tokens billed across all calls (context re-sent each call)</dt><dd>42,655,451</dd>
+  <dt>completion tokens</dt><dd>691,792</dd>
+  <dt>reasoning tokens</dt><dd><span title="thinking content is present as text deltas (assistantMessageEvent thinking_delta) but no separate reasoning-token count is exposed in the usage dict; &#x27;output&#x27; likely already includes thinking tokens for this reasoning model, undifferentiated from the final visible completion">not recorded</span></dd>
+  <dt>API calls</dt><dd>315</dd>
   <dt>tool calls</dt><dd>329</dd>
   <dt>turns</dt><dd>6</dd>
-  <dt>wall-clock</dt><dd>48.5m</dd>
+  <dt title="per turn -- turn 0 setup: 1,497s &amp;middot; turn 1: 150s &amp;middot; turn 2: 458s &amp;middot; turn 3: 86s &amp;middot; turn 4: 74s &amp;middot; turn 5: 643s">wall-clock</dt><dd>48.5m</dd>
   <dt>reverts / dead-ends</dt><dd>0</dd>
   <dt>files changed / loc</dt><dd>+2,486 / -20, 9 files</dd>
   <dt title="image-similarity score vs the DOSBox reference, via SSIM -- M3 has no visual-fidelity check by design">image match &mdash; M1 / M3</dt><dd>M1: SSIM 0.49, palette 0.86 &middot; M3: not measured -- only the M1 frame has a DOSBox reference (checked _raptor-support/reference/: sector1-wave1-gameplay.png is the only gameplay capture; no M3-moment reference frame exists, and none was captured for this per the hard rule against any further DOSBox capture)</dd>
@@ -463,7 +466,10 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <h4>Process</h4>
   
 <dl class="kv">
-  <dt>tokens (p/c/r)</dt><dd>not recorded / not recorded / not recorded</dd>
+  <dt>input tokens billed across all calls (context re-sent each call)</dt><dd>not recorded</dd>
+  <dt>completion tokens</dt><dd>not recorded</dd>
+  <dt>reasoning tokens</dt><dd>not recorded</dd>
+  <dt>API calls</dt><dd>not recorded</dd>
   <dt>tool calls</dt><dd>not recorded</dd>
   <dt>turns</dt><dd>not recorded</dd>
   <dt>wall-clock</dt><dd>not recorded</dd>

@@ -49,23 +49,32 @@
       "docs/versionhistory.rst",
       "src/anyio/_backends/_asyncio.py"
     ],
-    "precision_subset_of_upstream": true
+    "precision_subset_of_upstream": true,
+    "loc_source": "base_sha_diff",
+    "commits_in_run": 0
   },
   "events": {
-    "event_source": "turn-json",
+    "event_source": "opencode-export",
     "raw_ndjson_parse_errors": 0,
-    "tool_call_counts": {},
-    "tool_call_count_source": "tool_execution_start",
-    "test_run_tool_calls": 0,
-    "reproduced_before_first_edit": null,
+    "tool_call_counts": {
+      "bash": 19,
+      "read": 8,
+      "write": 1,
+      "edit": 6
+    },
+    "tool_call_count_source": "opencode-tool-parts",
+    "test_run_tool_calls": 10,
+    "reproduced_before_first_edit": false,
     "harness_parse_errors": 0,
     "total_tool_errors": 0,
-    "prompt_tokens_sum": null,
-    "completion_tokens_sum": null,
-    "reasoning_tokens_sum": null,
-    "cache_read_tokens_sum": null,
-    "cache_write_tokens_sum": null,
-    "assistant_turns": null
+    "prompt_tokens_sum": 1073186,
+    "completion_tokens_sum": 14357,
+    "reasoning_tokens_sum": 0,
+    "cache_read_tokens_sum": 0,
+    "cache_write_tokens_sum": 0,
+    "assistant_turns": 35
   },
-  "wallclock_seconds": 399
+  "wallclock_seconds": 399,
+  "secondary_restated_at": "2026-08-21T03:12:20.900178+00:00",
+  "secondary_version": 2
 }

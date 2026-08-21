@@ -1,0 +1,103 @@
+{
+  "task": "radix",
+  "label": "dsv4-oc",
+  "worktree": "D:\\dev\\ab-tasks\\radix-dsv4-oc",
+  "run_dir": "D:\\dev\\ab-tasks\\_runs\\radix\\dsv4-oc",
+  "overall_pass": true,
+  "P1": {
+    "status": "PASS",
+    "files": [
+      "packages/react/slot/src/slot-ref-stability.test.tsx"
+    ],
+    "rc": 0,
+    "cmd": "npx --no-install vitest run \"packages/react/slot/src/slot-ref-stability.test.tsx\"",
+    "conflicts": [],
+    "log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-dsv4-oc\n\n\n Test Files  1 passed (1)\n      Tests  2 passed (2)\n   Start at  22:37:34\n   Duration  1.29s (transform 53ms, setup 121ms, import 223ms, tests 15ms, environment 768ms)\n\n"
+  },
+  "P2": {
+    "status": "PASS",
+    "rc": 0,
+    "cmd": "pnpm vitest run packages/react/slot",
+    "log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-dsv4-oc\n\n\n Test Files  1 passed (1)\n      Tests  31 passed | 2 skipped (33)\n   Start at  22:37:36\n   Duration  2.70s (transform 74ms, setup 128ms, import 304ms, tests 1.23s, environment 888ms)\n\n"
+  },
+  "P3": {
+    "files": [
+      "packages/react/dropdown-menu/src/dropdown-menu.test.tsx",
+      "packages/react/menu/src/menu.test.tsx",
+      "packages/react/navigation-menu/src/navigation-menu.test.tsx",
+      "packages/react/slot/src/slot.test.tsx",
+      "packages/react/switch/src/switch.test.tsx"
+    ],
+    "cmd": "npx --no-install vitest run \"packages/react/dropdown-menu/src/dropdown-menu.test.tsx\" \"packages/react/menu/src/menu.test.tsx\" \"packages/react/navigation-menu/src/navigation-menu.test.tsx\" \"packages/react/slot/src/slot.test.tsx\" \"packages/react/switch/src/switch.test.tsx\"",
+    "model_worktree_pass": true,
+    "model_log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-dsv4-oc\n\n\n Test Files  5 passed (5)\n      Tests  36 passed | 2 skipped (38)\n   Start at  22:37:40\n   Duration  2.86s (transform 631ms, setup 763ms, import 2.57s, tests 1.83s, environment 5.07s)\n\n",
+    "base_worktree_fail_as_expected": true,
+    "base_sha": "bd41d038",
+    "base_log_tail": "radix/packages/react/compose-refs/src/compose-refs.tsx:11:12\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[3/10]\u23af\n\n FAIL  packages/react/slot/src/slot.test.tsx > given a Slot that re-renders (React 19 ref behavior) > does not throw \"Maximum update depth exceeded\" when a function ref schedules updates\n FAIL  packages/react/slot/src/slot.test.tsx > given a Slot that re-renders (React 19 ref behavior) > does not throw \"Maximum update depth exceeded\" when a function ref schedules updates\nError: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.\n \u276f getRootForUpdatedFiber ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:4624:11\n \u276f enqueueConcurrentHookUpdate ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:4584:14\n \u276f dispatchSetStateInternal ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:9167:18\n \u276f dispatchSetState ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:9127:7\n \u276f packages/react/slot/src/slot.test.tsx:240:9\n    238|       const [text, setText] = React.useState('');\n    239|       const ref = React.useCallback((_node: HTMLButtonElement | null) \u2026\n    240|         setText((t) => t + '!');\n       |         ^\n    241|       }, []);\n    242|\n \u276f setRef ../radix/packages/react/compose-refs/src/compose-refs.tsx:11:12\n \u276f ../radix/packages/react/compose-refs/src/compose-refs.tsx:25:23\n \u276f ../radix/packages/react/compose-refs/src/compose-refs.tsx:24:27\n \u276f runWithFiberInDEV ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:874:13\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[4/10]\u23af\n\n FAIL  packages/react/switch/src/switch.test.tsx > given a Switch with a function ref that schedules state (React 19) > does not throw \"Maximum update depth exceeded\" when the parent re-renders\n FAIL  packages/react/switch/src/switch.test.tsx > given a Switch with a function ref that schedules state (React 19) > does not throw \"Maximum update depth exceeded\" when the parent re-renders\nError: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.\n \u276f getRootForUpdatedFiber ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:4624:11\n \u276f enqueueConcurrentHookUpdate ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:4584:14\n \u276f dispatchSetStateInternal ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:9167:18\n \u276f dispatchSetState ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:9127:7\n \u276f packages/react/switch/src/switch.test.tsx:44:9\n     42|       const [text, setText] = React.useState('');\n     43|       const ref = React.useCallback(() => {\n     44|         setText((t) => t + '!');\n       |         ^\n     45|       }, []);\n     46|\n \u276f setRef ../radix/packages/react/compose-refs/src/compose-refs.tsx:11:12\n \u276f ../radix/packages/react/compose-refs/src/compose-refs.tsx:25:23\n \u276f ../radix/packages/react/compose-refs/src/compose-refs.tsx:24:27\n \u276f runWithFiberInDEV ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:874:13\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[5/10]\u23af\n\n\n Test Files  5 failed (5)\n      Tests  5 failed | 31 passed | 2 skipped (38)\n   Start at  22:37:44\n   Duration  3.36s (transform 2.67s, setup 1.02s, import 5.43s, tests 2.09s, environment 4.82s)\n\n",
+    "status": "PASS"
+  },
+  "secondary": {
+    "loc_added": 342,
+    "loc_removed": 42,
+    "files_touched": [
+      ".changeset/calm-slot-refs-loop.md",
+      "packages/react/dismissable-layer/src/dismissable-layer.tsx",
+      "packages/react/dropdown-menu/src/dropdown-menu.test.tsx",
+      "packages/react/dropdown-menu/src/dropdown-menu.tsx",
+      "packages/react/focus-scope/src/focus-scope.tsx",
+      "packages/react/menu/src/menu.test.tsx",
+      "packages/react/menu/src/menu.tsx",
+      "packages/react/navigation-menu/src/navigation-menu.test.tsx",
+      "packages/react/navigation-menu/src/navigation-menu.tsx",
+      "packages/react/popper/src/popper.tsx",
+      "packages/react/radio-group/src/radio.tsx",
+      "packages/react/scroll-area/src/scroll-area.tsx",
+      "packages/react/select/src/select.tsx",
+      "packages/react/slider/src/slider.tsx",
+      "packages/react/slot/src/slot.test.tsx",
+      "packages/react/slot/src/slot.tsx",
+      "packages/react/switch/src/switch.test.tsx",
+      "packages/react/switch/src/switch.tsx",
+      "packages/react/toast/src/toast.tsx"
+    ],
+    "files_touched_count": 19,
+    "non_test_files_touched": [
+      ".changeset/calm-slot-refs-loop.md",
+      "packages/react/dismissable-layer/src/dismissable-layer.tsx",
+      "packages/react/dropdown-menu/src/dropdown-menu.tsx",
+      "packages/react/focus-scope/src/focus-scope.tsx",
+      "packages/react/menu/src/menu.tsx",
+      "packages/react/navigation-menu/src/navigation-menu.tsx",
+      "packages/react/popper/src/popper.tsx",
+      "packages/react/radio-group/src/radio.tsx",
+      "packages/react/scroll-area/src/scroll-area.tsx",
+      "packages/react/select/src/select.tsx",
+      "packages/react/slider/src/slider.tsx",
+      "packages/react/slot/src/slot.tsx",
+      "packages/react/switch/src/switch.tsx",
+      "packages/react/toast/src/toast.tsx"
+    ],
+    "upstream_non_test_files": [
+      ".changeset/honest-dancers-stay.md",
+      "packages/react/slot/src/slot.tsx"
+    ],
+    "precision_subset_of_upstream": false
+  },
+  "events": {
+    "event_source": "turn-json",
+    "raw_ndjson_parse_errors": 0,
+    "tool_call_counts": {},
+    "tool_call_count_source": "tool_execution_start",
+    "test_run_tool_calls": 0,
+    "reproduced_before_first_edit": null,
+    "harness_parse_errors": 0,
+    "total_tool_errors": 0,
+    "prompt_tokens_sum": null,
+    "completion_tokens_sum": null,
+    "reasoning_tokens_sum": null,
+    "cache_read_tokens_sum": null,
+    "cache_write_tokens_sum": null,
+    "assistant_turns": null
+  },
+  "wallclock_seconds": 981
+}

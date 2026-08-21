@@ -475,13 +475,13 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <p class="lede">the model uses real dev tools (read/edit/run) — all tasks</p>
   <div class="compare">
 <div class="modelcol a">
-  <div class="mhead"><div class="mname">DeepSeek V4 Flash</div><div class="meffort">server default</div></div>
+  <div class="mhead"><div class="mname">DeepSeek V4 Flash</div><div class="meffort" title="OpenCode sends no reasoning-effort field; the DeepSeek server&#x27;s configured default is reasoning_effort=max — same effort as lane A&#x27;s explicit :max">max (server default)</div></div>
   
 <div class="rep">
   <div class="rep-label">
     <span class="badge mono" title="raw run label on disk: dsv4-r1">OMP harness, run 1 (dsv4-r1)</span>
   </div>
-  <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">197 passed, 60 skipped in 11.18s</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">200 passed, 61 skipped in 11.36s</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">200 passed, 61 skipped in 8.84s — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
+  <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">197 passed, 60 skipped in 8.27s</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">200 passed, 61 skipped in 7.05s</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">200 passed, 61 skipped in 6.90s — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
   <h4>Process</h4>
   
 <dl class="kv">
@@ -637,7 +637,7 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <p class="lede">a different tool harness, same tasks — checks the result isn&#x27;t a fluke of one harness</p>
   <div class="compare">
 <div class="modelcol a">
-  <div class="mhead"><div class="mname">DeepSeek V4 Flash</div><div class="meffort">server default</div></div>
+  <div class="mhead"><div class="mname">DeepSeek V4 Flash</div><div class="meffort" title="OpenCode sends no reasoning-effort field; the DeepSeek server&#x27;s configured default is reasoning_effort=max — same effort as lane A&#x27;s explicit :max">max (server default)</div></div>
   
 <div class="rep">
   <div class="rep-label">

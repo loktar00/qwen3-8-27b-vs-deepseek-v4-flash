@@ -333,3 +333,11 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   checker outputs and secondary numbers only. Site labels for Qwen's medium-effort Raptor run state the fact and the reason
   (restarted at medium effort after the serving-cap error) without attributing the decision by name. The deeweb UX pick (§2C)
   is unchanged (explicitly recorded as disclosed-subjective).
+
+- 2026-08-21 01:50 EDT (verdict gate, pre-completion audit): a dry run of the gate with a placeholder Raptor/Qwen score showed
+  the pre-registered rule yields the same sentence for any Raptor outcome — Raptor and deeweb are reported alongside and do not
+  enter the pass/fail vote (as §5 intends). Two implementation notes: (1) a cancelled/unplanned (model, lane) cell was being
+  compared as if it had runs (it would have credited DeepSeek with lane C against Qwen-xhigh, whose lane-C run was cancelled);
+  fixed to compare only lanes where both sides have at least one valid run — today's wording is unaffected because Qwen-medium's
+  real lane-C result produces the same lane flip; (2) the §5 tie-break by process efficiency is not needed for this outcome
+  (no lane decision rests on a tie) and is therefore not applied by the page; stated as such.

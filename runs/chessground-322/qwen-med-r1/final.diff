@@ -1,0 +1,207 @@
+diff --git a/src/config.ts b/src/config.ts
+index 745908f..7297d44 100644
+--- a/src/config.ts
++++ b/src/config.ts
+@@ -86,8 +86,10 @@ export interface Config {
+     enabled?: boolean; // can draw
+     visible?: boolean; // can view
+     defaultSnapToValidMove?: boolean;
+-    // Clicking an empty square or immovable piece will clear the drawing regardless, but when this property is true,
+-    // clicking on a (currently unselected) movable piece will also clear the drawing.
++    // Clicking an empty square or a piece not of the turn color will clear all shapes.
++    // Set to false to disable the "erase on click" functionality entirely.
++    eraseOnClick?: boolean;
++    // When this property is true, clicking on a (currently unselected) movable piece will also clear the drawing.
+     eraseOnMovablePieceClick?: boolean;
+     shapes?: DrawShape[];
+     autoShapes?: DrawShape[];
+diff --git a/src/drag.ts b/src/drag.ts
+index 0fbe74a..5c44dd1 100644
+--- a/src/drag.ts
++++ b/src/drag.ts
+@@ -32,6 +32,7 @@ export function start(s: State, e: cg.MouchEvent): void {
+   if (
+     !previouslySelected &&
+     s.drawable.enabled &&
++    s.drawable.eraseOnClick &&
+     (s.drawable.eraseOnMovablePieceClick || !piece || piece.color !== s.turnColor)
+   )
+     drawClear(s);
+diff --git a/src/draw.ts b/src/draw.ts
+index 1fe7d4f..ee6435b 100644
+--- a/src/draw.ts
++++ b/src/draw.ts
+@@ -44,6 +44,7 @@ export interface Drawable {
+   enabled: boolean; // can draw
+   visible: boolean; // can view
+   defaultSnapToValidMove: boolean;
++  eraseOnClick: boolean;
+   eraseOnMovablePieceClick: boolean;
+   onChange?: (shapes: DrawShape[]) => void;
+   shapes: DrawShape[]; // user shapes
+diff --git a/src/state.ts b/src/state.ts
+index df9a318..ea12c8c 100644
+--- a/src/state.ts
++++ b/src/state.ts
+@@ -177,6 +177,7 @@ export function defaults(): HeadlessState {
+       enabled: true, // can draw
+       visible: true, // can view
+       defaultSnapToValidMove: true,
++      eraseOnClick: true,
+       eraseOnMovablePieceClick: true,
+       shapes: [],
+       autoShapes: [],
+diff --git a/tests/drawable.test.ts b/tests/drawable.test.ts
+new file mode 100644
+index 0000000..b2aa6cf
+--- /dev/null
++++ b/tests/drawable.test.ts
+@@ -0,0 +1,148 @@
++import { type Api } from '../src/api';
++import { Chessground } from '../src/chessground';
++import { type Config } from '../src/config';
++import * as drag from '../src/drag';
++import { type DrawShape } from '../src/draw';
++import { defaults, type State } from '../src/state';
++import type * as cg from '../src/types';
++import * as util from '../src/util';
++// jsdom has no requestAnimationFrame unless pretendToBeVisual is enabled
++if (typeof globalThis.requestAnimationFrame !== 'function')
++  (globalThis as Record<string, unknown>).requestAnimationFrame = (cb: FrameRequestCallback) =>
++    setTimeout(() => cb(Date.now()), 16);
++
++// jsdom does no layout, so give the board element a fixed 400x400 rect
++const rect = {
++  x: 0,
++  y: 0,
++  left: 0,
++  top: 0,
++  right: 400,
++  bottom: 400,
++  width: 400,
++  height: 400,
++  toJSON: () => ({}),
++} as DOMRect;
++
++const boards: Api[] = [];
++
++const createBoard = (config: Config): Api => {
++  const el = document.createElement('div');
++  document.body.appendChild(el);
++  const board = Chessground(el, config);
++  // the bounds memo was populated from jsdom's zero-sized rect during init
++  board.state.dom.elements.board.getBoundingClientRect = () => rect;
++  board.state.dom.bounds.clear();
++  boards.push(board);
++  return board;
++};
++
++afterAll(() => {
++  for (const board of boards) board.destroy();
++});
++
++// center of a square in client coordinates, white pov, 400x400 board
++const centerOf = (key: cg.Key): [number, number] => [
++  ((key.charCodeAt(0) - 97 + 0.5) / 8) * 400,
++  ((8.5 - Number(key.charAt(1))) / 8) * 400,
++];
++
++const click = (board: Api, key: cg.Key): void => {
++  const [x, y] = centerOf(key);
++  board.state.dom.elements.board.dispatchEvent(
++    new MouseEvent('mousedown', { clientX: x, clientY: y, button: 0, buttons: 0, bubbles: true, cancelable: true }),
++  );
++};
++
++const twoShapes = (): DrawShape[] => [
++  { orig: 'e4', dest: 'e5', brush: 'green' },
++  { orig: 'c4', dest: 'c5', brush: 'red' },
++];
++
++test('by default, clicking an empty square clears all shapes', () => {
++  const board = createBoard({ trustAllEvents: true, drawable: { shapes: twoShapes() } });
++  expect(board.state.drawable.shapes).toHaveLength(2);
++  click(board, 'd4');
++  expect(board.state.drawable.shapes).toHaveLength(0);
++});
++
++test('by default, clicking a piece not of the turn color clears all shapes', () => {
++  const board = createBoard({ trustAllEvents: true, drawable: { shapes: twoShapes() } });
++  click(board, 'd7'); // black pawn, white to move
++  expect(board.state.drawable.shapes).toHaveLength(0);
++});
++
++test('by default, clicking a movable piece clears all shapes', () => {
++  const board = createBoard({ trustAllEvents: true, drawable: { shapes: twoShapes() } });
++  click(board, 'd2'); // white pawn
++  expect(board.state.drawable.shapes).toHaveLength(0);
++});
++
++// https://github.com/lichess-org/chessground/issues/322
++test('eraseOnClick: false disables the erase on click functionality', () => {
++  const board = createBoard({
++    trustAllEvents: true,
++    drawable: { eraseOnClick: false, shapes: twoShapes() },
++  });
++  expect(board.state.drawable.shapes).toHaveLength(2);
++  click(board, 'd4'); // empty square
++  expect(board.state.drawable.shapes).toHaveLength(2);
++  board.selectSquare(null); // each click must start with no square selected
++  click(board, 'd7'); // piece not of the turn color
++  expect(board.state.drawable.shapes).toHaveLength(2);
++  board.selectSquare(null);
++  click(board, 'd2'); // movable piece
++  expect(board.state.drawable.shapes).toHaveLength(2);
++});
++
++// unit level: call drag.start directly with a minimal DOM surface
++const unitState = (): State => {
++  const state = defaults() as State;
++  state.trustAllEvents = true;
++  state.drawable.shapes = twoShapes();
++  state.dom = {
++    elements: {
++      board: document.createElement('div'),
++      wrap: document.createElement('div'),
++      container: document.createElement('div'),
++    },
++    bounds: util.memo<DOMRectReadOnly>(() => rect),
++    redraw: () => {},
++    redrawNow: () => {},
++  };
++  return state;
++};
++
++const down = (key: cg.Key): cg.MouchEvent => {
++  const [x, y] = centerOf(key);
++  return new MouseEvent('mousedown', { clientX: x, clientY: y, button: 0, buttons: 0, cancelable: true });
++};
++
++test('unit: shapes survive a click when eraseOnClick is false', () => {
++  // by contrast, the default (true) erases everything on the same click
++  const def = unitState();
++  drag.start(def, down('d4'));
++  expect(def.drawable.shapes).toHaveLength(0);
++
++  const lengthAfterClick = (key: cg.Key): number => {
++    const state = unitState();
++    state.drawable.eraseOnClick = false;
++    drag.start(state, down(key));
++    return state.drawable.shapes.length;
++  };
++  expect(lengthAfterClick('d4')).toBe(2); // empty square
++  expect(lengthAfterClick('d7')).toBe(2); // piece not of the turn color
++  expect(lengthAfterClick('d2')).toBe(2); // movable piece
++});
++
++test('unit: eraseOnClick: true clears all shapes on click', () => {
++  const lengthAfterClick = (key: cg.Key): number => {
++    const state = unitState();
++    state.drawable.eraseOnClick = true;
++    drag.start(state, down(key));
++    return state.drawable.shapes.length;
++  };
++  expect(lengthAfterClick('d4')).toBe(0); // empty square
++  expect(lengthAfterClick('d7')).toBe(0); // piece not of the turn color
++  expect(lengthAfterClick('d2')).toBe(0); // movable piece
++});

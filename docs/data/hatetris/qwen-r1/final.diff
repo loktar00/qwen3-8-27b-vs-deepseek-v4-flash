@@ -1,0 +1,141 @@
+diff --git a/src/components/Game/Game.tsx b/src/components/Game/Game.tsx
+index d6e4cfa..991850b 100644
+--- a/src/components/Game/Game.tsx
++++ b/src/components/Game/Game.tsx
+@@ -129,7 +129,9 @@ class Game extends React.Component<GameProps, GameState> {
+   }
+ 
+   async handleMove (move: string) {
+-    this.setState(await this.logic.handleMove(this.state, move))
++    const nextState = await this.logic.handleMove(this.state, move)
++    this.setState(nextState)
++    return nextState
+   }
+ 
+   handleClickStart = async () => {
+@@ -245,10 +247,17 @@ class Game extends React.Component<GameProps, GameState> {
+     let nextReplayTimeoutId
+ 
+     if (mode === 'REPLAYING') {
+-      await this.handleRedo()
++      const nextState = await this.handleRedo()
+ 
+       if (wellStateId + 1 in replay) {
+         nextReplayTimeoutId = setTimeout(this.handleReplayTimeout, replayTimeout)
++      } else if (nextState.mode === 'REPLAYING') {
++        // The replay is out of moves but the game is not over
++        // (a game over would have been reported by `handleMove`),
++        // so hand the game back to the player
++        this.setState({
++          mode: 'PLAYING'
++        })
+       }
+     } else {
+       console.warn('Ignoring input replay step because mode is', mode)
+@@ -329,13 +338,15 @@ class Game extends React.Component<GameProps, GameState> {
+ 
+     if (mode === 'PLAYING' || mode === 'REPLAYING') {
+       if (wellStateId in replay) {
+-        await this.handleMove(replay[wellStateId])
+-      } else {
+-        console.warn('Ignoring redo event because end of history has been reached')
++        return await this.handleMove(replay[wellStateId])
+       }
++      console.warn('Ignoring redo event because end of history has been reached')
+     } else {
+       console.warn('Ignoring redo event because mode is', mode)
+     }
++
++    // the redo was ignored, so the state is unchanged
++    return this.state
+   }
+ 
+   handleDocumentKeyDown = async (event: KeyboardEvent) => {
+diff --git a/test/components/Game/Game.test.tsx b/test/components/Game/Game.test.tsx
+index c297b35..53f3a27 100644
+--- a/test/components/Game/Game.test.tsx
++++ b/test/components/Game/Game.test.tsx
+@@ -7,6 +7,7 @@ import * as React from 'react'
+ import * as sinon from 'sinon'
+ import Game from '../../../src/components/Game/Game.tsx'
+ import type { GameProps } from '../../../src/components/Game/Game.tsx'
++import hatetrisReplayCodec from '../../../src/replay-codecs/hatetris-replay-codec.ts'
+ import hatetrisRotationSystem from '../../../src/rotation-systems/hatetris-rotation-system.ts'
+ 
+ // It looks like Testing Library React doesn't play well with Sinon's fake timers,
+@@ -394,4 +395,75 @@ describe('<Game>', () => {
+     // TODO: assert that `wellStateId` is now decremented?
+     game.unmount()
+   })
++
++  it('lets you take over when a replay ends without the game being over', async () => {
++    const warn = sinon.stub(console, 'warn')
++
++    const game = renderGame()
++
++    // Replay is an incomplete game
++    const prompt = sinon.stub(window, 'prompt')
++    prompt.returns('D')
++    await user.click(screen.getByTestId('replay-button'))
++    assert.deepEqual(prompt.getCalls().map(call => call.args), [
++      ['Paste replay string...']
++    ])
++    prompt.restore()
++
++    // Play beyond the end of the supplied replay
++    await advanceReplaySteps(10)
++
++    // The replay is over but the game is not, so the game
++    // should be handed back to the player
++    assert.equal(screen.queryAllByTestId('down').length, 1)
++
++    // The board should be exactly where the replay left it:
++    // the S piece the AI chose first, one row down from its spawn
++    const livePositions = () => screen
++      .queryAllByTestId('well__cell well__cell--live')
++      .map(cell => `${cell.parentElement.rowIndex}:${Array.prototype.indexOf.call(cell.parentElement.children, cell)}`)
++      .sort()
++
++    assert.deepEqual(livePositions(), ['2:5', '2:6', '3:4', '3:5'])
++
++    // The player can continue playing from that state:
++    // a move applies to the piece where the replay left it
++    await user.keyboard('{Left}')
++    assert.deepEqual(livePositions(), ['2:4', '2:5', '3:3', '3:4'])
++
++    // ...all the way to locking the piece and spawning a new one
++    for (let i = 0; i < 17; i++) {
++      await user.keyboard('{Down}')
++    }
++    assert.equal(screen.queryAllByTestId('well__cell well__cell--landed').length, 4)
++    assert.equal(screen.queryAllByTestId('well__cell well__cell--live').length, 4)
++
++    // None of the player's inputs were ignored
++    assert.equal(warn.getCalls().length, 0)
++
++    game.unmount()
++    warn.restore()
++  })
++
++  it('ends in the game over screen when a replay ends exactly at game over', async () => {
++    const game = renderGame()
++
++    // Replay ends the game on its last move
++    const prompt = sinon.stub(window, 'prompt')
++    prompt.returns('AAAA AAAA AAAA AAAA AAAA AAAA AAAA AAAA AAAA AAAA AAAA A')
++    await user.click(screen.getByTestId('replay-button'))
++    assert.deepEqual(prompt.getCalls().map(call => call.args), [
++      ['Paste replay string...']
++    ])
++    prompt.restore()
++
++    await advanceReplaySteps(300)
++    assert.equal(screen.queryAllByTestId('down').length, 0)
++    assert.equal(
++      screen.getByTestId('replay-out').textContent,
++      hatetrisReplayCodec.encode(Array(90).fill('D'))
++    )
++
++    game.unmount()
++  })
+ })

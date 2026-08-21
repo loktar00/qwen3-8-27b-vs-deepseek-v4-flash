@@ -1,0 +1,168 @@
+diff --git a/src/api.ts b/src/api.ts
+index 366779d..1759d1d 100644
+--- a/src/api.ts
++++ b/src/api.ts
+@@ -180,6 +180,7 @@ export function start(state: State, redrawAll: cg.Redraw): Api {
+ 
+     destroy(): void {
+       board.stop(state);
++      state.dom.unbindBoard?.();
+       state.dom.unbind?.();
+       state.dom.destroyed = true;
+     },
+diff --git a/src/chessground.ts b/src/chessground.ts
+index bece308..c0b879e 100644
+--- a/src/chessground.ts
++++ b/src/chessground.ts
+@@ -19,6 +19,9 @@ export function Chessground(element: HTMLElement, config?: Config): Api {
+ 
+   function redrawAll(): State {
+     const prevUnbind = 'dom' in maybeState ? maybeState.dom.unbind : undefined;
++    // disconnect the ResizeObserver of the previous board, if any:
++    // the old wrap is about to be replaced by renderWrap
++    if ('dom' in maybeState) maybeState.dom.unbindBoard?.();
+     // compute bounds from existing board element if possible
+     // this allows non-square boards from CSS to be handled (for 3D)
+     const elements = renderWrap(element, maybeState),
+@@ -44,7 +47,7 @@ export function Chessground(element: HTMLElement, config?: Config): Api {
+     state.drawable.prevSvgHash = '';
+     updateBounds(state);
+     redrawNow(false);
+-    events.bindBoard(state, onResize);
++    state.dom.unbindBoard = events.bindBoard(state, onResize);
+     if (!prevUnbind) state.dom.unbind = events.bindDocument(state, onResize);
+     state.events.insert?.(elements);
+     return state;
+diff --git a/src/events.ts b/src/events.ts
+index 756dd50..2de895f 100644
+--- a/src/events.ts
++++ b/src/events.ts
+@@ -8,26 +8,33 @@ import { isRightButton } from './util.js';
+ type MouchBind = (e: cg.MouchEvent) => void;
+ type StateMouchBind = (d: State, e: cg.MouchEvent) => void;
+ 
+-export function bindBoard(s: State, onResize: () => void): void {
++export function bindBoard(s: State, onResize: () => void): cg.Unbind {
+   const boardEl = s.dom.elements.board;
+ 
+-  if ('ResizeObserver' in window) new ResizeObserver(onResize).observe(s.dom.elements.wrap);
++  let unbindResize: cg.Unbind | undefined;
++  if ('ResizeObserver' in window) {
++    const ro = new ResizeObserver(onResize);
++    ro.observe(s.dom.elements.wrap);
++    unbindResize = () => ro.disconnect();
++  }
+ 
+   if (s.disableContextMenu || s.drawable.enabled) {
+     boardEl.addEventListener('contextmenu', e => e.preventDefault());
+   }
+ 
+-  if (s.viewOnly) return;
++  if (!s.viewOnly) {
++    // Cannot be passive, because we prevent touch scrolling and dragging of
++    // selected elements.
++    const onStart = startDragOrDraw(s);
++    boardEl.addEventListener('touchstart', onStart as EventListener, {
++      passive: false,
++    });
++    boardEl.addEventListener('mousedown', onStart as EventListener, {
++      passive: false,
++    });
++  }
+ 
+-  // Cannot be passive, because we prevent touch scrolling and dragging of
+-  // selected elements.
+-  const onStart = startDragOrDraw(s);
+-  boardEl.addEventListener('touchstart', onStart as EventListener, {
+-    passive: false,
+-  });
+-  boardEl.addEventListener('mousedown', onStart as EventListener, {
+-    passive: false,
+-  });
++  return () => unbindResize?.();
+ }
+ 
+ // returns the unbind function
+diff --git a/src/types.ts b/src/types.ts
+index ebbee42..198d62c 100644
+--- a/src/types.ts
++++ b/src/types.ts
+@@ -53,6 +53,7 @@ export interface Dom {
+   redraw: () => void;
+   redrawNow: (skipSvg?: boolean) => void;
+   unbind?: Unbind;
++  unbindBoard?: Unbind;
+   destroyed?: boolean;
+ }
+ export interface Exploding {
+diff --git a/tests/resize-observer.test.ts b/tests/resize-observer.test.ts
+new file mode 100644
+index 0000000..262ec1e
+--- /dev/null
++++ b/tests/resize-observer.test.ts
+@@ -0,0 +1,65 @@
++import { vi } from 'vitest';
++import { Chessground } from '../src/chessground';
++
++interface MockRO {
++  connected: boolean;
++  observed: Element[];
++}
++
++let observers: MockRO[] = [];
++
++class MockResizeObserver {
++  connected = true;
++  observed: Element[] = [];
++
++  constructor(_callback: ResizeObserverCallback) {
++    observers.push(this);
++  }
++
++  observe(target: Element): void {
++    this.observed.push(target);
++  }
++
++  unobserve(target: Element): void {
++    this.observed = this.observed.filter(t => t !== target);
++  }
++
++  disconnect(): void {
++    this.connected = false;
++  }
++}
++
++const live = (): MockRO[] => observers.filter(o => o.connected);
++const observedBy = (obs: MockRO[]): Element[] => obs.flatMap(o => o.observed);
++
++beforeEach(() => {
++  observers = [];
++  vi.stubGlobal('ResizeObserver', MockResizeObserver);
++});
++
++afterEach(() => {
++  vi.unstubAllGlobals();
++});
++
++test('destroy disconnects the ResizeObserver', () => {
++  const wrap = document.createElement('div');
++  document.body.appendChild(wrap);
++  const cg = Chessground(wrap, { viewOnly: true });
++  expect(observers).toHaveLength(1);
++  expect(observedBy(observers)).toContain(wrap);
++  cg.destroy();
++  expect(live()).toHaveLength(0);
++});
++
++test('redrawAll disconnects previous ResizeObservers', () => {
++  const wrap = document.createElement('div');
++  document.body.appendChild(wrap);
++  const cg = Chessground(wrap, { viewOnly: true });
++  cg.redrawAll();
++  cg.redrawAll();
++  expect(observers).toHaveLength(3);
++  // only the observer on the current wrap may stay connected
++  expect(live()).toHaveLength(1);
++  expect(live()[0].observed).toEqual([cg.state.dom.elements.wrap]);
++});
++

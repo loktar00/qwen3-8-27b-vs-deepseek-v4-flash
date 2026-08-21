@@ -275,3 +275,35 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   copy, no diff/transcript links or previews — only the judge's publishable verdicts, notes and mock-data UI screenshots),
   the affected paths were removed from the public repository's entire history (rewrite + force push, no external clones
   existed) and a cache purge was requested from GitHub. No benchmark result is affected.
+
+- 2026-08-20 (pre-verdict, CORRECTION to §1 principle 6 — context ceilings): the original text said "Qwen serves 131k,
+  DSV4 393k" as if those were the models' limits. They were our serving settings. Qwen3.8-27B's native context is 262,144
+  tokens (config.json, no RoPE scaling applied); we launched its server with `--max-model-len 131072` — half the native
+  window — while DeepSeek V4 Flash (native 1,048,576 via YaRN) was served at 393,216. This under-provisioned Qwen. Effect
+  so far: the only runs that reached the cap are the two chess.js no-harness (lane C) Qwen runs (one CONFIG at 126,977
+  tokens, one crash on the pre-patch runner); every lane-A/B Qwen run stayed below 80% of 131k per API call (the CONFIG
+  flag never fired), and a compaction audit of every Qwen run (OMP/OpenCode compaction events, max prompt per call) is
+  being recorded alongside this entry. Remedy: the second Qwen instance is restarted at `--max-model-len 262144` (the
+  native maximum; KV capacity verified) as soon as the runs on it finish; both lane-C chess.js Qwen runs are re-run
+  uncapped (the earlier CONFIG result is archived under `_invalid-config-cap131k/`, not counted); any remaining Qwen
+  work is routed to the uncapped instance. The original Qwen instance (131k) is not restarted mid-run because Qwen's
+  Raptor session is attached to it; whether that run was compaction-constrained is reported from its transcript.
+  Ownership of the error: the orchestrator (pre-registered the serving cap without checking the model card).
+
+- 2026-08-20 (publication hygiene, no result impact): (a) the public copy of the deeweb brief is reduced to the ticket
+  text the models received, with file-path pointers and internal references redacted (the models saw them; readers do
+  not); (b) one radix/qwen-r1 transcript captured a directory listing of an unrelated private folder reachable from the
+  sandbox (filenames only); it is redacted in the published copy and removed from the public repository's history, and
+  the sandbox weakness (models' shell can list sibling folders) is disclosed.
+  Compaction audit (raptor): DeepSeek's run — 0 compaction events, max single-call input 329,131 tokens (393k window);
+  Qwen's run under the 131k cap — 21 OMP auto-compaction cycles in its first scripted turn alone (3 overflow, 18
+  threshold; 18 with "dead-end recovery" re-summarization), max single-call input 109,581 — i.e. the cap materially
+  constrained Qwen on the one task built around a large, growing codebase. Ruling: Qwen's Raptor run is RE-RUN from
+  scratch on the native-context (262,144) server with the harness window set to 262,144, same 6-turn budget and checks;
+  the capped run is completed and scored for the record but kept under `_extra-capped-131k/`, excluded from results.
+  Update (Jason's call, 2026-08-20 ~23:45 EDT): the capped Qwen Raptor run is KILLED rather than completed (cost), its
+  partial run dir kept under quarantine for disclosure only; the uncapped re-run uses Qwen at MEDIUM thinking effort
+  (`pod-qwen-b-medium`, reasoning_effort=medium injected; server at the native 262,144 context with the harness window
+  set to match) — so on Raptor, DeepSeek ran at its max effort and Qwen at medium. This is a cost decision by the study
+  owner after the context-cap error made the xhigh run unusable; it is an asymmetry in Qwen's disfavor and is stated
+  wherever the Raptor result appears. Same 6 scripted turns, same checker version, same 3×M5 rule.

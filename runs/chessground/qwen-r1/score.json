@@ -1,0 +1,80 @@
+{
+  "task": "chessground",
+  "label": "qwen-r1",
+  "worktree": "D:\\dev\\ab-tasks\\chessground-qwen-r1",
+  "run_dir": "D:\\dev\\ab-tasks\\_runs\\chessground\\qwen-r1",
+  "overall_pass": true,
+  "P1": {
+    "status": "PASS",
+    "files": [
+      "tests/repro-386.test.ts"
+    ],
+    "rc": 0,
+    "cmd": "npx --no-install vitest run \"tests/repro-386.test.ts\"",
+    "conflict": false,
+    "log_tail": "\n\u001b[1m\u001b[46m RUN \u001b[49m\u001b[22m \u001b[36mv3.2.4 \u001b[39m\u001b[90mD:/dev/ab-tasks/chessground-qwen-r1\u001b[39m\n\n \u001b[32m\u2713\u001b[39m tests/repro-386.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 15\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m2 passed\u001b[39m\u001b[22m\u001b[90m (2)\u001b[39m\n\u001b[2m   Start at \u001b[22m 23:34:51\n\u001b[2m   Duration \u001b[22m 1.25s\u001b[2m (transform 106ms, setup 0ms, collect 304ms, tests 15ms, environment 514ms, prepare 185ms)\u001b[22m\n\n"
+  },
+  "P2": {
+    "status": "PASS",
+    "rc": 0,
+    "cmd": "npm test",
+    "log_tail": "\n> @lichess-org/chessground@10.1.1 test\n> vitest run\n\n\n\u001b[1m\u001b[46m RUN \u001b[49m\u001b[22m \u001b[36mv3.2.4 \u001b[39m\u001b[90mD:/dev/ab-tasks/chessground-qwen-r1\u001b[39m\n\n \u001b[32m\u2713\u001b[39m tests/fen.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 3\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/premove.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 5\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/resize-observer.test.ts \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 24\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m3 passed\u001b[39m\u001b[22m\u001b[90m (3)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m7 passed\u001b[39m\u001b[22m\u001b[90m (7)\u001b[39m\n\u001b[2m   Start at \u001b[22m 23:34:53\n\u001b[2m   Duration \u001b[22m 1.34s\u001b[2m (transform 124ms, setup 0ms, collect 371ms, tests 32ms, environment 1.89s, prepare 547ms)\u001b[22m\n\n"
+  },
+  "P3": {
+    "files": [
+      "tests/resize-observer.test.ts"
+    ],
+    "cmd": "npx --no-install vitest run \"tests/resize-observer.test.ts\"",
+    "model_worktree_pass": true,
+    "model_log_tail": "\n\u001b[1m\u001b[46m RUN \u001b[49m\u001b[22m \u001b[36mv3.2.4 \u001b[39m\u001b[90mD:/dev/ab-tasks/chessground-qwen-r1\u001b[39m\n\n \u001b[32m\u2713\u001b[39m tests/resize-observer.test.ts \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 23\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m4 passed\u001b[39m\u001b[22m\u001b[90m (4)\u001b[39m\n\u001b[2m   Start at \u001b[22m 23:34:56\n\u001b[2m   Duration \u001b[22m 1.26s\u001b[2m (transform 104ms, setup 0ms, collect 312ms, tests 23ms, environment 502ms, prepare 184ms)\u001b[22m\n\n",
+    "base_worktree_fail_as_expected": true,
+    "base_sha": "e47565c",
+    "base_log_tail": "\u001b[39m\u001b[1m\u001b[41m Failed Tests 4 \u001b[49m\u001b[22m\u001b[31m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m tests/resize-observer.test.ts\u001b[2m > \u001b[22mdestroy disconnects the resize observer\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected [ MockResizeObserver{ \u2026(2) } ] to have a length of +0 but got 1\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- 0\u001b[39m\n\u001b[31m+ 1\u001b[39m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m tests/resize-observer.test.ts:\u001b[2m47:27\u001b[22m\u001b[39m\n    \u001b[90m 45| \u001b[39m  \u001b[34mexpect\u001b[39m(\u001b[34mliveObservers\u001b[39m())\u001b[33m.\u001b[39m\u001b[34mtoHaveLength\u001b[39m(\u001b[34m1\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m 46| \u001b[39m  cg\u001b[33m.\u001b[39m\u001b[34mdestroy\u001b[39m()\u001b[33m;\u001b[39m\n    \u001b[90m 47| \u001b[39m  \u001b[34mexpect\u001b[39m(\u001b[34mliveObservers\u001b[39m())\u001b[33m.\u001b[39m\u001b[34mtoHaveLength\u001b[39m(\u001b[34m0\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                          \u001b[31m^\u001b[39m\n    \u001b[90m 48| \u001b[39m})\u001b[33m;\u001b[39m\n    \u001b[90m 49| \u001b[39m\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/4]\u23af\u001b[22m\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m tests/resize-observer.test.ts\u001b[2m > \u001b[22mdestroy disconnects the resize observer of a playable board\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected [ MockResizeObserver{ \u2026(2) } ] to have a length of +0 but got 1\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- 0\u001b[39m\n\u001b[31m+ 1\u001b[39m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m tests/resize-observer.test.ts:\u001b[2m56:27\u001b[22m\u001b[39m\n    \u001b[90m 54| \u001b[39m  \u001b[34mexpect\u001b[39m(\u001b[34mliveObservers\u001b[39m())\u001b[33m.\u001b[39m\u001b[34mtoHaveLength\u001b[39m(\u001b[34m1\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m 55| \u001b[39m  cg\u001b[33m.\u001b[39m\u001b[34mdestroy\u001b[39m()\u001b[33m;\u001b[39m\n    \u001b[90m 56| \u001b[39m  \u001b[34mexpect\u001b[39m(\u001b[34mliveObservers\u001b[39m())\u001b[33m.\u001b[39m\u001b[34mtoHaveLength\u001b[39m(\u001b[34m0\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                          \u001b[31m^\u001b[39m\n    \u001b[90m 57| \u001b[39m})\u001b[33m;\u001b[39m\n    \u001b[90m 58| \u001b[39m\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[2/4]\u23af\u001b[22m\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m tests/resize-observer.test.ts\u001b[2m > \u001b[22mredrawAll does not accumulate resize observers\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected [ MockResizeObserver{ \u2026(2) }, \u2026(2) ] to have a length of 1 but got 3\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- 1\u001b[39m\n\u001b[31m+ 3\u001b[39m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m tests/resize-observer.test.ts:\u001b[2m68:27\u001b[22m\u001b[39m\n    \u001b[90m 66| \u001b[39m  \u001b[90m// may still be observing\u001b[39m\n    \u001b[90m 67| \u001b[39m  \u001b[34mexpect\u001b[39m(\u001b[33mMockResizeObserver\u001b[39m\u001b[33m.\u001b[39minstances)\u001b[33m.\u001b[39m\u001b[34mtoHaveLength\u001b[39m(\u001b[34m3\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m 68| \u001b[39m  \u001b[34mexpect\u001b[39m(\u001b[34mliveObservers\u001b[39m())\u001b[33m.\u001b[39m\u001b[34mtoHaveLength\u001b[39m(\u001b[34m1\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                          \u001b[31m^\u001b[39m\n    \u001b[90m 69| \u001b[39m  cg\u001b[33m.\u001b[39m\u001b[34mdestroy\u001b[39m()\u001b[33m;\u001b[39m\n    \u001b[90m 70| \u001b[39m  \u001b[34mexpect\u001b[39m(\u001b[34mliveObservers\u001b[39m())\u001b[33m.\u001b[39m\u001b[34mtoHaveLength\u001b[39m(\u001b[34m0\u001b[39m)\u001b[33m;\u001b[39m\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[3/4]\u23af\u001b[22m\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m tests/resize-observer.test.ts\u001b[2m > \u001b[22mdestroying boards releases their resize observers\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected [ MockResizeObserver{ \u2026(2) }, \u2026(2) ] to have a length of 2 but got 3\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- 2\u001b[39m\n\u001b[31m+ 3\u001b[39m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m tests/resize-observer.test.ts:\u001b[2m83:27\u001b[22m\u001b[39m\n    \u001b[90m 81| \u001b[39m  cgs[\u001b[34m0\u001b[39m]\u001b[33m.\u001b[39m\u001b[34mdestroy\u001b[39m()\u001b[33m;\u001b[39m\n    \u001b[90m 82| \u001b[39m  wraps[\u001b[34m0\u001b[39m]\u001b[33m.\u001b[39m\u001b[34mremove\u001b[39m()\u001b[33m;\u001b[39m\n    \u001b[90m 83| \u001b[39m  \u001b[34mexpect\u001b[39m(\u001b[34mliveObservers\u001b[39m())\u001b[33m.\u001b[39m\u001b[34mtoHaveLength\u001b[39m(\u001b[34m2\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                          \u001b[31m^\u001b[39m\n    \u001b[90m 84| \u001b[39m  cgs\u001b[33m.\u001b[39m\u001b[34mforEach\u001b[39m(c \u001b[33m=>\u001b[39m c\u001b[33m.\u001b[39m\u001b[34mdestroy\u001b[39m())\u001b[33m;\u001b[39m\n    \u001b[90m 85| \u001b[39m  \u001b[34mexpect\u001b[39m(\u001b[34mliveObservers\u001b[39m())\u001b[33m.\u001b[39m\u001b[34mtoHaveLength\u001b[39m(\u001b[34m0\u001b[39m)\u001b[33m;\u001b[39m\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[4/4]\u23af\u001b[22m\u001b[39m\n\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[31m4 failed\u001b[39m\u001b[22m\u001b[90m (4)\u001b[39m\n\u001b[2m   Start at \u001b[22m 23:34:58\n\u001b[2m   Duration \u001b[22m 1.36s\u001b[2m (transform 244ms, setup 0ms, collect 419ms, tests 34ms, environment 507ms, prepare 168ms)\u001b[22m\n\n",
+    "status": "PASS"
+  },
+  "secondary": {
+    "loc_added": 124,
+    "loc_removed": 16,
+    "files_touched": [
+      "src/chessground.ts",
+      "src/events.ts",
+      "tests/resize-observer.test.ts"
+    ],
+    "files_touched_count": 3,
+    "non_test_files_touched": [
+      "src/chessground.ts",
+      "src/events.ts"
+    ],
+    "upstream_non_test_files": [
+      "src/chessground.ts",
+      "src/events.ts"
+    ],
+    "precision_subset_of_upstream": true,
+    "loc_source": "base_sha_diff",
+    "commits_in_run": 0
+  },
+  "events": {
+    "event_source": "turn-json",
+    "raw_ndjson_parse_errors": 0,
+    "tool_call_counts": {
+      "read": 29,
+      "glob": 1,
+      "grep": 7,
+      "bash": 36,
+      "write": 4,
+      "edit": 15
+    },
+    "tool_call_count_source": "toolCall-blocks",
+    "test_run_tool_calls": 5,
+    "reproduced_before_first_edit": false,
+    "harness_parse_errors": 1,
+    "total_tool_errors": 7,
+    "prompt_tokens_sum": 4678734,
+    "completion_tokens_sum": 60181,
+    "reasoning_tokens_sum": null,
+    "cache_read_tokens_sum": 0,
+    "cache_write_tokens_sum": 0,
+    "assistant_turns": 79
+  },
+  "wallclock_seconds": 2239
+}

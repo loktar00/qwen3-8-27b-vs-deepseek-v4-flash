@@ -1,0 +1,309 @@
+
+> hatetris@1.2.0 unit
+> node --enable-source-maps --import ./register.js --require global-jsdom/register --test --experimental-test-coverage --test-coverage-functions=100 --test-coverage-lines=100 --test-coverage-branches=100 --test-coverage-exclude "**/*.test.{ts,tsx}" -- "**/*.test.{ts,tsx}"
+
+Your app (or one of its dependencies) is using an outdated JSX transform. Update to the modern JSX transform for faster performance: https://react.dev/link/new-jsx-transform
+▶ <Game>
+  ✔ rejects a rotation system with no pieces (24.6242ms)
+  ✔ rejects a well depth below the bar (2.1469ms)
+  ✔ rejects a well width less than 4 (1.6669ms)
+  ✔ ignores all keystrokes before the game has begun (321.5294ms)
+  ✔ lets you play a few moves (509.829ms)
+  ✔ just lets you play if you enter an empty replay (106.5358ms)
+  ✔ lets you select a different AI and play a full game with it and provides a replay which you can copy (6306.5941ms)
+  ✔ lets you use a custom AI (617.4928ms)
+  ✔ supports a custom AI with state (2087.0777ms)
+  ✔ lets you decide NOT to use a custom AI (264.623ms)
+  ✔ errors out if your custom AI is invalid JavaScript, but you can dismiss it (519.803ms)
+  ✔ errors out if your custom AI throws an error on the first piece (1253.7166ms)
+  ✔ errors out if your custom AI returns a bad piece (629.3526ms)
+  ✔ errors out if your custom AI throws an error on a later piece (7954.516ms)
+  ✔ lets you decide not to replay anything (76.8635ms)
+  ✔ lets you replay a too-long replay (3973.5379ms)
+  ✔ lets you undo and stops replaying when a replay is in progress (1016.5751ms)
+  ✔ lets you continue playing from the state an incomplete replay left (3412.2638ms)
+✔ <Game> (29080.7681ms)
+Your app (or one of its dependencies) is using an outdated JSX transform. Update to the modern JSX transform for faster performance: https://react.dev/link/new-jsx-transform
+▶ logic
+  ▶ check known replays
+    ▶ HATETRIS
+      ▶ qntm
+        ✔ hex (49.4715ms)
+        ✔ Base65536 (21.3569ms)
+        ✔ Base2048 (24.5545ms)
+      ✔ qntm (96.1829ms)
+      ▶ Atypical
+        ✔ hex (60.1389ms)
+        ✔ Base65536 (54.458ms)
+        ✔ Base2048 (60.6531ms)
+      ✔ Atypical (175.4581ms)
+      ▶ SDA (1)
+        ✔ hex (61.0923ms)
+        ✔ Base65536 (60.7832ms)
+        ✔ Base2048 (58.3943ms)
+      ✔ SDA (1) (180.4412ms)
+      ▶ SDA (2)
+        ✔ hex (73.6367ms)
+        ✔ Base65536 (86.6441ms)
+        ✔ Base2048 (117.1392ms)
+      ✔ SDA (2) (277.6109ms)
+      ▶ Ivenris
+        ✔ hex (115.2287ms)
+        ✔ Base65536 (108.7555ms)
+        ✔ Base2048 (106.2998ms)
+      ✔ Ivenris (330.493ms)
+      ▶ SDA (3)
+        ✔ hex (134.1644ms)
+        ✔ Base65536 (130.4285ms)
+        ✔ Base2048 (141.0636ms)
+      ✔ SDA (3) (405.9192ms)
+      ▶ Deasuke
+        ✔ hex (148.686ms)
+        ✔ Base65536 (159.3242ms)
+        ✔ Base2048 (148.7112ms)
+      ✔ Deasuke (456.9719ms)
+      ▶ chromeyhex
+        ✔ hex (136.5525ms)
+        ✔ Base65536 (132.3265ms)
+        ✔ Base2048 (143.7494ms)
+      ✔ chromeyhex (412.8767ms)
+      ▶ knewjade (1)
+        ✔ hex (165.8717ms)
+        ✔ Base65536 (164.6289ms)
+        ✔ Base2048 (191.0133ms)
+      ✔ knewjade (1) (521.7795ms)
+      ▶ knewjade (2)
+        ✔ hex (192.0875ms)
+        ✔ Base65536 (181.8064ms)
+        ✔ Base2048 (157.2148ms)
+      ✔ knewjade (2) (531.3921ms)
+      ▶ knewjade (3)
+        ✔ hex (167.1571ms)
+        ✔ Base65536 (161.9053ms)
+        ✔ Base2048 (166.609ms)
+      ✔ knewjade (3) (495.9528ms)
+      ▶ knewjade (4)
+        ✔ hex (276.1085ms)
+        ✔ Base65536 (280.3232ms)
+        ✔ Base2048 (281.063ms)
+      ✔ knewjade (4) (837.7016ms)
+      ▶ David & Felipe (1)
+        ✔ hex (390.2081ms)
+        ✔ Base65536 (385.9934ms)
+        ✔ Base2048 (379.8677ms)
+      ✔ David & Felipe (1) (1156.2773ms)
+      ▶ David & Felipe (2)
+        ✔ Base2048 (680.8156ms)
+      ✔ David & Felipe (2) (680.9258ms)
+      ▶ David & Felipe (3)
+        ✔ Base2048 (680.0391ms)
+      ✔ David & Felipe (3) (680.1316ms)
+      ▶ Tim (1)
+        ✔ Base2048 (789.2618ms)
+      ✔ Tim (1) (789.3708ms)
+      ▶ Tim (2)
+        ✔ Base2048 (1122.5986ms)
+      ✔ Tim (2) (1122.7164ms)
+      ▶ knewjade (5)
+        ✔ Base2048 (1510.0514ms)
+      ✔ knewjade (5) (1510.1543ms)
+      ▶ David & Felipe (4)
+        ✔ Base2048 (1590.8036ms)
+      ✔ David & Felipe (4) (1590.911ms)
+      ▶ David & Felipe (5)
+        ✔ Base2048 (2169.0055ms)
+      ✔ David & Felipe (5) (2169.1132ms)
+      ▶ David & Felipe (6)
+        ✔ Base2048 (94838.2539ms)
+      ✔ David & Felipe (6) (94838.3552ms)
+    ✔ HATETRIS (109261.8892ms)
+    ▶ HATETRIS
+      ▶ knewjade loop basis
+        ✔ Base2048 (660.6049ms)
+      ✔ knewjade loop basis (660.6937ms)
+    ✔ HATETRIS (660.7848ms)
+    ▶ HATETRIS Mild
+      ▶ knewjade loop
+        ✔ raw (801.0883ms)
+      ✔ knewjade loop (801.1731ms)
+      ▶ Tim loop
+        ✔ raw (1170.4363ms)
+      ✔ Tim loop (1170.6291ms)
+    ✔ HATETRIS Mild (1971.9496ms)
+    ▶ Brzustowski
+      ▶ demo
+        ✔ Base2048 (20.8053ms)
+      ✔ demo (20.8864ms)
+    ✔ Brzustowski (20.9746ms)
+  ✔ check known replays (111915.8554ms)
+✔ logic (111916.2167ms)
+Your app (or one of its dependencies) is using an outdated JSX transform. Update to the modern JSX transform for faster performance: https://react.dev/link/new-jsx-transform
+▶ <Well>
+  ✔ null well state (43.1272ms)
+  ✔ initial well state (19.0171ms)
+  ✔ game over well state (15.9236ms)
+✔ <Well> (78.9449ms)
+▶ burgAi
+  ✔ generates an S at first (1.3117ms)
+  ✔ generates a Z next (0.1456ms)
+  ✔ generates an S after that (0.1213ms)
+✔ burgAi (2.6361ms)
+▶ hatetrisAi
+  ✔ generates an S by default (3.7952ms)
+  ✔ generates a Z when an S would result in a lower stack (2.7435ms)
+  ✔ generates an O when an S or Z would result in a lower stack (1.283ms)
+  ✔ generates an I when an S, Z or O would result in a lower stack (1.3145ms)
+  ✔ generates an L when an S, Z, O or I would result in a lower stack (1.3081ms)
+  ✔ generates a J when an S, Z, O, I or L would result in a lower stack (1.345ms)
+  ✔ generates a T when an S, Z, O, I, L or J would result in a lower stack (1.7022ms)
+  ✔ just gives you a line sometimes! (1.5871ms)
+  ✔ generates an S when say an I would clear the board (1.557ms)
+  ✔ generates a Z if it already generated an S once (1.3801ms)
+  ✔ gives up and generates an S if EVERY piece leads into a cycle (0.8539ms)
+  ✔ spawns the piece which leads into the fewest cycles (0.9112ms)
+✔ hatetrisAi (21.1506ms)
+▶ hatetrisMildAi
+  ✔ generates an S by default (1.7007ms)
+  ✔ generates a Z when an S would result in a lower stack (1.7068ms)
+  ✔ generates an O when an S or Z would result in a lower stack (0.8197ms)
+  ✔ generates an I when an S, Z or O would result in a lower stack (0.9052ms)
+  ✔ generates an L when an S, Z, O or I would result in a lower stack (0.9527ms)
+  ✔ generates a J when an S, Z, O, I or L would result in a lower stack (0.9322ms)
+  ✔ generates a T when an S, Z, O, I, L or J would result in a lower stack (1.3947ms)
+  ✔ just gives you a line sometimes! (0.9925ms)
+  ✔ generates an S when say an I would clear the board (1.0454ms)
+  ✔ generates an S even if it already generated an S once (1.2223ms)
+✔ hatetrisMildAi (12.7895ms)
+▶ lovetrisAi
+  ✔ generates I every time right now (0.655ms)
+✔ lovetrisAi (1.4635ms)
+▶ base2048
+  ✔ works (1.7728ms)
+  ✔ adds an extra run to shore up the octet count if need be (0.1259ms)
+✔ base2048 (2.8373ms)
+▶ base65536
+  ✔ works (1.6053ms)
+  ✔ adds an extra run to shore up the octet count if need be (0.1658ms)
+✔ base65536 (2.6357ms)
+▶ hatetrisReplayCodec
+  ✔ encodes (0.8943ms)
+  ✔ decodes (1.456ms)
+  ✔ decodes with spaces (0.2733ms)
+  ▶ known replays
+    ▶ qntm
+      ✔ hex (0.2953ms)
+      ✔ Base65536 (0.3382ms)
+      ✔ Base2048 (0.3164ms)
+    ✔ qntm (1.2274ms)
+    ▶ Atypical
+      ✔ hex (0.6203ms)
+      ✔ Base65536 (0.5246ms)
+      ✔ Base2048 (0.5574ms)
+    ✔ Atypical (1.9249ms)
+    ▶ SDA (1)
+      ✔ hex (0.4348ms)
+      ✔ Base65536 (0.4514ms)
+      ✔ Base2048 (0.4362ms)
+    ✔ SDA (1) (1.4629ms)
+    ▶ SDA (2)
+      ✔ hex (0.3146ms)
+      ✔ Base65536 (0.2857ms)
+      ✔ Base2048 (0.3715ms)
+    ✔ SDA (2) (1.111ms)
+    ▶ Ivenris
+      ✔ hex (0.2761ms)
+      ✔ Base65536 (0.2924ms)
+      ✔ Base2048 (0.3065ms)
+    ✔ Ivenris (0.9846ms)
+    ▶ SDA (3)
+      ✔ hex (0.306ms)
+      ✔ Base65536 (0.309ms)
+      ✔ Base2048 (0.3296ms)
+    ✔ SDA (3) (1.0574ms)
+    ▶ Deasuke
+      ✔ hex (0.3003ms)
+      ✔ Base65536 (0.3102ms)
+      ✔ Base2048 (0.3255ms)
+    ✔ Deasuke (1.0737ms)
+    ▶ chromeyhex
+      ✔ hex (0.3435ms)
+      ✔ Base65536 (0.353ms)
+      ✔ Base2048 (0.3631ms)
+    ✔ chromeyhex (1.1914ms)
+    ▶ knewjade (1)
+      ✔ hex (0.3059ms)
+      ✔ Base65536 (0.3784ms)
+      ✔ Base2048 (0.3984ms)
+    ✔ knewjade (1) (1.1893ms)
+    ▶ knewjade (2)
+      ✔ hex (0.2941ms)
+      ✔ Base65536 (0.2608ms)
+      ✔ Base2048 (0.2919ms)
+    ✔ knewjade (2) (0.9333ms)
+    ▶ knewjade (3)
+      ✔ hex (0.3255ms)
+      ✔ Base65536 (0.3513ms)
+      ✔ Base2048 (0.459ms)
+    ✔ knewjade (3) (1.2471ms)
+    ▶ knewjade (4)
+      ✔ hex (0.4514ms)
+      ✔ Base65536 (0.5039ms)
+      ✔ Base2048 (0.5654ms)
+    ✔ knewjade (4) (1.6304ms)
+    ▶ David & Felipe
+      ✔ hex (0.595ms)
+      ✔ Base65536 (0.6347ms)
+      ✔ Base2048 (0.7944ms)
+    ✔ David & Felipe (2.1832ms)
+  ✔ known replays (17.8934ms)
+✔ hatetrisReplayCodec (21.4898ms)
+▶ hex
+  ✔ works (1.3938ms)
+  ✔ adds an extra D to shore up the count if need be (0.1137ms)
+✔ hex (2.4054ms)
+▶ raw
+  ✔ raw (1.0025ms)
+✔ raw (1.6591ms)
+▶ hatetrisRotationSystem
+  ✔ has the right rotations (1.5866ms)
+✔ hatetrisRotationSystem (2.505ms)
+ℹ tests 148
+ℹ suites 57
+ℹ pass 148
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 114891.6296
+ℹ start of coverage report
+ℹ -------------------------------------------------------------------------------
+ℹ file                           | line % | branch % | funcs % | uncovered lines
+ℹ -------------------------------------------------------------------------------
+ℹ register.js                    | 100.00 |   100.00 |  100.00 | 
+ℹ src                            |        |          |         | 
+ℹ  components                    |        |          |         | 
+ℹ   Game                         |        |          |         | 
+ℹ    Game.tsx                    | 100.00 |   100.00 |  100.00 | 
+ℹ    logic.ts                    | 100.00 |   100.00 |  100.00 | 
+ℹ   Well                         |        |          |         | 
+ℹ    Well.tsx                    | 100.00 |   100.00 |  100.00 | 
+ℹ  enemy-ais                     |        |          |         | 
+ℹ   brzustowski.ts               | 100.00 |   100.00 |  100.00 | 
+ℹ   burgiel.ts                   | 100.00 |   100.00 |  100.00 | 
+ℹ   hatetris-ai.ts               | 100.00 |   100.00 |  100.00 | 
+ℹ   hatetris-mild.ts             | 100.00 |   100.00 |  100.00 | 
+ℹ   lovetris-ai.ts               | 100.00 |   100.00 |  100.00 | 
+ℹ  replay-codecs                 |        |          |         | 
+ℹ   base2048.ts                  | 100.00 |   100.00 |  100.00 | 
+ℹ   base65536.ts                 | 100.00 |   100.00 |  100.00 | 
+ℹ   hatetris-replay-codec.ts     | 100.00 |   100.00 |  100.00 | 
+ℹ   hex.ts                       | 100.00 |   100.00 |  100.00 | 
+ℹ   raw.ts                       | 100.00 |   100.00 |  100.00 | 
+ℹ   run-length.ts                | 100.00 |   100.00 |  100.00 | 
+ℹ   uint8Array.ts                | 100.00 |   100.00 |  100.00 | 
+ℹ  rotation-systems              |        |          |         | 
+ℹ   hatetris-rotation-system.ts  | 100.00 |   100.00 |  100.00 | 
+ℹ -------------------------------------------------------------------------------
+ℹ all files                      | 100.00 |   100.00 |  100.00 | 
+ℹ -------------------------------------------------------------------------------
+ℹ end of coverage report

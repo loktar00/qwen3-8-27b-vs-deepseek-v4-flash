@@ -1,0 +1,81 @@
+{
+  "task": "chessground-322",
+  "label": "qwen-med-r2",
+  "worktree": "D:\\dev\\ab-tasks\\chessground-322-qwen-med-r2",
+  "run_dir": "D:\\dev\\ab-tasks\\_runs\\chessground-322\\qwen-med-r2",
+  "overall_pass": true,
+  "P1": {
+    "status": "PASS",
+    "files": [
+      "tests/repro-322.test.ts"
+    ],
+    "rc": 0,
+    "cmd": "npx --no-install vitest run \"tests/repro-322.test.ts\"",
+    "conflict": false,
+    "log_tail": "\n\u001b[1m\u001b[46m RUN \u001b[49m\u001b[22m \u001b[36mv3.2.6 \u001b[39m\u001b[90mD:/dev/ab-tasks/chessground-322-qwen-med-r2\u001b[39m\n\n \u001b[32m\u2713\u001b[39m tests/repro-322.test.ts \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 12\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m3 passed\u001b[39m\u001b[22m\u001b[90m (3)\u001b[39m\n\u001b[2m   Start at \u001b[22m 23:37:56\n\u001b[2m   Duration \u001b[22m 1.28s\u001b[2m (transform 110ms, setup 0ms, collect 295ms, tests 12ms, environment 547ms, prepare 185ms)\u001b[22m\n\n"
+  },
+  "P2": {
+    "status": "PASS",
+    "rc": 0,
+    "cmd": "npm test",
+    "log_tail": "\n> @lichess-org/chessground@10.1.1 test\n> vitest run\n\n\n\u001b[1m\u001b[46m RUN \u001b[49m\u001b[22m \u001b[36mv3.2.6 \u001b[39m\u001b[90mD:/dev/ab-tasks/chessground-322-qwen-med-r2\u001b[39m\n\n \u001b[32m\u2713\u001b[39m tests/fen.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 3\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/premove.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 5\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/draw.test.ts \u001b[2m(\u001b[22m\u001b[2m9 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 22\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m3 passed\u001b[39m\u001b[22m\u001b[90m (3)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m12 passed\u001b[39m\u001b[22m\u001b[90m (12)\u001b[39m\n\u001b[2m   Start at \u001b[22m 23:37:59\n\u001b[2m   Duration \u001b[22m 1.40s\u001b[2m (transform 141ms, setup 0ms, collect 395ms, tests 29ms, environment 1.99s, prepare 682ms)\u001b[22m\n\n"
+  },
+  "P3": {
+    "files": [
+      "tests/draw.test.ts"
+    ],
+    "cmd": "npx --no-install vitest run \"tests/draw.test.ts\"",
+    "model_worktree_pass": true,
+    "model_log_tail": "\n\u001b[1m\u001b[46m RUN \u001b[49m\u001b[22m \u001b[36mv3.2.6 \u001b[39m\u001b[90mD:/dev/ab-tasks/chessground-322-qwen-med-r2\u001b[39m\n\n \u001b[32m\u2713\u001b[39m tests/draw.test.ts \u001b[2m(\u001b[22m\u001b[2m9 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 20\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m9 passed\u001b[39m\u001b[22m\u001b[90m (9)\u001b[39m\n\u001b[2m   Start at \u001b[22m 23:38:02\n\u001b[2m   Duration \u001b[22m 1.33s\u001b[2m (transform 114ms, setup 0ms, collect 300ms, tests 20ms, environment 578ms, prepare 207ms)\u001b[22m\n\n",
+    "base_worktree_fail_as_expected": true,
+    "base_sha": "4ab695e",
+    "base_log_tail": "\n\u001b[32m- [\u001b[39m\n\u001b[32m-   {\u001b[39m\n\u001b[32m-     \"brush\": \"red\",\u001b[39m\n\u001b[32m-     \"dest\": \"e4\",\u001b[39m\n\u001b[32m-     \"orig\": \"e2\",\u001b[39m\n\u001b[32m-   },\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ []\u001b[39m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m tests/draw.test.ts:\u001b[2m74:33\u001b[22m\u001b[39m\n    \u001b[90m 72| \u001b[39m  state\u001b[33m.\u001b[39mdrawable\u001b[33m.\u001b[39meraseOnClick \u001b[33m=\u001b[39m \u001b[35mfalse\u001b[39m\u001b[33m;\u001b[39m\n    \u001b[90m 73| \u001b[39m  \u001b[34mclick\u001b[39m(state\u001b[33m,\u001b[39m \u001b[32m'a3'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// empty square in the initial position\u001b[39m\n    \u001b[90m 74| \u001b[39m  expect(state.drawable.shapes).toEqual([{ orig: 'e2', dest: 'e4', bru\u2026\n    \u001b[90m   | \u001b[39m                                \u001b[31m^\u001b[39m\n    \u001b[90m 75| \u001b[39m})\u001b[33m;\u001b[39m\n    \u001b[90m 76| \u001b[39m\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/4]\u23af\u001b[22m\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m tests/draw.test.ts\u001b[2m > \u001b[22mclicking an opponent piece does not clear the shapes when eraseOnClick is false\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected [] to deeply equal [ { orig: 'e2', dest: 'e4', \u2026(1) } ]\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- [\u001b[39m\n\u001b[32m-   {\u001b[39m\n\u001b[32m-     \"brush\": \"red\",\u001b[39m\n\u001b[32m-     \"dest\": \"e4\",\u001b[39m\n\u001b[32m-     \"orig\": \"e2\",\u001b[39m\n\u001b[32m-   },\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ []\u001b[39m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m tests/draw.test.ts:\u001b[2m81:33\u001b[22m\u001b[39m\n    \u001b[90m 79| \u001b[39m  state\u001b[33m.\u001b[39mdrawable\u001b[33m.\u001b[39meraseOnClick \u001b[33m=\u001b[39m \u001b[35mfalse\u001b[39m\u001b[33m;\u001b[39m\n    \u001b[90m 80| \u001b[39m  \u001b[34mclick\u001b[39m(state\u001b[33m,\u001b[39m \u001b[32m'a8'\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m 81| \u001b[39m  expect(state.drawable.shapes).toEqual([{ orig: 'e2', dest: 'e4', bru\u2026\n    \u001b[90m   | \u001b[39m                                \u001b[31m^\u001b[39m\n    \u001b[90m 82| \u001b[39m})\u001b[33m;\u001b[39m\n    \u001b[90m 83| \u001b[39m\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[2/4]\u23af\u001b[22m\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m tests/draw.test.ts\u001b[2m > \u001b[22mclicking a movable piece does not clear the shapes when eraseOnClick is false\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected [] to deeply equal [ { orig: 'e2', dest: 'e4', \u2026(1) } ]\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- [\u001b[39m\n\u001b[32m-   {\u001b[39m\n\u001b[32m-     \"brush\": \"red\",\u001b[39m\n\u001b[32m-     \"dest\": \"e4\",\u001b[39m\n\u001b[32m-     \"orig\": \"e2\",\u001b[39m\n\u001b[32m-   },\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ []\u001b[39m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m tests/draw.test.ts:\u001b[2m89:33\u001b[22m\u001b[39m\n    \u001b[90m 87| \u001b[39m  state\u001b[33m.\u001b[39mdrawable\u001b[33m.\u001b[39meraseOnMovablePieceClick \u001b[33m=\u001b[39m \u001b[35mtrue\u001b[39m\u001b[33m;\u001b[39m\n    \u001b[90m 88| \u001b[39m  \u001b[34mclick\u001b[39m(state\u001b[33m,\u001b[39m \u001b[32m'e2'\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m 89| \u001b[39m  expect(state.drawable.shapes).toEqual([{ orig: 'e2', dest: 'e4', bru\u2026\n    \u001b[90m   | \u001b[39m                                \u001b[31m^\u001b[39m\n    \u001b[90m 90| \u001b[39m})\u001b[33m;\u001b[39m\n    \u001b[90m 91| \u001b[39m\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[3/4]\u23af\u001b[22m\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m tests/draw.test.ts\u001b[2m > \u001b[22mdrawings survive a click on the full board when eraseOnClick is false\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected [] to deeply equal [ { orig: 'e2', dest: 'e4', \u2026(1) } ]\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- [\u001b[39m\n\u001b[32m-   {\u001b[39m\n\u001b[32m-     \"brush\": \"red\",\u001b[39m\n\u001b[32m-     \"dest\": \"e4\",\u001b[39m\n\u001b[32m-     \"orig\": \"e2\",\u001b[39m\n\u001b[32m-   },\u001b[39m\n\u001b[32m- ]\u001b[39m\n\u001b[31m+ []\u001b[39m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m tests/draw.test.ts:\u001b[2m145:37\u001b[22m\u001b[39m\n    \u001b[90m143| \u001b[39m\n    \u001b[90m144| \u001b[39m  \u001b[34mclickSquare\u001b[39m(board\u001b[33m,\u001b[39m \u001b[32m'a3'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// empty square\u001b[39m\n    \u001b[90m145| \u001b[39m  \u001b[34mexpect\u001b[39m(api\u001b[33m.\u001b[39mstate\u001b[33m.\u001b[39mdrawable\u001b[33m.\u001b[39mshapes)\u001b[33m.\u001b[39m\u001b[34mtoEqual\u001b[39m([shape])\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                                    \u001b[31m^\u001b[39m\n    \u001b[90m146| \u001b[39m\n    \u001b[90m147| \u001b[39m  \u001b[34mclickSquare\u001b[39m(board\u001b[33m,\u001b[39m \u001b[32m'e2'\u001b[39m)\u001b[33m;\u001b[39m \u001b[90m// own (turn color) piece\u001b[39m\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[4/4]\u23af\u001b[22m\u001b[39m\n\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[31m4 failed\u001b[39m\u001b[22m\u001b[2m | \u001b[22m\u001b[1m\u001b[32m5 passed\u001b[39m\u001b[22m\u001b[90m (9)\u001b[39m\n\u001b[2m   Start at \u001b[22m 23:38:05\n\u001b[2m   Duration \u001b[22m 1.43s\u001b[2m (transform 208ms, setup 0ms, collect 405ms, tests 26ms, environment 565ms, prepare 185ms)\u001b[22m\n\n",
+    "status": "PASS"
+  },
+  "secondary": {
+    "loc_added": 184,
+    "loc_removed": 1,
+    "files_touched": [
+      "src/config.ts",
+      "src/drag.ts",
+      "src/draw.ts",
+      "src/state.ts",
+      "tests/draw.test.ts"
+    ],
+    "files_touched_count": 5,
+    "non_test_files_touched": [
+      "src/config.ts",
+      "src/drag.ts",
+      "src/draw.ts",
+      "src/state.ts"
+    ],
+    "upstream_non_test_files": null,
+    "precision_subset_of_upstream": null,
+    "loc_source": "base_sha_diff",
+    "commits_in_run": 0
+  },
+  "events": {
+    "event_source": "turn-json",
+    "raw_ndjson_parse_errors": 0,
+    "tool_call_counts": {
+      "read": 38,
+      "grep": 8,
+      "write": 4,
+      "bash": 29,
+      "edit": 22,
+      "glob": 2
+    },
+    "tool_call_count_source": "toolCall-blocks",
+    "test_run_tool_calls": 10,
+    "reproduced_before_first_edit": false,
+    "harness_parse_errors": 0,
+    "total_tool_errors": 3,
+    "prompt_tokens_sum": 5534762,
+    "completion_tokens_sum": 49872,
+    "reasoning_tokens_sum": null,
+    "cache_read_tokens_sum": 0,
+    "cache_write_tokens_sum": 0,
+    "assistant_turns": 90
+  },
+  "wallclock_seconds": 2863
+}

@@ -47,10 +47,15 @@
 # This script never touches D:\devNewman (company-confidential) and never copies
 # deeweb run data beyond what's already committed here.
 #
-# IMPORTANT: this script intentionally never touches tasks/ (and specifically
-# never re-copies tasks/deeweb/*). Those files were hand-scrubbed of local
-# paths/setup notes before publish — do not add a tasks/ sync step that would
-# overwrite that scrubbed copy from the raw _briefs/ source.
+# IMPORTANT: tasks/ is otherwise never touched by this script -- every other task's
+# tasks/<id>/ is a hand-authored README, not synced from anywhere. deeweb is the sole,
+# deliberate exception: see the "tasks/deeweb/" step below, which overwrites
+# tasks/deeweb/brief.md from the hand-scrubbed _briefs/deeweb/brief.public.md on every
+# sync (never the raw brief.md, never phase1-prompt.md). This replaces an earlier
+# one-off manual scrub (see git log on this path: commit 3da0f6a) that turned out to be
+# incomplete -- its own message says it removed "local paths/setup notes", a narrower
+# category than the repo name, commit SHA, PR number, API route, and internal
+# component/function names that copy actually still carried.
 #
 # IMPORTANT: every edit to this file must be made via write-new+mv (write the
 # new content to sync_results.sh.new, chmod +x, then `mv -f` over this file),
@@ -248,6 +253,24 @@ robomirror "$SRC/_site" "$DST/docs" || fail "docs copy"
 mkdir -p "$DST/methodology"
 cp -f "$AB/METHODOLOGY.md" "$AB/SCORING.md" "$AB/calibration.md" "$AB/method.html" "$DST/methodology/" \
   || fail "methodology copy"
+
+# --- tasks/deeweb/ (public-safe brief only; never the raw ticket or the phase-1 prompt) ---
+# brief.public.md is a hand-scrubbed copy of the CAL-7207 ticket (Story/Acceptance
+# Criteria/Notes, every internal repo/path/route/SHA/PR reference removed or
+# generalized -- see _briefs/deeweb/brief.public.md's own content and header note) that
+# this overwrites tasks/deeweb/brief.md with on every sync, so a stale or incompletely-
+# scrubbed copy can never linger there. phase1-prompt.md (the verbatim Phase 1 design
+# prompt -- full of internal paths and local setup notes, never meant to be public) is
+# never copied here, and any old copy already in tasks/deeweb/ is removed.
+if [ -f "$SRC/_briefs/deeweb/brief.public.md" ]; then
+  mkdir -p "$DST/tasks/deeweb"
+  cp -f "$SRC/_briefs/deeweb/brief.public.md" "$DST/tasks/deeweb/brief.md" || fail "tasks/deeweb/brief.md copy"
+else
+  # No vetted-safe copy exists to publish -- remove the file rather than leave a stale/raw one in place.
+  rm -f "$DST/tasks/deeweb/brief.md"
+  log "WARNING: _briefs/deeweb/brief.public.md not found -- tasks/deeweb/brief.md removed, not published"
+fi
+rm -f "$DST/tasks/deeweb/phase1-prompt.md"
 
 # --- raptor-support/ (reference + checks only; keep our own README.md) ---
 robomirror "$SRC/_raptor-support/reference" "$DST/raptor-support/reference" || fail "raptor-support/reference copy"

@@ -1,0 +1,74 @@
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+diff --git a/README.md b/README.md
+index bfbd8f8..a4d5374 100644
+--- a/README.md
++++ b/README.md
+@@ -1,19 +1,49 @@
+-# DOS Raptor
+-This is the original Raptor Call Of The Shadows DOS source code v1.2 with the Apogee Sound System and the
+-DMX wrapper APODMX instead of the proprietary DMX library.
+-
+-## Build
+-To build all libraries and the exe under DOS use Watcom C 10.0 and TASM 3.1.
+-For a build that more closely matches the original exe file v1.2 (without DMX library) you will need the following:
+-```
+-AUDIOLIB: Watcom C 10.0 and TASM 3.1
+-APODMX: A compatible version of Watcom C32 
+-GFX: Watcom C 9.5b and TASM 3.1
+-SOURCE: Watcom C 10.0 and TASM 3.1
+-```
+-
+-## License
+-DOS Raptor is distributed under the GPL Version 2 or newer, see [LICENSE](https://github.com/skynettx/dosraptor/blob/master/LICENSE).
+-
+-## Thanks
+-All my thanks go to [Scott Host](https://www.mking.com), [nukeykt](https://github.com/nukeykt) and [NY00123](https://github.com/NY00123) without them this release would not have been possible.
++# Raptor: Call of the Shadows — Sector 1 (HTML5 Port)
++
++A from-scratch browser port of the shareware (sector 1) content of *Raptor: Call
++of the Shadows* (Apogee, 1994), rendered with HTML5 canvas + vanilla JavaScript +
++the Web Audio API. All graphics and sounds are the **real game assets** decoded at
++runtime from the original shareware `.GLB` data files in `data/` — no placeholder
++art or audio.
++
++## Dev server
++
++From this directory run:
++
++```
++python -m http.server 8000
++```
++
++then open http://localhost:8000 in a browser. (Any static file server works, e.g.
++`npx serve .`.)
++
++## Controls
++
++- ArrowUp / ArrowDown / ArrowLeft / ArrowRight — move the ship
++- Space — fire
++
++## Architecture
++
++- `js/glb.js` — `.GLB` archive decoder (header + item-descriptor decryption with
++  the game's chained cipher, `key "32768GLB"`, `SEED 0x19`).
++- `js/gfx.js` — 320x200 256-colour drawing primitives ported from `GFX/GFXAPI`
++  (PIC/SPRITE blits, shading, 3-D shadows, fonts, light tables).
++- `js/audio.js` — Web Audio playback of the game's digital SFX (8-bit PCM @11025 Hz
++  with the Apogee 8-byte header).
++- `js/engine.js` — faithful port of the game logic (`SOURCE/` RAP.C, TILE.C,
++  ENEMY.C, SHOTS.C, ESHOT.C, ANIMS.C, BONUS.C, OBJECTS.C, SHADOWS.C,
++  FLAME.C), including the Watcom C `rand()` so wave behaviour is deterministic.
++- `js/main.js` — browser bootstrap, keyboard input, canvas presentation,
++  `window.__raptor` contract, wave/sector flow.
++- `tools/preview.mjs` — Node renderer (writes PNG frames) for verification:
++  `node tools/preview.mjs <frames> <wave> <out.png>`.
++
++The playfield is a 320x200 buffer of palette indices rendered from `PALETTE_DAT` /
++`MAP*G1_MAP` / tile flats / `LPLAYER_PIC` ship sprites / HUD numbers, exactly as
++the original DOS code composes it (including the ship's 3-D shadow and engine flame).
++
++## Grader contract
++
++`<canvas id="raptor-canvas">` is exactly 320x200. A live global `window.__raptor`
++reports `ready`, `player`, `projectiles`, `enemies`, `hud`, `audio`,
++`wave`, `sectorComplete`, kept in sync with real game state every frame.

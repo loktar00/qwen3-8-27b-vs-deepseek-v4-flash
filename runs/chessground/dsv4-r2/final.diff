@@ -1,0 +1,154 @@
+diff --git a/src/api.ts b/src/api.ts
+index 366779d..b8fc104 100644
+--- a/src/api.ts
++++ b/src/api.ts
+@@ -180,6 +180,7 @@ export function start(state: State, redrawAll: cg.Redraw): Api {
+ 
+     destroy(): void {
+       board.stop(state);
++      state.dom.boardUnbind?.();
+       state.dom.unbind?.();
+       state.dom.destroyed = true;
+     },
+diff --git a/src/chessground.ts b/src/chessground.ts
+index bece308..e0400d7 100644
+--- a/src/chessground.ts
++++ b/src/chessground.ts
+@@ -19,6 +19,8 @@ export function Chessground(element: HTMLElement, config?: Config): Api {
+ 
+   function redrawAll(): State {
+     const prevUnbind = 'dom' in maybeState ? maybeState.dom.unbind : undefined;
++    const prevBoardUnbind = 'dom' in maybeState ? maybeState.dom.boardUnbind : undefined;
++    prevBoardUnbind?.();
+     // compute bounds from existing board element if possible
+     // this allows non-square boards from CSS to be handled (for 3D)
+     const elements = renderWrap(element, maybeState),
+@@ -44,7 +46,7 @@ export function Chessground(element: HTMLElement, config?: Config): Api {
+     state.drawable.prevSvgHash = '';
+     updateBounds(state);
+     redrawNow(false);
+-    events.bindBoard(state, onResize);
++    state.dom.boardUnbind = events.bindBoard(state, onResize);
+     if (!prevUnbind) state.dom.unbind = events.bindDocument(state, onResize);
+     state.events.insert?.(elements);
+     return state;
+diff --git a/src/events.ts b/src/events.ts
+index 756dd50..47e695c 100644
+--- a/src/events.ts
++++ b/src/events.ts
+@@ -8,16 +8,26 @@ import { isRightButton } from './util.js';
+ type MouchBind = (e: cg.MouchEvent) => void;
+ type StateMouchBind = (d: State, e: cg.MouchEvent) => void;
+ 
+-export function bindBoard(s: State, onResize: () => void): void {
++export function bindBoard(s: State, onResize: () => void): cg.Unbind {
+   const boardEl = s.dom.elements.board;
++  const unbinds: cg.Unbind[] = [];
+ 
+-  if ('ResizeObserver' in window) new ResizeObserver(onResize).observe(s.dom.elements.wrap);
++  // The ResizeObserver observes the persistent wrap element, so it must be
++  // disconnected when the board is re-rendered or destroyed to avoid leaks and
++  // duplicate observers.
++  if ('ResizeObserver' in window) {
++    const ro = new ResizeObserver(onResize);
++    ro.observe(s.dom.elements.wrap);
++    unbinds.push(() => ro.disconnect());
++  }
+ 
+   if (s.disableContextMenu || s.drawable.enabled) {
+-    boardEl.addEventListener('contextmenu', e => e.preventDefault());
++    const onContextMenu = (e: Event) => e.preventDefault();
++    boardEl.addEventListener('contextmenu', onContextMenu);
++    unbinds.push(() => boardEl.removeEventListener('contextmenu', onContextMenu));
+   }
+ 
+-  if (s.viewOnly) return;
++  if (s.viewOnly) return () => unbinds.forEach(f => f());
+ 
+   // Cannot be passive, because we prevent touch scrolling and dragging of
+   // selected elements.
+@@ -28,6 +38,12 @@ export function bindBoard(s: State, onResize: () => void): void {
+   boardEl.addEventListener('mousedown', onStart as EventListener, {
+     passive: false,
+   });
++  unbinds.push(() => {
++    boardEl.removeEventListener('touchstart', onStart as EventListener);
++    boardEl.removeEventListener('mousedown', onStart as EventListener);
++  });
++
++  return () => unbinds.forEach(f => f());
+ }
+ 
+ // returns the unbind function
+diff --git a/src/types.ts b/src/types.ts
+index ebbee42..1f4ae4e 100644
+--- a/src/types.ts
++++ b/src/types.ts
+@@ -53,6 +53,7 @@ export interface Dom {
+   redraw: () => void;
+   redrawNow: (skipSvg?: boolean) => void;
+   unbind?: Unbind;
++  boardUnbind?: Unbind;
+   destroyed?: boolean;
+ }
+ export interface Exploding {
+diff --git a/tests/observer.test.ts b/tests/observer.test.ts
+new file mode 100644
+index 0000000..7b10118
+--- /dev/null
++++ b/tests/observer.test.ts
+@@ -0,0 +1,54 @@
++import { Chessground } from '../src/chessground';
++
++class FakeResizeObserver {
++  static instances: FakeResizeObserver[] = [];
++  callback: ResizeObserverCallback;
++  observed = new Set<Element>();
++  disconnected = false;
++
++  constructor(callback: ResizeObserverCallback) {
++    this.callback = callback;
++    FakeResizeObserver.instances.push(this);
++  }
++  observe(target: Element): void {
++    this.observed.add(target);
++  }
++  unobserve(target: Element): void {
++    this.observed.delete(target);
++  }
++  disconnect(): void {
++    this.disconnected = true;
++    this.observed.clear();
++  }
++}
++
++beforeEach(() => {
++  FakeResizeObserver.instances = [];
++  globalThis.ResizeObserver = FakeResizeObserver as unknown as typeof ResizeObserver;
++});
++
++test('board ResizeObserver is disconnected on destroy and not duplicated on redraw', () => {
++  const wrap = document.createElement('div');
++  wrap.className = 'cg-wrap';
++  document.body.appendChild(wrap);
++
++  const cg = Chessground(wrap);
++  const created = FakeResizeObserver.instances;
++
++  // first render creates exactly one observer on the wrap
++  expect(created).toHaveLength(1);
++  expect(created[0].disconnected).toBe(false);
++  expect(created[0].observed.has(wrap)).toBe(true);
++
++  // redrawAll must not stack observers: previous is disconnected, one fresh one remains
++  cg.redrawAll();
++  expect(created).toHaveLength(2);
++  expect(created[0].disconnected).toBe(true);
++  expect(created[1].disconnected).toBe(false);
++  expect(created[1].observed.has(wrap)).toBe(true);
++
++  // destroy disconnects the active observer
++  cg.destroy();
++  expect(created).toHaveLength(2);
++  expect(created[1].disconnected).toBe(true);
++});

@@ -1,0 +1,35 @@
+diff --git a/test/components/Game/Game.test.tsx b/test/components/Game/Game.test.tsx
+index c297b35..eeff6a7 100644
+--- a/test/components/Game/Game.test.tsx
++++ b/test/components/Game/Game.test.tsx
+@@ -394,4 +394,30 @@ describe('<Game>', () => {
+     // TODO: assert that `wellStateId` is now decremented?
+     game.unmount()
+   })
++
++  it('lets you take over after a replay which does not end the game', async () => {
++    const game = renderGame()
++
++    // Replay is a single move which does not end the game
++    const prompt = sinon.stub(window, 'prompt')
++    prompt.returns('D')
++    await user.click(screen.getByTestId('replay-button'))
++    assert.deepEqual(prompt.getCalls().map(call => call.args), [
++      ['Paste replay string...']
++    ])
++    prompt.restore()
++
++    // Wait for the replay to be played out
++    await advanceReplaySteps(10)
++
++    // The replay is over but the game is not; the user should now be able to play
++    assert.equal(screen.queryByTestId('bottom'), null)
++    assert.equal(screen.queryAllByTestId('down').length, 1)
++
++    // ... and playing should actually work
++    await user.keyboard('{Down}')
++    assert.equal(screen.queryAllByTestId('well__cell well__cell--live').length, 4)
++
++    game.unmount()
++  })
+ })

@@ -1,0 +1,125 @@
+diff --git a/src/api.ts b/src/api.ts
+index 366779d..9134fda 100644
+--- a/src/api.ts
++++ b/src/api.ts
+@@ -180,6 +180,7 @@ export function start(state: State, redrawAll: cg.Redraw): Api {
+ 
+     destroy(): void {
+       board.stop(state);
++      state.dom.ro?.disconnect();
+       state.dom.unbind?.();
+       state.dom.destroyed = true;
+     },
+diff --git a/src/chessground.ts b/src/chessground.ts
+index bece308..b7a3288 100644
+--- a/src/chessground.ts
++++ b/src/chessground.ts
+@@ -19,6 +19,8 @@ export function Chessground(element: HTMLElement, config?: Config): Api {
+ 
+   function redrawAll(): State {
+     const prevUnbind = 'dom' in maybeState ? maybeState.dom.unbind : undefined;
++    const prevRo = 'dom' in maybeState ? maybeState.dom.ro : undefined;
++    prevRo?.disconnect();
+     // compute bounds from existing board element if possible
+     // this allows non-square boards from CSS to be handled (for 3D)
+     const elements = renderWrap(element, maybeState),
+diff --git a/src/events.ts b/src/events.ts
+index 756dd50..e332a52 100644
+--- a/src/events.ts
++++ b/src/events.ts
+@@ -11,7 +11,10 @@ type StateMouchBind = (d: State, e: cg.MouchEvent) => void;
+ export function bindBoard(s: State, onResize: () => void): void {
+   const boardEl = s.dom.elements.board;
+ 
+-  if ('ResizeObserver' in window) new ResizeObserver(onResize).observe(s.dom.elements.wrap);
++  if ('ResizeObserver' in window) {
++    s.dom.ro = new ResizeObserver(onResize);
++    s.dom.ro.observe(s.dom.elements.wrap);
++  }
+ 
+   if (s.disableContextMenu || s.drawable.enabled) {
+     boardEl.addEventListener('contextmenu', e => e.preventDefault());
+diff --git a/src/types.ts b/src/types.ts
+index ebbee42..31a0169 100644
+--- a/src/types.ts
++++ b/src/types.ts
+@@ -53,6 +53,7 @@ export interface Dom {
+   redraw: () => void;
+   redrawNow: (skipSvg?: boolean) => void;
+   unbind?: Unbind;
++  ro?: ResizeObserver;
+   destroyed?: boolean;
+ }
+ export interface Exploding {
+diff --git a/tests/resize-observer.test.ts b/tests/resize-observer.test.ts
+new file mode 100644
+index 0000000..7233821
+--- /dev/null
++++ b/tests/resize-observer.test.ts
+@@ -0,0 +1,66 @@
++import { afterEach, beforeEach, expect, test } from 'vitest';
++import { Chessground } from '../src/chessground';
++
++// jsdom does not implement ResizeObserver. Provide a recording polyfill so
++// we can assert on observer lifecycle (observe/disconnect).
++class FakeResizeObserver {
++  static instances: FakeResizeObserver[] = [];
++
++  readonly observed: Element[] = [];
++  disconnected = false;
++
++  constructor(private readonly _callback: (entries: unknown[], observer: FakeResizeObserver) => void) {
++    FakeResizeObserver.instances.push(this);
++  }
++
++  observe(target: Element): void {
++    this.observed.push(target);
++  }
++
++  unobserve(): void {}
++
++  disconnect(): void {
++    this.disconnected = true;
++  }
++}
++
++beforeEach(() => {
++  FakeResizeObserver.instances = [];
++  (window as unknown as Record<string, unknown>).ResizeObserver = FakeResizeObserver;
++});
++
++afterEach(() => {
++  delete (window as unknown as Record<string, unknown>).ResizeObserver;
++});
++
++test('destroy disconnects the ResizeObserver', () => {
++  const wrap = document.createElement('div');
++  document.body.appendChild(wrap);
++
++  const cg = Chessground(wrap, { viewOnly: true });
++  expect(FakeResizeObserver.instances).toHaveLength(1);
++  expect(FakeResizeObserver.instances[0].disconnected).toBe(false);
++
++  cg.destroy();
++  expect(FakeResizeObserver.instances[0].disconnected).toBe(true);
++});
++
++test('redrawAll disconnects the previous ResizeObserver', () => {
++  const wrap = document.createElement('div');
++  document.body.appendChild(wrap);
++
++  const cg = Chessground(wrap, { viewOnly: true });
++  cg.redrawAll();
++  cg.redrawAll();
++  expect(FakeResizeObserver.instances).toHaveLength(3);
++
++  // the old observers (observing detached wraps) must be disconnected
++  expect(FakeResizeObserver.instances[0].disconnected).toBe(true);
++  expect(FakeResizeObserver.instances[1].disconnected).toBe(true);
++  // only the current wrap is observed by the newest observer
++  expect(FakeResizeObserver.instances[2].disconnected).toBe(false);
++  expect(FakeResizeObserver.instances[2].observed).toEqual([wrap]);
++
++  cg.destroy();
++  expect(FakeResizeObserver.instances[2].disconnected).toBe(true);
++});

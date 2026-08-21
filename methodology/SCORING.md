@@ -146,3 +146,27 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   came within a factor of 2 of 60 minutes, so no DeepSeek lane-C result changes. For the same reason the lane-A per-turn
   OMP runaway guard (`--max-time`, 90 min, never triggered on any run so far) is raised to 240 min for the remaining
   matrix jobs; no finished run was affected.
+
+- 2026-08-20 (pre-verdict, pre-committed BEFORE the calibration result): Raptor M5 checker calibration. DeepSeek's
+  port passes M2-M4 but fails M5 because the checker's naive autoplay (hold fire, random arrow jitter every ~1.5 s,
+  5-min cap, no survivability hook) is shot down in wave 1 — 3/3 reruns (113 s, 74 s, 75 s), never near the cap. The
+  port's own sector-loop mechanics demonstrably work under its godmode flag, which the checker does not use. Before
+  Qwen is scored, the identical naive policy is driven against the ORIGINAL game in DOSBox (3 runs, same speed
+  settings as the reference capture). Decision rule fixed now: (a) original survives ≥2 min or completes the sector
+  in ≥2 of 3 runs → checker is passable by a faithful-difficulty port, DeepSeek's M5 FAIL stands, Qwen scored with the
+  identical checker; (b) original also dies in <2 min in ≥2 of 3 → checker is unpassable by construction, M5 autoplay
+  is amended identically for both models to a state-aware dodge using only `window.__raptor` contract fields (same
+  code and seed for both, 5-min cap unchanged, pass = wave 9 + sectorComplete), DeepSeek re-scored under it, both
+  results carry the note. M1 is NOT amended: its frame-timing sensitivity (the screenshot lands at a different scroll
+  offset than the reference frame) is disclosed on the ladder page as a limitation and applies identically.
+
+- 2026-08-20 (pre-verdict): lane C context-ceiling handling made mechanical. chessjs/qwen-med-c (attempt 3) ended with
+  an HTTP 400 from vLLM at exchange 15: prompt ≈100k tokens (the model repeatedly asked for the full 77k-char
+  `src/chess.ts` to be re-pasted, which the scripted human does for either model) plus the runner's fixed 32,768-token
+  completion budget exceeded Qwen's 131,072 ceiling. Harness change, identical for both models: the completion budget
+  now shrinks as the prompt grows (`min(32768, ceiling − prompt − 2048)`, the behaviour OMP/OpenCode already have), and
+  a run whose prompt reaches 80% of its model's ceiling stops cleanly and is marked CONFIG (marker file `CONFIG.txt`)
+  per §1 principle 6 — excluded from the PASS count, neither pass nor fail, counted as a completed planned run, shown
+  as "CONFIG" on the board with the reason. The crashed attempt is archived under
+  `_invalid-harness-20260820/chessjs/qwen-med-c-attempt3/`; attempt 4 runs under the patched runner. DeepSeek's lane-C
+  runs (complete) never exceeded ~25% of its 393k ceiling and are unaffected.

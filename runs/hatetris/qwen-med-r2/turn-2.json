@@ -1,0 +1,888 @@
+{"type":"session","version":3,"id":"01a021c5-653f-7000-8d7f-9fc8d1ed38ca","timestamp":"2026-08-21T00:42:59.774Z","cwd":"D:\\dev\\ab-tasks\\hatetris-qwen-med-r2"}
+{"type":"thinking_level_changed","thinkingLevel":"high","configured":"auto","resolved":"high"}
+{"type":"agent_start"}
+{"type":"turn_start"}
+{"type":"message_start","message":{"role":"user","content":[{"type":"text","text":"After a replay ends early, the user should be able to continue playing from that state without reloading. Confirm that is what your fix does, with a test."}],"attribution":"user","timestamp":1787274797298}}
+{"type":"message_end","message":{"role":"user","content":[{"type":"text","text":"After a replay ends early, the user should be able to continue playing from that state without reloading. Confirm that is what your fix does, with a test."}],"attribution":"user","timestamp":1787274797298}}
+{"type":"message_start","message":{"role":"assistant","content":[{"type":"thinking","thinking":"The user is asking for confirmation that after a replay ends early, the user can continue playing from that state without reloading, and wants that verified with a test.\n\nMy fix: in `handleMove`, if the game isn't over, and mode === 'REPLAYING' and","thinkingSignature":"reasoning"}],"api":"openai-completions","provider":"pod-qwen-medium","model":"qwen3.8-27b-bf16","usage":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"totalTokens":0,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0}},"stopReason":"stop","timestamp":1787274800678,"responseId":"chatcmpl-8339917f24a40050"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_start","contentIndex":0}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" user is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" asking for"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" confirmation that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" after"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" a replay"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" ends early"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":", the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" user can"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" continue playing"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" from that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" state without"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" reloading,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and wants"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" verified with"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" a test"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":".\n\n"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"My fix"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":":"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" in `"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"handleMove"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"`, if"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" game isn"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'t over"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":","}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" mode"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" ==="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 'RE"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"PLAYING"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"' and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" there are"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" no further"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" replay inputs"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" →"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" mode"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" becomes '"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"PLAYING"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'. The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" component"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" test"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" I added"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" verifies"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the following"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":":\n1. The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" replay"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" button"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is clicked"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" with replay"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 'D"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'\n"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"2."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" replay step"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is executed"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\n3"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" `down"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"` button"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" exists ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"PLAY"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"ING UI"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" back"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":")\n"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"4."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" The user"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" presses {"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"Down},"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" move is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" applied ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"the S"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" piece moves"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":","}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"2 cells"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" land"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" on the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" bar)"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\n\nThis"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" already"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" exactly"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" verification"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". But"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" let"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" me re"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"-"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"verify a"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" bit"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" more thoroughly"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" —"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" \""}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"continue playing"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" from that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" state without"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" reloading\":"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\n\n"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". Mode"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" transitions"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" to PLAY"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"ING ✓"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" (down"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" button test"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":")\n"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"2."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" The user"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'s"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" move works"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is applied"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" on"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" top of"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the replay"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"ed state"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" ✓ ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"live"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" cell assertion"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" proves"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" piece"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" at y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"=2"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" ="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" spawn"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" +"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" replay's"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" D +"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" user's"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" D)"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\n3"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". Additional"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" things I"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" could confirm"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":":\n"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"   -"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" Undo"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" works ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"returns"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" to the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" replayed"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" position)"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\n  "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" - The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" game"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" can"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" proceed"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" to GAME"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"_OVER and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the replay"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" can"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" be copied"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" (i"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":".e.,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the full"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" flow"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" works"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":":"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the continued"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" game produces"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" a replay"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" that includes"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the user"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'s moves"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":")\n"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"   -"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" The well"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" state after"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the replay"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" ends matches"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the state"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" mid"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"-game"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" (not"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" reset"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":")\n\n"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"The existing"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" test verifies"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"1 and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 2"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". To"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" be"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" more thorough"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":","}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" I could"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" extend the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" test ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"or add"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" assertions"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":") to"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" confirm"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":":"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\n-"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" The board"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" state is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" preserved ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"contin"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"uation from"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" state)"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" — the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" live"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" cell assertion"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" already proves"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the piece"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is exactly"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" at"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the position"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" after"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" replay"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'s D"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" + user"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'s D"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" If the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" game"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" had been"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" reset/re"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"loaded,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the piece"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" would be"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" at spawn"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" position"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" (y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"=0"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"),"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and after"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" user's"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" D it"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" would be"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" at y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"=1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" → "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"4 plain"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" live cells"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" +"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 0"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" on"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the bar"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":","}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" which would"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" fail the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 2"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"/2"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" assertion."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" So it"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'s already"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" verified"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" it"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" continues"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" from that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" state."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\n-"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" That"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" continuation"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" through"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" game"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" over works"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":": keep"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" pressing"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" D until"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" GAME"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"_OVER,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" then"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" a"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" replay"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" output appears"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" with"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the moves"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" This fully"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" verifies \""}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"continue playing"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" without reloading"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\" end"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"-to-end"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":".\n\n"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"Let me"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" consider"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" whether to"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" extend the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" test"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". User"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'s request"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":": \""}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"verify that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" fix does"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" that with"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" a test"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" The existing"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" test does"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" verify that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". But"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" to"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" be thorough"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" to respond"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" directly"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" to \""}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"continue playing"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" from that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" state\","}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" I could"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" strengthen the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" test as"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" follows:"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\n-"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" After the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" replay ends"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":", verify"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" well"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" shows"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the piece"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" at the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" post"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"-replay"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" position ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"before any"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" user move"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"):"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 4"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" live"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" cells ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"S"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" at y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"=1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":","}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" rows "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"2-"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"3)."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" Hmm wait"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" —"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" that distinguish"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"able from"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" pre"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"-replay"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" state ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"S at"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"0,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" rows "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"1-"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"2)?"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" Both are"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 4"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" plain live"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" cells,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 0"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" on the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" bar."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" Not"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" distinguishable"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" via"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" cell count"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". But"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" I"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" can"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" distinguish"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" via"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" a"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" subsequent"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" move"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":": as"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" it"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" stands."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\n\nA"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" stronger"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" continuation"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" check"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":": after"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the replay"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" ends,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" play"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" more"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" D's"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" until the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" piece"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" locks ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" piece falls"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" into"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the well"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"),"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and verify"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" a"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" new"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" piece appears"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" landed"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" cells show"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" up —"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" i.e"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"., the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" game loop"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" continues"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" normally"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". Then"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" optionally"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":", keep"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" going"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" until GAME"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"_OVER to"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" verify the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" replay-out"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" includes"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the replay"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'s"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" D +"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the user"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'s moves"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":".\n\n"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"Let me"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" calculate"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":": S"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" at"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"=1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" (after"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" replay's"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" D)."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" Each"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" D:"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y+"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"1,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" until D"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" blocked →"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" locks"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". Bar"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is at"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"=4"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" (row"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" index"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 4"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"). S"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'s"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" o="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"0 cells"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" are at"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" rows y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"+1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":", y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"+2"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" piece locks"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" when the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" next D"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" blocked."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" Lock"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"ing is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" when y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"Actual +"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" yDim"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" > well"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"Depth,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" or on"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" a"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" collision,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" or…"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" let"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" me actually"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" trace"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" it"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":": the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" piece locks"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" when the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 'D"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"' move"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" coll"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"ides."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" Empty"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" well,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" depth "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"20"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". S"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'s bottom"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" row is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"+2"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". D"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" blocked when"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"y+"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"1)+"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"2 >"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 2"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"0 →"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y+"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"3"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" > "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"20"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" → y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"18"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" blocks"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"piece"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" at y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"=1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"7,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" next"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" D →"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"18"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":", y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"Actual="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"18"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":","}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" yActual"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"+yDim"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"=2"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"0,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"20"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" > "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"20"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is false"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"…"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" let"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" me redo"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" this"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":":"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" yActual"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" = y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" + y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"Min ="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y +"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":";"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" yActual"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" + y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"Dim ="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y +"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" + "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"2 ="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y +"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 3"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". Block"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" condition y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"Actual +"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" yDim"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" > well"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"Depth →"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y+"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"3 >"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 2"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"0 →"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y ≥"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"8."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" So the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" piece is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" at y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"=1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"7,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and D"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" at"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"18"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":":"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" move"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is attempted"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" at"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"18"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" →"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"2"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"1 >"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 2"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"0 →"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" blocked →"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" locks at"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"17"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":".\n\n"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"From y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"=1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"after the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" replay's"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" D),"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" D"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'s needed"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" to lock"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":": "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"17"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"-"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"1+"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"1 ="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"7 more"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" D's"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" That"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'s a"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" lot of"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" key"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" presses but"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" fine"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" in"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" a test"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" Actually"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":", I"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" can"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" just"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" click"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the down"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" button "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"17"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" times…"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" '"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"D"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"' key"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" works"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". user"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":".keyboard"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"('{Down"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"}"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"x1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"7')"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"? user"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"-event supports"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" repeats"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":":"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" `{"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"Down}{"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"Down}"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"...`"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" or does"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" user"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":".keyboard support"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" `{Down"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" x"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"17"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"}`?"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" I"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" don"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'t think"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" user-event"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'s"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" keyboard syntax"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" supports repeats"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"that's"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" more"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" like"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" c"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"ypress)."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" I"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" can just"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" loop "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"17"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" times."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\n\nBut"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" each"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" D press"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" →"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" handleMove"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" → async"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":";"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" after"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"17"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" presses"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" piece locks"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the AI"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" (hat"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"etris"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"Ai"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":") generates"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" a"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" new piece"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" — that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" AI"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" does"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" pathfinding"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" can"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" take a"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" few seconds"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" (like"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the full"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"-game tests"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" in"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the suite"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" took "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"6-"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"7 seconds"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"). The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" test is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" already about"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 9"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"0ms"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" +"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" replay"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" steps"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":";"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" adding "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"17"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" D's"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" one"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" AI call"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" might add"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" a"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" few seconds"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" full"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" suite"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" already"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" toler"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"ates "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"7-second"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" tests."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" Acceptable"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":".\n\n"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"Then:"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" a"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" new piece"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" appears at"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the top"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" (4"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" live cells"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"), and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the landed"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" S cells"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" are shown"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":":"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" cells"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" on"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" row"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"8 ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"y="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"17"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"+1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"18"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":") and"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" row "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"19"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" (y"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"=1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"7+"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"2="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"19"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"). The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" landed"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" cells have"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the `"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"well__"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"cell--"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"landed"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"` class"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". The"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" bottom"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" row ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"row"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"9)"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is…"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" bar class"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is only"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" y==="}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"4,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" so no"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" bar"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" class"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" L"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"anded count"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" = "}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"4."}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"\n\nNext"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":", optionally"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":","}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" keep"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" going until"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" GAME_OVER"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" to"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" verify the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" full"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" flow"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" +"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" that"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the copy"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"able"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" replay includes"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the user"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"'s continuation"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". This"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" could"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" take a"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" while"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" (hat"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"etris"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" AI with"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" random"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" input"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":","}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" game over"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" could"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" be"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" many moves"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" away —"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" actually"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" with"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" random"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" D input"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":", stacking"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" in"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the middle"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":":"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the well"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" fills"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" up;"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" game"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" over is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" when row"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" bar"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"-1"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"=3"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" is"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" non-zero"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". With"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" random pieces"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" stacking"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" in the"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" middle,"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" it could"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" take many"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" pieces ("}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"maybe"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" 2"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"0-"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"50"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"+"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"), each"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" with an"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" AI call"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" (a"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" few seconds"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" each)"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" —"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" too slow"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":". Skip"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" GAME"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"_OVER;"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" the existing"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" '"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":"too-long"}}
+{"type":"message_update","assistantMessageEvent":{"type":"thinking_delta","contentIndex":0,"delta":" replay'"}}

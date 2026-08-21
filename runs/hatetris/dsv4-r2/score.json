@@ -1,0 +1,72 @@
+{
+  "task": "hatetris",
+  "label": "dsv4-r2",
+  "worktree": "D:\\dev\\ab-tasks\\hatetris-dsv4-r2",
+  "run_dir": "D:\\dev\\ab-tasks\\_runs\\hatetris\\dsv4-r2",
+  "overall_pass": false,
+  "P1": {
+    "status": "FAIL",
+    "files": [
+      "test/components/Game/repro-301.test.tsx"
+    ],
+    "rc": 1,
+    "cmd": "node --enable-source-maps --import ./register.js --require global-jsdom/register --test -- \"test/components/Game/repro-301.test.tsx\"",
+    "conflict": false,
+    "log_tail": "Your app (or one of its dependencies) is using an outdated JSX transform. Update to the modern JSX transform for faster performance: https://react.dev/link/new-jsx-transform\nIgnoring event D because mode is REPLAYING\n\u25b6 issue #301 -- replay handoff (design-agnostic)\n  \u2716 lets the player move the piece after a too-short replay ends, regardless of which UI element signals control is back (230.4032ms)\n\u2716 issue #301 -- replay handoff (design-agnostic) (232.0061ms)\n\u2139 tests 1\n\u2139 suites 1\n\u2139 pass 0\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 10717.476\n\n\u2716 failing tests:\n\ntest at test\\components\\Game\\repro-301.test.tsx:91:3\n\u2716 lets the player move the piece after a too-short replay ends, regardless of which UI element signals control is back (230.4032ms)\n  AssertionError [ERR_ASSERTION]: expected the Down keypress after the replay ended to move the piece (player has control back)\n      at TestContext.<anonymous> (file:///D:/dev/ab-tasks/hatetris-dsv4-r2/test/components/Game/repro-301.test.tsx:116:12)\n      at async Test.run (node:internal/test_runner/test:1110:7)\n      at async Promise.all (index 0)\n      at async Suite.run (node:internal/test_runner/test:1515:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: [ '2,5', '2,6', '3,4', '3,5' ],\n    expected: [ '2,5', '2,6', '3,4', '3,5' ],\n    operator: 'notDeepStrictEqual',\n    diff: 'simple'\n  }\n"
+  },
+  "P2": {
+    "status": "FAIL",
+    "rc": 1,
+    "cmd": "npm run unit",
+    "log_tail": " SDA (3)\n      \u2714 hex (0.3724ms)\n      \u2714 Base65536 (0.2566ms)\n      \u2714 Base2048 (0.267ms)\n    \u2714 SDA (3) (0.9994ms)\n    \u25b6 Deasuke\n      \u2714 hex (0.2527ms)\n      \u2714 Base65536 (0.1952ms)\n      \u2714 Base2048 (0.2051ms)\n    \u2714 Deasuke (0.7616ms)\n    \u25b6 chromeyhex\n      \u2714 hex (0.2651ms)\n      \u2714 Base65536 (0.3791ms)\n      \u2714 Base2048 (0.3898ms)\n    \u2714 chromeyhex (1.1413ms)\n    \u25b6 knewjade (1)\n      \u2714 hex (0.3242ms)\n      \u2714 Base65536 (0.4377ms)\n      \u2714 Base2048 (0.3848ms)\n    \u2714 knewjade (1) (1.2588ms)\n    \u25b6 knewjade (2)\n      \u2714 hex (0.2994ms)\n      \u2714 Base65536 (0.2791ms)\n      \u2714 Base2048 (0.2936ms)\n    \u2714 knewjade (2) (0.9776ms)\n    \u25b6 knewjade (3)\n      \u2714 hex (0.2754ms)\n      \u2714 Base65536 (0.2168ms)\n      \u2714 Base2048 (0.3112ms)\n    \u2714 knewjade (3) (0.8953ms)\n    \u25b6 knewjade (4)\n      \u2714 hex (0.4105ms)\n      \u2714 Base65536 (0.4885ms)\n      \u2714 Base2048 (0.5319ms)\n    \u2714 knewjade (4) (1.541ms)\n    \u25b6 David & Felipe\n      \u2714 hex (0.5791ms)\n      \u2714 Base65536 (0.5672ms)\n      \u2714 Base2048 (0.6749ms)\n    \u2714 David & Felipe (1.965ms)\n  \u2714 known replays (14.0291ms)\n\u2714 hatetrisReplayCodec (16.5725ms)\n\u25b6 hex\n  \u2714 works (1.8288ms)\n  \u2714 adds an extra D to shore up the count if need be (0.1481ms)\n\u2714 hex (3.1937ms)\n\u25b6 raw\n  \u2714 raw (1.3502ms)\n\u2714 raw (2.2378ms)\n\u25b6 hatetrisRotationSystem\n  \u2714 has the right rotations (1.0805ms)\n\u2714 hatetrisRotationSystem (1.7248ms)\n\u2139 tests 148\n\u2139 suites 57\n\u2139 pass 147\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 732833.674\n\u2139 Error: 64.78% line coverage does not meet threshold of 100%.\n\u2139 Error: 97.59% branch coverage does not meet threshold of 100%.\n\u2139 Error: 95.16% function coverage does not meet threshold of 100%.\n\u2139 start of coverage report\n\u2139 ---------------------------------------------------------------------------------------\n\u2139 file                           | line % | branch % | funcs % | uncovered lines\n\u2139 ---------------------------------------------------------------------------------------\n\u2139 register.js                    | 100.00 |   100.00 |  100.00 | \n\u2139 src                            |        |          |         | \n\u2139  components                    |        |          |         | \n\u2139   Game                         |        |          |         | \n\u2139    Game.tsx                    |  11.00 |    50.00 |   40.00 | 89-126 128-440 442-818\n\u2139    logic.ts                    |  95.01 |    93.02 |  100.00 | 277-278 319-324 351-361\n\u2139   Well                         |        |          |         | \n\u2139    Well.tsx                    | 100.00 |   100.00 |  100.00 | \n\u2139  enemy-ais                     |        |          |         | \n\u2139   brzustowski.ts               | 100.00 |   100.00 |  100.00 | \n\u2139   burgiel.ts                   | 100.00 |   100.00 |  100.00 | \n\u2139   hatetris-ai.ts               | 100.00 |   100.00 |  100.00 | \n\u2139   hatetris-mild.ts             | 100.00 |   100.00 |  100.00 | \n\u2139   lovetris-ai.ts               | 100.00 |   100.00 |  100.00 | \n\u2139  replay-codecs                 |        |          |         | \n\u2139   base2048.ts                  | 100.00 |   100.00 |  100.00 | \n\u2139   base65536.ts                 | 100.00 |   100.00 |  100.00 | \n\u2139   hatetris-replay-codec.ts     | 100.00 |   100.00 |  100.00 | \n\u2139   hex.ts                       | 100.00 |   100.00 |  100.00 | \n\u2139   raw.ts                       | 100.00 |   100.00 |  100.00 | \n\u2139   run-length.ts                | 100.00 |   100.00 |  100.00 | \n\u2139   uint8Array.ts                | 100.00 |   100.00 |  100.00 | \n\u2139  rotation-systems              |        |          |         | \n\u2139   hatetris-rotation-system.ts  | 100.00 |   100.00 |  100.00 | \n\u2139 ---------------------------------------------------------------------------------------\n\u2139 all files                      |  64.78 |    97.59 |   95.16 | \n\u2139 ---------------------------------------------------------------------------------------\n\u2139 end of coverage report\n\n\u2716 failing tests:\n\ntest at test\\components\\Game\\Game.test.tsx:398:3\n\u2716 lets you take over after a replay which does not end the game (696178.3681ms)\n  [RangeError: Array buffer allocation failed]\n"
+  },
+  "P3": {
+    "files": [
+      "test/components/Game/Game.test.tsx"
+    ],
+    "cmd": "node --enable-source-maps --import ./register.js --require global-jsdom/register --test -- \"test/components/Game/Game.test.tsx\"",
+    "model_worktree_pass": false,
+    "model_log_tail": "Your app (or one of its dependencies) is using an outdated JSX transform. Update to the modern JSX transform for faster performance: https://react.dev/link/new-jsx-transform\n\u25b6 <Game>\n  \u2714 rejects a rotation system with no pieces (28.1995ms)\n  \u2714 rejects a well depth below the bar (3.5402ms)\n  \u2714 rejects a well width less than 4 (2.7092ms)\n  \u2714 ignores all keystrokes before the game has begun (123.8562ms)\n  \u2714 lets you play a few moves (463.0289ms)\n  \u2714 just lets you play if you enter an empty replay (60.7821ms)\n  \u2714 lets you select a different AI and play a full game with it and provides a replay which you can copy (5982.9839ms)\n  \u2714 lets you use a custom AI (463.501ms)\n  \u2714 supports a custom AI with state (1545.9475ms)\n  \u2714 lets you decide NOT to use a custom AI (200.5356ms)\n  \u2714 errors out if your custom AI is invalid JavaScript, but you can dismiss it (418.0748ms)\n  \u2714 errors out if your custom AI throws an error on the first piece (927.1213ms)\n  \u2714 errors out if your custom AI returns a bad piece (568.8652ms)\n  \u2714 errors out if your custom AI throws an error on a later piece (5786.4669ms)\n  \u2714 lets you decide not to replay anything (63.0355ms)\n  \u2714 lets you replay a too-long replay (3602.9141ms)\n  \u2714 lets you undo and stops replaying when a replay is in progress (876.9481ms)\n\n[TIMEOUT after 300s -- process tree killed]",
+    "base_worktree_fail_as_expected": true,
+    "base_sha": "e95241d",
+    "base_log_tail": "Your app (or one of its dependencies) is using an outdated JSX transform. Update to the modern JSX transform for faster performance: https://react.dev/link/new-jsx-transform\n\u25b6 <Game>\n  \u2714 rejects a rotation system with no pieces (26.9441ms)\n  \u2714 rejects a well depth below the bar (3.0984ms)\n  \u2714 rejects a well width less than 4 (2.515ms)\n  \u2714 ignores all keystrokes before the game has begun (197.4439ms)\n  \u2714 lets you play a few moves (418.0566ms)\n  \u2714 just lets you play if you enter an empty replay (46.6058ms)\n  \u2714 lets you select a different AI and play a full game with it and provides a replay which you can copy (6056.7678ms)\n  \u2714 lets you use a custom AI (464.0584ms)\n  \u2714 supports a custom AI with state (1407.5272ms)\n  \u2714 lets you decide NOT to use a custom AI (186.948ms)\n  \u2714 errors out if your custom AI is invalid JavaScript, but you can dismiss it (418.4932ms)\n  \u2714 errors out if your custom AI throws an error on the first piece (823.4747ms)\n  \u2714 errors out if your custom AI returns a bad piece (481.2429ms)\n  \u2714 errors out if your custom AI throws an error on a later piece (6081.596ms)\n  \u2714 lets you decide not to replay anything (72.8225ms)\n  \u2714 lets you replay a too-long replay (3635.8463ms)\n  \u2714 lets you undo and stops replaying when a replay is in progress (913.4306ms)\n\n[TIMEOUT after 300s -- process tree killed]",
+    "status": "FAIL",
+    "reason": "model's own test does not pass in the model's worktree"
+  },
+  "secondary": {
+    "loc_added": 26,
+    "loc_removed": 0,
+    "files_touched": [
+      "test/components/Game/Game.test.tsx"
+    ],
+    "files_touched_count": 1,
+    "non_test_files_touched": [],
+    "upstream_non_test_files": [
+      ".gitignore",
+      "src/components/Game/Game.tsx"
+    ],
+    "precision_subset_of_upstream": null
+  },
+  "events": {
+    "event_source": "turn-json",
+    "raw_ndjson_parse_errors": 0,
+    "tool_call_counts": {
+      "read": 82,
+      "bash": 19,
+      "grep": 6,
+      "edit": 3
+    },
+    "tool_call_count_source": "toolCall-blocks",
+    "test_run_tool_calls": 3,
+    "reproduced_before_first_edit": false,
+    "harness_parse_errors": 0,
+    "total_tool_errors": 0,
+    "prompt_tokens_sum": null,
+    "completion_tokens_sum": null,
+    "reasoning_tokens_sum": null,
+    "cache_read_tokens_sum": null,
+    "cache_write_tokens_sum": null,
+    "assistant_turns": null
+  },
+  "wallclock_seconds": 2263
+}

@@ -99,16 +99,24 @@
       }
     },
     "token_usage_note": "analyze_events()'s own usage extraction returns null here (schema mismatch, see extract_token_usage() docstring) -- these figures are computed directly from message_end events instead",
-    "tool_calls_total": 1157,
+    "tool_calls_total": 329,
     "tool_calls_by_tool": {
-      "read": 395,
-      "grep": 113,
-      "glob": 4,
-      "bash": 521,
-      "write": 29,
-      "edit": 91,
-      "bash\n<\uff5cDSML\uff5cparameter name=\"i\" string=\"true": 4
+      "read": 115,
+      "grep": 35,
+      "glob": 1,
+      "bash": 142,
+      "write": 9,
+      "edit": 26,
+      "MALFORMED": 1
     },
+    "tool_calls_total_raw_from_analyze_events": 1157,
+    "tool_calls_inflation_note": "analyze_events()'s tool_call_counts (see 'tool_calls_total_raw_from_analyze_events' below) counts every streaming snapshot as a separate call; these _deduped fields count distinct tool-call ids instead -- the accurate figures (raw node count 1157, ~3.52x inflation)",
+    "malformed_tool_calls": [
+      {
+        "id": "chatcmpl-tool-b6475afa94131ac1",
+        "raw_name": "bash\n<\uff5cDSML\uff5cparameter name=\"i\" string=\"true"
+      }
+    ],
     "tool_call_count_source": "toolCall-blocks",
     "harness_parse_errors": 0,
     "total_tool_errors": 0,
@@ -184,5 +192,12 @@
       }
     },
     "event_source": "turn-json"
+  },
+  "image_match": {
+    "M1": {
+      "ssim": 0.494,
+      "palette": 0.862
+    },
+    "M3": "not measured -- only the M1 frame has a DOSBox reference (checked _raptor-support/reference/: sector1-wave1-gameplay.png is the only gameplay capture; no M3-moment reference frame exists, and none was captured for this per the hard rule against any further DOSBox capture)"
   }
 }

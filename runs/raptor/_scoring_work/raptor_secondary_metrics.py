@@ -97,6 +97,59 @@ def find_revert_dead_ends(run_out: Path) -> dict:
     return {"count": len(hits), "detail": hits}
 
 
+def dedup_tool_calls(run_out: Path) -> dict:
+    """analyze_events()'s tool_call_counts sums every RAW toolCall node in the
+    event stream, but each distinct tool call is emitted as 4-5 separate
+    streaming-snapshot nodes sharing the same `id` (verified: turn-3.json has
+    40 distinct ids but 171 total toolCall nodes -- a ~4.3x inflation, and the
+    name field is stable across a given id's snapshots so dedup-by-id is
+    safe). This is a benchmark-wide gap (flagged separately to team-lead),
+    not Raptor-specific. This function counts DISTINCT ids instead."""
+    turn_files = sorted(
+        run_out.glob("turn-*.json"),
+        key=lambda p: int(m.group(1)) if (m := re.search(r"turn-(\d+)", p.name)) else 0,
+    )
+    name_by_id = {}
+    raw_node_count = 0
+    malformed_ids = []
+    for tf in turn_files:
+        text = tf.read_text(encoding="utf-8", errors="replace")
+        for line in text.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                d = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            for node in st.walk_dicts(d):
+                if node.get("type") == "toolCall" and isinstance(node.get("name"), str):
+                    raw_node_count += 1
+                    tid = node.get("id")
+                    name_by_id[tid] = node["name"]  # last-seen name per id (stable across snapshots)
+
+    by_tool = {}
+    for tid, name in name_by_id.items():
+        key = name
+        if "︕" in name or "DSML" in name or "\n" in name:
+            # Malformed/leaked tool-call name (e.g. DeepSeek DSML template
+            # tokens bleeding into the name field) -- a genuine malformed
+            # tool call per SCORING.md principle 3, bucketed separately
+            # rather than folded into a legitimate tool's count.
+            key = "MALFORMED"
+            malformed_ids.append({"id": tid, "raw_name": name})
+        by_tool[key] = by_tool.get(key, 0) + 1
+
+    return {
+        "tool_calls_total_deduped": len(name_by_id),
+        "tool_calls_by_tool_deduped": by_tool,
+        "raw_toolcall_node_count": raw_node_count,
+        "inflation_factor": round(raw_node_count / len(name_by_id), 2) if name_by_id else None,
+        "malformed_tool_calls": malformed_ids,
+        "note": "analyze_events()'s tool_call_counts (see 'tool_calls_total_raw_from_analyze_events' below) counts every streaming snapshot as a separate call; these _deduped fields count distinct tool-call ids instead -- the accurate figures",
+    }
+
+
 def extract_token_usage(run_out: Path) -> dict:
     """analyze_events()'s token extraction looks for node.get("type")=="message"
     with a nested message.usage dict -- but this benchmark's actual OMP
@@ -216,8 +269,9 @@ def main():
     turns_meta = st.load_turns("raptor")
     test_cmd = turns_meta.get("test_cmd", "")
 
-    events = st.analyze_events(run_out, test_cmd)  # tool_call_counts etc -- verified working
+    events = st.analyze_events(run_out, test_cmd)  # kept for harness_parse_errors/total_tool_errors/reproduced_before_first_edit
     token_usage = extract_token_usage(run_out)  # replaces analyze_events()'s broken usage extraction (see docstring)
+    tool_dedup = dedup_tool_calls(run_out)  # replaces analyze_events()'s inflated tool_call_counts (see docstring)
     wallclock_total = st.wallclock_from_driver_log(run_out)
     per_turn = per_turn_wall(run_out)
     reverts = find_revert_dead_ends(run_out)
@@ -288,8 +342,11 @@ def main():
         "assistant_api_calls_total": token_usage["assistant_api_calls_total"],
         "assistant_api_calls_per_turn": token_usage["assistant_api_calls_per_turn"],
         "token_usage_note": "analyze_events()'s own usage extraction returns null here (schema mismatch, see extract_token_usage() docstring) -- these figures are computed directly from message_end events instead",
-        "tool_calls_total": sum(events["tool_call_counts"].values()) if events.get("tool_call_counts") else None,
-        "tool_calls_by_tool": events.get("tool_call_counts"),
+        "tool_calls_total": tool_dedup["tool_calls_total_deduped"],
+        "tool_calls_by_tool": tool_dedup["tool_calls_by_tool_deduped"],
+        "tool_calls_total_raw_from_analyze_events": sum(events["tool_call_counts"].values()) if events.get("tool_call_counts") else None,
+        "tool_calls_inflation_note": tool_dedup["note"] + f" (raw node count {tool_dedup['raw_toolcall_node_count']}, ~{tool_dedup['inflation_factor']}x inflation)",
+        "malformed_tool_calls": tool_dedup["malformed_tool_calls"],
         "tool_call_count_source": events.get("tool_call_count_source"),
         "harness_parse_errors": events.get("harness_parse_errors"),
         "total_tool_errors": events.get("total_tool_errors"),

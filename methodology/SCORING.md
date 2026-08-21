@@ -243,3 +243,8 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   turn), not the exit code, is what catches this. Archived under `_invalid-harness-20260820/radix/qwen-r2-guard90/` and
   re-run under the 240-min guard; its sibling radix/qwen-r1 completed normally (longest turn 62 min). This is the only run
   the old guard truncated (all other finished runs audited: no turn ≥ 85 min, no abort events).
+  Executed 22:46 EDT: DeepSeek server stopped (all its planned runs complete: lane A 12, lane B 2, lane C 1, Raptor, deeweb); a second Qwen
+  instance (qwen-b, `--tensor-parallel-size 2`, otherwise byte-identical launch; verified in its startup log: same MTP config and the same
+  generation-config override) came up on those GPUs at ~127 tok/s single-stream vs ~71 on the original; the remaining queued Qwen lane-A
+  jobs and Qwen's deeweb session run there. Runs already in flight on the original Qwen server (lane C, Raptor, several lane-A) continue
+  there untouched. Each run's driver.log records the model ref (server) it used.

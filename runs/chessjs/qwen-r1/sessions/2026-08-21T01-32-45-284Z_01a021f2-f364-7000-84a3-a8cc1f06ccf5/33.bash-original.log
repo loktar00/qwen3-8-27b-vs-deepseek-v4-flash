@@ -1,0 +1,42 @@
+diff --git a/__tests__/regression.test.ts b/__tests__/regression.test.ts
+index e77035a..afff969 100644
+--- a/__tests__/regression.test.ts
++++ b/__tests__/regression.test.ts
+@@ -308,4 +308,24 @@ describe('Regression Tests', () => {
+     const chess = new Chess('kb4r1/p2n3P/1PP5/1P6/8/8/6p1/R3KR2 b KQkq - 0 19')
+     expect(chess.isGameOver()).toBe(false) // this was crashing due to invalid castling moves being generated
+   })
++
++  it('Github Issue #577 - BigInt error when generating moves for pawns on edge ranks', () => {
++    // a pawn already on the promotion rank has no moves and must not crash
++    const chess = new Chess()
++    chess.put({ type: 'p', color: 'w' }, 'h8')
++    expect(chess.moves({ square: 'h8', verbose: true })).toEqual([])
++    expect(chess.moves({ square: 'h8' })).toEqual([])
++    expect(chess.moves()).not.toHaveLength(0)
++    expect(chess.get('h8')).toEqual({ type: 'p', color: 'w' })
++
++    const black = new Chess('8/8/8/K7/8/8/8/6k1 b - - 0 1')
++    black.put({ type: 'p', color: 'b' }, 'b1')
++    expect(black.moves({ square: 'b1', verbose: true })).toEqual([])
++    expect(black.moves()).not.toHaveLength(0)
++    expect(black.get('b1')).toEqual({ type: 'p', color: 'b' })
++
++    // a pawn one step away from promotion still promotes
++    const promotion = new Chess('k7/1P5K/8/8/8/8/8/8 w - - 0 1')
++    expect(promotion.moves({ square: 'b7' })).toContain('b8=Q+')
++  })
+ })
+diff --git a/src/chess.ts b/src/chess.ts
+index 5efdb74..2ab4a11 100644
+--- a/src/chess.ts
++++ b/src/chess.ts
+@@ -1575,7 +1575,7 @@ export class Chess {
+ 
+         // single square, non-capturing
+         to = from + PAWN_OFFSETS[us][0]
+-        if (!this._board[to]) {
++        if (!(to & 0x88) && !this._board[to]) {
+           addMove(moves, us, from, to, PAWN)
+ 
+           // double square

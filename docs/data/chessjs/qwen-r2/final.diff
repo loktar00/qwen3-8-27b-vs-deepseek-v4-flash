@@ -1,0 +1,61 @@
+diff --git a/__tests__/moves.test.ts b/__tests__/moves.test.ts
+index e96a2da..b3cf79c 100644
+--- a/__tests__/moves.test.ts
++++ b/__tests__/moves.test.ts
+@@ -35,6 +35,18 @@ test('moves - single square - promotion', () => {
+   expect(chess.moves({ square: 'h2' })).to.have.members(split(moves))
+ })
+ 
++test('moves - single square - promotion (white pawn on 7th rank, advance)', () => {
++  const chess = new Chess('8/4P3/8/8/8/8/8/K6k w - - 0 1')
++  const moves = 'e8=N e8=B e8=R e8=Q'
++  expect(chess.moves({ square: 'e7' })).to.have.members(split(moves))
++})
++
++test('moves - single square - promotion (white pawn on 7th rank, capture)', () => {
++  const chess = new Chess('rr3k2/P7/8/8/8/8/8/2K5 w - - 0 1')
++  const moves = 'axb8=N axb8=B axb8=R+ axb8=Q+'
++  expect(chess.moves({ square: 'a7' })).to.have.members(split(moves))
++})
++
+ test('moves - single square - castling', () => {
+   const chess = new Chess(
+     'r1bq1rk1/1pp2ppp/p1np1n2/2b1p3/2B1P3/2NP1N2/PPPBQPPP/R3K2R w KQ - 0 8',
+diff --git a/__tests__/regression.test.ts b/__tests__/regression.test.ts
+index e77035a..d7c966e 100644
+--- a/__tests__/regression.test.ts
++++ b/__tests__/regression.test.ts
+@@ -308,4 +308,20 @@ describe('Regression Tests', () => {
+     const chess = new Chess('kb4r1/p2n3P/1PP5/1P6/8/8/6p1/R3KR2 b KQkq - 0 19')
+     expect(chess.isGameOver()).toBe(false) // this was crashing due to invalid castling moves being generated
+   })
++
++  it('Github Issue #577 - BigInt error when generating moves for pawns on edge ranks', () => {
++    const chess = new Chess()
++    chess.put({ type: 'p', color: 'w' }, 'h8')
++    expect(chess.moves({ square: 'h8', verbose: true })).toEqual([])
++    expect(chess.moves({ square: 'h8' })).toEqual([])
++    expect(chess.moves({ verbose: true })).toHaveLength(20)
++
++    const black = new Chess(
++      'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1',
++    )
++    black.put({ type: 'p', color: 'b' }, 'a1')
++    expect(black.moves({ square: 'a1', verbose: true })).toEqual([])
++    expect(black.moves({ square: 'a1' })).toEqual([])
++    expect(black.moves({ verbose: true })).toHaveLength(20)
++  })
+ })
+diff --git a/src/chess.ts b/src/chess.ts
+index 5efdb74..2ab4a11 100644
+--- a/src/chess.ts
++++ b/src/chess.ts
+@@ -1575,7 +1575,7 @@ export class Chess {
+ 
+         // single square, non-capturing
+         to = from + PAWN_OFFSETS[us][0]
+-        if (!this._board[to]) {
++        if (!(to & 0x88) && !this._board[to]) {
+           addMove(moves, us, from, to, PAWN)
+ 
+           // double square

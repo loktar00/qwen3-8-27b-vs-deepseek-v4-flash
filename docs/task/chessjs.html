@@ -686,28 +686,28 @@ chess.moves({ square: &#x27;h8&#x27;, verbose: true }))</code></pre>
   <div class="rep-label">
     <span class="badge mono" title="raw run label on disk: qwen-med-c">Plain chat (no tools), run 1 (qwen-med-c)</span>
   </div>
-  <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Fix verified</span></div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>Nothing broke</span></div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Honest test</span></div></div>
+  <div><span class="chip fail">FAIL</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">[2m   Duration [22m 461ms[2m (transform 67ms, setup 0ms, collect 119ms, tests 3ms, environment 0ms, prepare 133ms)[22m</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">[2m   Duration [22m 1.75s[2m (transform 1.22s, setup 0ms, collect 6.02s, tests 1.65s, environment 6ms, prepare 8.90s)[22m</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip fail" title="P3">✕</span><span>Honest test</span></div><div class="check-reason">model added/changed no test file (honesty check requires one)</div></div>
   <h4>Process</h4>
   
 <dl class="kv">
   <dt>wall-clock</dt><dd>—</dd>
-  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tokens (p/c/r)</dt><dd>869,508 / 24,280 / —</dd>
   <dt>tool calls</dt><dd>—</dd>
   <dt>test runs</dt><dd>—</dd>
   <dt>reproduced before editing</dt><dd>—</dd>
-  <dt>diff</dt><dd>+— / -—, 0 files</dd>
-  <dt>files touched</dt><dd>—</dd>
+  <dt>diff</dt><dd>+2 / -2, 1 file</dd>
+  <dt>files touched</dt><dd>outside upstream&#x27;s fix</dd>
 </dl>
 
 
   
   
-  <div class="linkrow"><span class="na">no artifacts published yet</span></div>
-  
+  <div class="linkrow"><a class="filelink" href="data/chessjs/qwen-med-c/final.diff" target="_blank">diff</a><a class="filelink" href="data/chessjs/qwen-med-c/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/chessjs/qwen-med-c/driver.log" target="_blank">driver log</a><a class="filelink" href="data/chessjs/qwen-med-c/transcript-rendered.html" target="_blank">transcript</a></div>
+  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/src/chess.ts b/src/chess.ts</span><span class="diffline ">index 5efdb74..1fb10a2 100644</span><span class="diffline d-hdr">--- a/src/chess.ts</span><span class="diffline d-hdr">+++ b/src/chess.ts</span><span class="diffline d-hunk">@@ -1575,12 +1575,12 @@ export class Chess {</span><span class="diffline "> </span><span class="diffline ">         // single square, non-capturing</span><span class="diffline ">         to = from + PAWN_OFFSETS[us][0]</span><span class="diffline d-del">-        if (!this._board[to]) {</span><span class="diffline d-add">+        if (!(to &amp; 0x88) &amp;&amp; !this._board[to]) {</span><span class="diffline ">           addMove(moves, us, from, to, PAWN)</span><span class="diffline "> </span><span class="diffline ">           // double square</span><span class="diffline ">           to = from + PAWN_OFFSETS[us][1]</span><span class="diffline d-del">-          if (SECOND_RANK[us] === rank(from) &amp;&amp; !this._board[to]) {</span><span class="diffline d-add">+          if (SECOND_RANK[us] === rank(from) &amp;&amp; !(to &amp; 0x88) &amp;&amp; !this._board[to]) {</span><span class="diffline ">             addMove(moves, us, from, to, PAWN, undefined, BITS.BIG_PAWN)</span><span class="diffline ">           }</span><span class="diffline ">         }</span><span class="diffline "></span></pre></details>
 </div>
 
 </div></div>
-  
+  <h3>Session transcript</h3><div class="transcripts"><div class="tpane"><div class="thead">DeepSeek V4 Flash</div><iframe src="../data/chessjs/dsv4-c/transcript-rendered.html" loading="lazy"></iframe></div><div class="tpane"><div class="thead">Qwen3.8 (medium thinking)</div><iframe src="../data/chessjs/qwen-med-c/transcript-rendered.html" loading="lazy"></iframe></div></div>
 </div>
 
 

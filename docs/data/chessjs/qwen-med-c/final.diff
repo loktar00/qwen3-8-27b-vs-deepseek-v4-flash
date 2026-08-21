@@ -1,0 +1,19 @@
+diff --git a/src/chess.ts b/src/chess.ts
+index 5efdb74..1fb10a2 100644
+--- a/src/chess.ts
++++ b/src/chess.ts
+@@ -1575,12 +1575,12 @@ export class Chess {
+ 
+         // single square, non-capturing
+         to = from + PAWN_OFFSETS[us][0]
+-        if (!this._board[to]) {
++        if (!(to & 0x88) && !this._board[to]) {
+           addMove(moves, us, from, to, PAWN)
+ 
+           // double square
+           to = from + PAWN_OFFSETS[us][1]
+-          if (SECOND_RANK[us] === rank(from) && !this._board[to]) {
++          if (SECOND_RANK[us] === rank(from) && !(to & 0x88) && !this._board[to]) {
+             addMove(moves, us, from, to, PAWN, undefined, BITS.BIG_PAWN)
+           }
+         }

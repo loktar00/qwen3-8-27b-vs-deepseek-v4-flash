@@ -1,0 +1,50 @@
+{
+  "task": "raptor",
+  "label": "dsv4",
+  "model": "DeepSeek V4 Flash",
+  "lane": "A",
+  "milestones": [
+    {
+      "id": "M1",
+      "label": "renders level + ship",
+      "pass": false,
+      "ssim": 0.4941,
+      "palette_coverage": 0.8621,
+      "time_to_s": 150
+    },
+    {
+      "id": "M2",
+      "label": "arrow keys move ship, fire spawns projectile",
+      "pass": true,
+      "time_to_s": 458,
+      "notes": "player moved (x 144->177 under sustained ArrowRight), fire produced 3 live projectiles."
+    },
+    {
+      "id": "M3",
+      "label": "wave-1 enemies, hit decrements HP / removes enemy, player can die",
+      "pass": true,
+      "time_to_s": 86,
+      "notes": "best-effort coarse-aim hit test: target enemy HP 7->5 after fire; alive flag reported correctly. Checker notes this hit test is approximate, not a precision test."
+    },
+    {
+      "id": "M4",
+      "label": "HUD renders; Web Audio running, >=1 SFX on fire",
+      "pass": true,
+      "time_to_s": 74,
+      "notes": "AudioContext state 'running'; hud.score/hud.shields numeric; sfxCount incremented 35->36 on fire (real GUN_FX PCM sample, per commit message -- model found and fixed a GLB item-offset bug to get the real sample instead of a 0-byte placeholder)."
+    },
+    {
+      "id": "M5",
+      "label": "sector-1 loop: wave counter to 9 + sector-complete screen",
+      "pass": false,
+      "time_to_s": 643,
+      "notes": "Autoplay session died at wave 1 (final_wave=1, sector_complete=false, died=true) after 112.7s -- did not time out, the ship was actually shot down. Full wave/sector-loop plumbing (startWave, end-of-wave, END_DURATION, sectorComplete) was already present in engine.js as of the M4 commit, so this milestone's turn was mostly a bugfix (duplicate GLB item-name collision in glb.js causing wrong sprite lookups) plus a new tools/_autoplay.mjs headless verification script, not new sector-loop code."
+    }
+  ],
+  "milestones_reached": 3,
+  "commits": [
+    "e1877c5 (20:20:34) \"Add HTML5 port: wave-1 enemies, player death, live __raptor.enemies/player.alive\" -- single combined commit covering M1+M2+M3 work (no separate commit was made after M1 or after M2 individually, despite each milestone turn instructing 'commit when done').",
+    "6806d18 (20:21:49) \"M4: HUD (score+shields) and live Web Audio SFX on fire\" -- M4 commit."
+  ],
+  "notes": "window.__raptor contract: fully adhered to -- ready/player{x,y,alive}/projectiles[]/enemies[{id,hp,x,y,alive}]/hud{score,shields}/audio{contextState,sfxCount}/wave/sectorComplete all present with correct shapes/types at capture time. Canvas is exactly 320x200 internal buffer (confirmed via canvas.width/height), independent of CSS scale (618x388 on screen). Controls use standard keydown/keyup, no custom hook needed. Commit hygiene: session made only 2 commits total against 5 requested milestone commits -- M1 and M2 were folded into the M3 commit, and M5's changes (a glb.js duplicate-name-collision fix + new tools/_autoplay.mjs debug script, net +41/-1 lines) were left UNCOMMITTED in the working tree at session end (git status showed ' M js/glb.js' and '?? tools/_autoplay.mjs'); scoring used the actual working-tree state (uncommitted M5 changes included) since the checks test real runtime behavior, not git hygiene. The M5 turn's requested PORTING-NOTES.md was never created. M1 SSIM caveat: the reference frame (sector1-wave1-gameplay.png) was captured ~0.8-1.0s into DOSBox wave-1 gameplay at a specific, non-deterministic-to-reproduce scroll/spawn position; a screenshot taken at whatever frame window.__raptor.ready first flips true will generally show a different terrain-scroll offset and enemy layout even with correct deterministic RNG porting, so the 0.49 SSIM read as mostly a frame-alignment artifact rather than a rendering-fidelity failure -- visually (see m1-model.png) the ocean texture, island color/shading, ship sprite+shadow, HUD score digits, and right-edge shield gauge all closely match the reference's art style and palette; palette_coverage 0.86 (just under the 0.90 bar) supports that read. Code volume: 7 new files, ~2400 lines of committed JS/HTML (index.html 45, js/audio.js 78, js/engine.js 1656, js/gfx.js 240, js/glb.js 96, js/main.js 212, tools/preview.mjs 73) plus 36 uncommitted lines in tools/_autoplay.mjs (a debug/verification tool, not shipped game code). Engine is a real line-by-line port of SOURCE/ C files (RAP.C/TILE.C/ENEMY.C/SHOTS.C/ESHOT.C/ANIMS.C/BONUS.C/OBJECTS.C/SHADOWS.C/FLAME.C incl. the Watcom C rand()), decoding real GLB archives at runtime (no placeholder art/audio) via a from-scratch GLB decoder matching the game's chained-cipher header format. Wall clock: turn 0 (initial exploration/setup, not a milestone) ran 19:44:08->20:09:05 (24m57s); milestone turns 1-5 ran 20:09:05->20:32:36 (23m31s total); full session 19:44:08->20:32:37 (48m29s)."
+}

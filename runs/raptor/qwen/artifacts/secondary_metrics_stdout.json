@@ -1,0 +1,204 @@
+{
+  "prompt_tokens": 98107388,
+  "completion_tokens": 563846,
+  "reasoning_tokens": null,
+  "reasoning_tokens_note": "thinking content is present as text deltas (assistantMessageEvent thinking_delta) but no separate reasoning-token count is exposed in the usage dict; 'output' likely already includes thinking tokens for this reasoning model, undifferentiated from the final visible completion",
+  "cache_read_tokens": 0,
+  "cache_write_tokens": 0,
+  "assistant_api_calls_total": 771,
+  "assistant_api_calls_per_turn": {
+    "turn-0": {
+      "assistant_api_calls": 601,
+      "input_tokens_sum": 76597556,
+      "output_tokens_sum": 430003
+    },
+    "turn-1": {
+      "assistant_api_calls": 3,
+      "input_tokens_sum": 501777,
+      "output_tokens_sum": 2157
+    },
+    "turn-2": {
+      "assistant_api_calls": 13,
+      "input_tokens_sum": 2316179,
+      "output_tokens_sum": 13197
+    },
+    "turn-3": {
+      "assistant_api_calls": 77,
+      "input_tokens_sum": 8373238,
+      "output_tokens_sum": 74241
+    },
+    "turn-4": {
+      "assistant_api_calls": 18,
+      "input_tokens_sum": 2657331,
+      "output_tokens_sum": 12016
+    },
+    "turn-5": {
+      "assistant_api_calls": 59,
+      "input_tokens_sum": 7661307,
+      "output_tokens_sum": 32232
+    }
+  },
+  "token_usage_note": "analyze_events()'s own usage extraction returns null here (schema mismatch, see extract_token_usage() docstring) -- these figures are computed directly from message_end events instead",
+  "tool_calls_total": 824,
+  "tool_calls_by_tool": {
+    "read": 346,
+    "grep": 182,
+    "glob": 10,
+    "bash": 150,
+    "write": 31,
+    "edit": 105
+  },
+  "tool_calls_total_raw_from_analyze_events": 824,
+  "tool_calls_inflation_note": "analyze_events()'s tool_call_counts (see 'tool_calls_total_raw_from_analyze_events' below) counts every streaming snapshot as a separate call; these _deduped fields count distinct tool-call ids instead -- the accurate figures (raw node count 3549, ~4.31x inflation)",
+  "malformed_tool_calls": [],
+  "tool_call_count_source": "toolCall-blocks",
+  "harness_parse_errors": 2,
+  "total_tool_errors": 33,
+  "turns": 6,
+  "assistant_turns": 771,
+  "wall_s_total": 23357,
+  "wall_s_per_turn": {
+    "turn_0_setup_s": 12525,
+    "turn_1_s": 56,
+    "turn_2_s": 287,
+    "turn_3_s": 8382,
+    "turn_4_s": 624,
+    "turn_5_s": 1482
+  },
+  "reverts_dead_ends": {
+    "count": 0,
+    "detail": []
+  },
+  "loc_and_files": {
+    "base_sha": "3f93e5a",
+    "method": "git diff base_sha..HEAD (committed) + git diff HEAD (uncommitted tracked) + line-count of untracked new files -- the full base-to-final-worktree-state picture",
+    "loc_added": 4284,
+    "loc_removed": 0,
+    "files_touched": [
+      ".gitignore",
+      "README.md",
+      "index.html",
+      "js/audio.mjs",
+      "js/game.mjs",
+      "js/glb.mjs",
+      "js/main.mjs",
+      "js/pic.mjs",
+      "test/smoke.mjs",
+      "tools/browser-check.mjs",
+      "tools/extract.mjs",
+      "tools/inspect-glb.mjs",
+      "tools/manifest.txt",
+      "tools/scan.mjs",
+      "tools/scan10.mjs",
+      "tools/scan11.mjs",
+      "tools/scan2.mjs",
+      "tools/scan3.mjs",
+      "tools/scan4.mjs",
+      "tools/scan5.mjs",
+      "tools/scan6.mjs",
+      "tools/scan7.mjs",
+      "tools/scan8.mjs",
+      "tools/scan9.mjs"
+    ],
+    "files_touched_count": 24,
+    "per_file": {
+      ".gitignore": {
+        "added": 1,
+        "removed": 0
+      },
+      "README.md": {
+        "added": 112,
+        "removed": 0
+      },
+      "index.html": {
+        "added": 21,
+        "removed": 0
+      },
+      "js/audio.mjs": {
+        "added": 129,
+        "removed": 0
+      },
+      "js/game.mjs": {
+        "added": 2452,
+        "removed": 0
+      },
+      "js/glb.mjs": {
+        "added": 98,
+        "removed": 0
+      },
+      "js/main.mjs": {
+        "added": 137,
+        "removed": 0
+      },
+      "js/pic.mjs": {
+        "added": 88,
+        "removed": 0
+      },
+      "test/smoke.mjs": {
+        "added": 148,
+        "removed": 0
+      },
+      "tools/browser-check.mjs": {
+        "added": 215,
+        "removed": 0
+      },
+      "tools/extract.mjs": {
+        "added": 250,
+        "removed": 0
+      },
+      "tools/inspect-glb.mjs": {
+        "added": 247,
+        "removed": 0
+      },
+      "tools/manifest.txt": {
+        "added": 13,
+        "removed": 0
+      },
+      "tools/scan.mjs": {
+        "added": 35,
+        "removed": 0
+      },
+      "tools/scan10.mjs": {
+        "added": 39,
+        "removed": 0
+      },
+      "tools/scan11.mjs": {
+        "added": 36,
+        "removed": 0
+      },
+      "tools/scan2.mjs": {
+        "added": 22,
+        "removed": 0
+      },
+      "tools/scan3.mjs": {
+        "added": 29,
+        "removed": 0
+      },
+      "tools/scan4.mjs": {
+        "added": 36,
+        "removed": 0
+      },
+      "tools/scan5.mjs": {
+        "added": 55,
+        "removed": 0
+      },
+      "tools/scan6.mjs": {
+        "added": 23,
+        "removed": 0
+      },
+      "tools/scan7.mjs": {
+        "added": 31,
+        "removed": 0
+      },
+      "tools/scan8.mjs": {
+        "added": 24,
+        "removed": 0
+      },
+      "tools/scan9.mjs": {
+        "added": 43,
+        "removed": 0
+      }
+    }
+  },
+  "event_source": "turn-json"
+}

@@ -1,0 +1,280 @@
+{
+  "task": "raptor",
+  "label": "qwen",
+  "model": "Qwen3.8-27B BF16 (medium effort)",
+  "lane": "A",
+  "checker_version": "m2_m5_playwright.mjs v2 (2026-08-20, state-aware M5 dodge)",
+  "run_context": "Owner-approved RE-RUN (2026-08-21, superseding the original run cut by the previous pod's spend hard stop -- see _invalid-cut-20260821/raptor/qwen-hardstop/ for that discarded partial run, kept for the record only). This run used pod-qwen-medium (medium effort) on a fresh, speed-tuned 2xH200 pod at the model's native 262,144 context, harness window matched. Same 6 scripted turns as the original plan, per-turn runaway guard raised to 6h (never triggered -- see per-turn wall times below; DeepSeek never exceeded 25 min/turn either, so the wider guard cannot have affected its result). All 6 turns completed naturally with rc=0; turn 3 (the M3 milestone turn) spanned a pod/server outage mid-turn -- its transcript (turn-3.json) contains 27 HTTP 502 and 53 HTTP 503 responses, consistent with the harness retrying through an outage rather than the model working continuously; that turn's wall time (8382s) is NOT a real measure of model working time and is disclosed as such wherever it's reported below.",
+  "milestones": [
+    {
+      "id": "M1",
+      "label": "renders level + ship",
+      "pass": false,
+      "ssim": 0.2373,
+      "palette_coverage": 0.069,
+      "time_to_s": 56,
+      "notes": "SSIM 0.2373 (bar 0.80) and palette_coverage 0.069 (bar 0.90), both well below DSV4's own M1 fail (0.494/0.862). Captured twice from independent fresh page loads (byte-identical both times -- window.__raptor.ready deterministic capture point: player alive at (160,176), hud.score=10000, hud.shields=100, wave=1, 2 enemies tracked -- so the GAME STATE at capture is fully populated and correct). The rendered canvas itself (captured via canvas.toDataURL(), the raw committed pixel buffer, not a page screenshot -- so this is not a CSS-scaling or capture-timing artifact) shows a horizontal banding defect: alternating scanline bands of plausible terrain color and near-black, on top of what also looks like a more terrain-heavy / less-ocean scroll position than the reference frame (expected per the pre-disclosed M1 frame-timing limitation, see LIMITATIONS.md -- but the banding itself is not explained by that limitation). Not root-caused in depth (the scorer does not edit or debug model code); a grep of js/game.mjs's pixel-buffer writes (`px[row+...]`-style per-pixel/per-row loops used for terrain/sprite blitting and a few color-remap-table applications) is consistent with, but does not confirm, a per-scanline blit/stride defect in the terrain draw path -- offered as a lead, not a diagnosis."
+    },
+    {
+      "id": "M2",
+      "label": "arrow keys move ship, fire spawns projectile",
+      "pass": true,
+      "time_to_s": 287,
+      "notes": "player moved (x 160->220 under sustained ArrowRight), fire produced 4 live projectiles."
+    },
+    {
+      "id": "M3",
+      "label": "wave-1 enemies, hit decrements HP / removes enemy, player can die",
+      "pass": false,
+      "time_to_s": 8382,
+      "notes": "best-effort coarse-aim hit test (checker's own documented caveat, same caveat applied to DSV4's passing M3 result): target enemy HP stayed 7->7 (no decrement), enemy not removed; player alive flag reported correctly. time_to_s (8382s / 2h19m42s) spans the pod/server outage described in run_context above (27x HTTP 502 + 53x HTTP 503 in this turn's transcript) -- NOT a measure of real model working time; disclosed here rather than adjusted, since the actual productive-work fraction of this turn cannot be reliably separated from the outage/retry fraction after the fact."
+    },
+    {
+      "id": "M4",
+      "label": "HUD renders; Web Audio running, >=1 SFX on fire",
+      "pass": null,
+      "time_to_s": 624,
+      "notes": "Not independently attempted -- the shared m2_m5_playwright.mjs checker gates M4 on M3 passing (\"skipped: M3 did not pass\"), identical gating logic applied to both models' runs (would equally have skipped DSV4's M4 had ITS M3 failed). time_to_s (624s) is the model's own M4 milestone-turn duration; the model's own build does implement HUD/audio (window.__raptor.hud/audio fields are present with correct shape at every capture), but this was never independently verified against the acceptance check because the ladder never reached it."
+    },
+    {
+      "id": "M5",
+      "label": "sector-1 loop: wave counter to 9 + sector-complete screen",
+      "pass": false,
+      "time_to_s": 1482,
+      "notes": "Dedicated 3x procedure (pre-committed pass-if-any rule, same procedure and same 600s cap used for DSV4): 0/3 passed. Attempt 1: final_wave=1, sector_complete=false, died=false, elapsed_s=600.02 (timed out). Attempt 2: final_wave=1, sector_complete=false, died=false, elapsed_s=600.04 (timed out). Attempt 3: final_wave=1, sector_complete=false, died=false, elapsed_s=600.08 (timed out). Notably different failure mode from DSV4 (which died at wave 1 in ~100s all 3 attempts): here the state-aware dodge survives the full 10-minute cap every time without dying, but the wave counter never advances past 1 -- plausibly related to the port's own documented \"training difficulty\" tuning (full shield refill per wave, 2.4s i-frames after every hit, hazard-zone damage scaling; see the port's own README.md \"Difficulty / accessibility tuning\" section, unmodified by this packaging/scoring step) making the checker's dodge policy effectively unkillable but not exercising whatever advances the wave counter. DISCLOSURE: the model's own commit message (be941fe) and its own test/smoke.mjs report a full natural sector clear (waves 1-9, sector-complete screen) under the model's OWN autoplay driver -- a materially different result from the shared checker's state-aware dodge here. Per SCORING.md \u00a76 (no editing briefs/checkers between models) and the pre-committed M5 procedure, the SHARED checker's result is what is scored; the model's self-reported pass is disclosed, not adopted, and not root-caused further (would require debugging why this build's wave-advance condition and the checker's contract-only dodge don't interact the same way the model's own driver does)."
+    }
+  ],
+  "milestones_reached": 2,
+  "milestones_passed_count": 1,
+  "commits": [
+    "527aedc (2026-08-21 15:35:58 EDT) \"HTML5 web port of Raptor sector 1 (M1-M5)\" -- initial scaffold covering M1+M2+M4 groundwork (glb.mjs/pic.mjs/audio.mjs/game.mjs/main.mjs, index.html, test/smoke.mjs, tools/browser-check.mjs); model's own commit message claims 'smoke M1-M5 all pass' under its own autoplay, before M3/M5 milestone turns even ran.",
+    "e04758f (2026-08-21 18:01:41 EDT) \"M3: wave-1 enemies spawn/move, hits damage/remove enemies, player can die\" -- introduces the documented training-mode contact/hazard-zone tuning.",
+    "be941fe (2026-08-21 18:36:59 EDT) \"M5: sector-1 loop verified end-to-end in browser\" -- adds window.__raptorGame debug handle; model's own verification claims wave 1->2->3 live advance and a full sector-complete under its own driver (see M5 milestone note above for how this compares to the shared checker's result)."
+  ],
+  "image_match": {
+    "M1": {
+      "ssim": 0.2373,
+      "palette": 0.069
+    },
+    "M3": "not measured -- only the M1 frame has a DOSBox reference (checked _raptor-support/reference/: sector1-wave1-gameplay.png is the only gameplay capture; no M3-moment reference frame exists, and none was captured for this per the hard rule against any further DOSBox capture)"
+  },
+  "notes": "window.__raptor contract: fully present with correct shapes/types at every capture (ready/player{x,y,alive}/projectiles[]/enemies[{id,hp,x,y,alive}]/hud{score,shields}/audio{contextState,sfxCount}/wave/sectorComplete). Canvas is exactly 320x200 internal buffer, CSS-scaled to 640x400. Controls use standard keydown/keyup, no custom hook needed. Commit hygiene: 3 commits total (527aedc scaffold covering M1/M2/M4 groundwork, e04758f for M3, be941fe for M5); no separate M1-only or M2-only or M4-only commit exists (M1/M2/M4 work is folded into the first scaffold commit despite each milestone turn instructing 'commit when done'); working tree clean at session end (git status empty), no uncommitted changes. PORTING-NOTES.md was NOT created despite the M5 turn's instruction to write one; the model instead put equivalent (and unusually thorough) content directly into README.md under 'HTML5 Web Port (Sector 1)', including a fully documented 'Difficulty / accessibility tuning' section disclosing its own deliberate departure from the original's Normal-difficulty parameters (Training-mode enemy/damage table, full per-wave shield refill, recharge-while-firing, 2.4s post-hit i-frames, contact-damage splitting, altitude-based hazard-zone shot scaling) -- disclosed here since it materially affects M5's difficulty/survivability (see M5 milestone note). The model's README also self-reports an M1 SSIM of 0.93 and a self-verified M5 full-sector clear under its own test tooling (test/smoke.mjs, tools/browser-check.mjs) -- both figures are the model's own unverified self-report, included here for disclosure only; they are NOT used for scoring (SCORING.md \u00a70.1: objective checks are decided by the shared, independently-run scripts, never by the model's own claims) and differ substantially from this run's independently-measured results (M1 SSIM 0.2373; M5 0/3 under the shared checker, stuck at wave 1). Architecture note: unlike the discarded original run (which pre-baked GLB data into a 32k-line generated js/assets.js at build time), this build fetches the two shareware GLB archives at runtime via fetch() -- the same architecture DSV4 uses -- so no generated-assets exclusion note is needed for the private repo (data/*.GLB is covered by the existing .gitignore, same as DSV4).",
+  "secondary": {
+    "prompt_tokens": 98107388,
+    "completion_tokens": 563846,
+    "reasoning_tokens": null,
+    "reasoning_tokens_note": "thinking content is present as text deltas (assistantMessageEvent thinking_delta) but no separate reasoning-token count is exposed in the usage dict; 'output' likely already includes thinking tokens for this reasoning model, undifferentiated from the final visible completion",
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "assistant_api_calls_total": 771,
+    "assistant_api_calls_per_turn": {
+      "turn-0": {
+        "assistant_api_calls": 601,
+        "input_tokens_sum": 76597556,
+        "output_tokens_sum": 430003
+      },
+      "turn-1": {
+        "assistant_api_calls": 3,
+        "input_tokens_sum": 501777,
+        "output_tokens_sum": 2157
+      },
+      "turn-2": {
+        "assistant_api_calls": 13,
+        "input_tokens_sum": 2316179,
+        "output_tokens_sum": 13197
+      },
+      "turn-3": {
+        "assistant_api_calls": 77,
+        "input_tokens_sum": 8373238,
+        "output_tokens_sum": 74241
+      },
+      "turn-4": {
+        "assistant_api_calls": 18,
+        "input_tokens_sum": 2657331,
+        "output_tokens_sum": 12016
+      },
+      "turn-5": {
+        "assistant_api_calls": 59,
+        "input_tokens_sum": 7661307,
+        "output_tokens_sum": 32232
+      }
+    },
+    "token_usage_note": "analyze_events()'s own usage extraction returns null here (schema mismatch, see extract_token_usage() docstring) -- these figures are computed directly from message_end events instead",
+    "tool_calls_total": 824,
+    "tool_calls_by_tool": {
+      "read": 346,
+      "grep": 182,
+      "glob": 10,
+      "bash": 150,
+      "write": 31,
+      "edit": 105
+    },
+    "tool_calls_total_raw_from_analyze_events": 824,
+    "tool_calls_inflation_note": "analyze_events()'s tool_call_counts (see 'tool_calls_total_raw_from_analyze_events' below) counts every streaming snapshot as a separate call; these _deduped fields count distinct tool-call ids instead -- the accurate figures (raw node count 3549, ~4.31x inflation)",
+    "malformed_tool_calls": [],
+    "tool_call_count_source": "toolCall-blocks",
+    "harness_parse_errors": 2,
+    "total_tool_errors": 33,
+    "turns": 6,
+    "assistant_turns": 771,
+    "wall_s_total": 23357,
+    "wall_s_per_turn": {
+      "turn_0_setup_s": 12525,
+      "turn_1_s": 56,
+      "turn_2_s": 287,
+      "turn_3_s": 8382,
+      "turn_4_s": 624,
+      "turn_5_s": 1482
+    },
+    "reverts_dead_ends": {
+      "count": 0,
+      "detail": []
+    },
+    "loc_and_files": {
+      "base_sha": "3f93e5a",
+      "method": "git diff base_sha..HEAD (committed) + git diff HEAD (uncommitted tracked) + line-count of untracked new files -- the full base-to-final-worktree-state picture",
+      "loc_added": 4284,
+      "loc_removed": 0,
+      "files_touched": [
+        ".gitignore",
+        "README.md",
+        "index.html",
+        "js/audio.mjs",
+        "js/game.mjs",
+        "js/glb.mjs",
+        "js/main.mjs",
+        "js/pic.mjs",
+        "test/smoke.mjs",
+        "tools/browser-check.mjs",
+        "tools/extract.mjs",
+        "tools/inspect-glb.mjs",
+        "tools/manifest.txt",
+        "tools/scan.mjs",
+        "tools/scan10.mjs",
+        "tools/scan11.mjs",
+        "tools/scan2.mjs",
+        "tools/scan3.mjs",
+        "tools/scan4.mjs",
+        "tools/scan5.mjs",
+        "tools/scan6.mjs",
+        "tools/scan7.mjs",
+        "tools/scan8.mjs",
+        "tools/scan9.mjs"
+      ],
+      "files_touched_count": 24,
+      "per_file": {
+        ".gitignore": {
+          "added": 1,
+          "removed": 0
+        },
+        "README.md": {
+          "added": 112,
+          "removed": 0
+        },
+        "index.html": {
+          "added": 21,
+          "removed": 0
+        },
+        "js/audio.mjs": {
+          "added": 129,
+          "removed": 0
+        },
+        "js/game.mjs": {
+          "added": 2452,
+          "removed": 0
+        },
+        "js/glb.mjs": {
+          "added": 98,
+          "removed": 0
+        },
+        "js/main.mjs": {
+          "added": 137,
+          "removed": 0
+        },
+        "js/pic.mjs": {
+          "added": 88,
+          "removed": 0
+        },
+        "test/smoke.mjs": {
+          "added": 148,
+          "removed": 0
+        },
+        "tools/browser-check.mjs": {
+          "added": 215,
+          "removed": 0
+        },
+        "tools/extract.mjs": {
+          "added": 250,
+          "removed": 0
+        },
+        "tools/inspect-glb.mjs": {
+          "added": 247,
+          "removed": 0
+        },
+        "tools/manifest.txt": {
+          "added": 13,
+          "removed": 0
+        },
+        "tools/scan.mjs": {
+          "added": 35,
+          "removed": 0
+        },
+        "tools/scan10.mjs": {
+          "added": 39,
+          "removed": 0
+        },
+        "tools/scan11.mjs": {
+          "added": 36,
+          "removed": 0
+        },
+        "tools/scan2.mjs": {
+          "added": 22,
+          "removed": 0
+        },
+        "tools/scan3.mjs": {
+          "added": 29,
+          "removed": 0
+        },
+        "tools/scan4.mjs": {
+          "added": 36,
+          "removed": 0
+        },
+        "tools/scan5.mjs": {
+          "added": 55,
+          "removed": 0
+        },
+        "tools/scan6.mjs": {
+          "added": 23,
+          "removed": 0
+        },
+        "tools/scan7.mjs": {
+          "added": 31,
+          "removed": 0
+        },
+        "tools/scan8.mjs": {
+          "added": 24,
+          "removed": 0
+        },
+        "tools/scan9.mjs": {
+          "added": 43,
+          "removed": 0
+        }
+      }
+    },
+    "event_source": "turn-json",
+    "compaction": {
+      "count_by_turn": {
+        "turn_0_opening": 6,
+        "turn_1_M1": 0,
+        "turn_2_M2": 0,
+        "turn_3_M3": 1,
+        "turn_4_M4": 0,
+        "turn_5_M5": 1
+      },
+      "count_total": 8,
+      "context_window": 262144,
+      "method": "grep count of 'compaction_start' events in each turn-N.json -- raptor_secondary_metrics.py itself does not compute compaction counts (checked: no compaction logic in the script), so this is added manually, same underlying event data OMP's own compaction audit used elsewhere in this study.",
+      "note": "Far fewer compaction cycles than the discarded 131k-capped attempt from the ORIGINAL (superseded) run saw in a comparable window (21+ cycles there vs 8 here across the whole session), consistent with the native 262144 context window reducing but not eliminating compaction pressure -- the opening (general-exploration) turn still triggered 6 cycles even at 262k. Turn 3's single compaction coincides with that turn's pod-outage window (see run_context/M3 notes) but is not necessarily caused by it -- turn 3 was also the longest-running milestone turn by far, which alone would raise compaction odds."
+    }
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "task": "radix",
+  "label": "qwen-r2",
+  "worktree": "D:\\dev\\ab-tasks\\radix-qwen-r2",
+  "run_dir": "D:\\dev\\ab-tasks\\_runs\\radix\\qwen-r2",
+  "overall_pass": true,
+  "P1": {
+    "status": "PASS",
+    "files": [
+      "packages/react/slot/src/zz-upstream-slot-ref-stability.test.tsx"
+    ],
+    "rc": 0,
+    "cmd": "npx --no-install vitest run \"packages/react/slot/src/zz-upstream-slot-ref-stability.test.tsx\"",
+    "conflicts": [
+      "packages/react/slot/src/zz-upstream-slot-ref-stability.test.tsx"
+    ],
+    "log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-qwen-r2\n\n\n Test Files  1 passed (1)\n      Tests  2 passed (2)\n   Start at  23:48:32\n   Duration  1.26s (transform 53ms, setup 119ms, import 225ms, tests 16ms, environment 741ms)\n\n"
+  },
+  "P2": {
+    "status": "PASS",
+    "rc": 0,
+    "cmd": "pnpm vitest run packages/react/slot",
+    "log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-qwen-r2\n\n\n Test Files  2 passed (2)\n      Tests  33 passed | 2 skipped (35)\n   Start at  23:48:34\n   Duration  2.52s (transform 110ms, setup 272ms, import 585ms, tests 1.10s, environment 1.63s)\n\n"
+  },
+  "P3": {
+    "files": [
+      "packages/react/slot/src/slot-ref-stability.test.tsx"
+    ],
+    "cmd": "npx --no-install vitest run \"packages/react/slot/src/slot-ref-stability.test.tsx\"",
+    "model_worktree_pass": true,
+    "model_log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-qwen-r2\n\n\n Test Files  1 passed (1)\n      Tests  4 passed (4)\n   Start at  23:48:38\n   Duration  1.19s (transform 50ms, setup 114ms, import 200ms, tests 21ms, environment 708ms)\n\n",
+    "base_worktree_fail_as_expected": true,
+    "base_sha": "bd41d038",
+    "base_log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-p3scratch-qwen-r2\n\n \u276f packages/react/slot/src/slot-ref-stability.test.tsx (4 tests | 2 failed) 34ms\n     \u00d7 does not cause an infinite render loop when attaching the ref triggers a render 23ms (retry x1)\n     \u00d7 passes a single stable composed ref to the child across re-renders 4ms (retry x1)\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af Failed Tests 2 \u23af\u23af\u23af\u23af\u23af\u23af\u23af\n\n FAIL  packages/react/slot/src/slot-ref-stability.test.tsx > Slot ref stability > does not cause an infinite render loop when attaching the ref triggers a render\n FAIL  packages/react/slot/src/slot-ref-stability.test.tsx > Slot ref stability > does not cause an infinite render loop when attaching the ref triggers a render\nAssertionError: expected [Function] to not throw an error but 'Error: Maximum update depth exceeded.\u2026' was thrown\n\n- Expected:\nundefined\n\n+ Received:\n\"Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.\"\n\n \u276f packages/react/slot/src/slot-ref-stability.test.tsx:26:39\n     24|     }\n     25|\n     26|     expect(() => render(<App />)).not.toThrow();\n       |                                       ^\n     27|     expect(renderCount).toBeLessThan(25);\n     28|   });\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/4]\u23af\n\n FAIL  packages/react/slot/src/slot-ref-stability.test.tsx > Slot ref stability > passes a single stable composed ref to the child across re-renders\n FAIL  packages/react/slot/src/slot-ref-stability.test.tsx > Slot ref stability > passes a single stable composed ref to the child across re-renders\nAssertionError: expected 3 to be 1 // Object.is equality\n\n- Expected\n+ Received\n\n- 1\n+ 3\n\n \u276f packages/react/slot/src/slot-ref-stability.test.tsx:53:32\n     51|     act(() => bump());\n     52|     act(() => bump());\n     53|     expect(refIdentities.size).toBe(1);\n       |                                ^\n     54|   });\n     55|\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[2/4]\u23af\n\n\n Test Files  1 failed (1)\n      Tests  2 failed | 2 passed (4)\n   Start at  23:48:41\n   Duration  1.35s (transform 82ms, setup 135ms, import 241ms, tests 34ms, environment 767ms)\n\n",
+    "status": "PASS"
+  },
+  "secondary": {
+    "loc_added": 176,
+    "loc_removed": 15,
+    "files_touched": [
+      "packages/react/dropdown-menu/src/dropdown-menu.tsx",
+      "packages/react/menu/src/menu.tsx",
+      "packages/react/navigation-menu/src/navigation-menu.tsx",
+      "packages/react/slot/src/slot.tsx",
+      ".changeset/brave-foxes-listen.md",
+      ".changeset/nervous-pans-jump.md",
+      ".changeset/quick-lions-bow.md",
+      ".changeset/shiny-planes-reflect.md",
+      "packages/react/slot/src/slot-ref-stability.test.tsx"
+    ],
+    "files_touched_count": 9,
+    "non_test_files_touched": [
+      "packages/react/dropdown-menu/src/dropdown-menu.tsx",
+      "packages/react/menu/src/menu.tsx",
+      "packages/react/navigation-menu/src/navigation-menu.tsx",
+      "packages/react/slot/src/slot.tsx",
+      ".changeset/brave-foxes-listen.md",
+      ".changeset/nervous-pans-jump.md",
+      ".changeset/quick-lions-bow.md",
+      ".changeset/shiny-planes-reflect.md"
+    ],
+    "upstream_non_test_files": [
+      ".changeset/honest-dancers-stay.md",
+      "packages/react/slot/src/slot.tsx"
+    ],
+    "precision_subset_of_upstream": false,
+    "loc_source": "base_sha_diff",
+    "commits_in_run": 0
+  },
+  "events": {
+    "event_source": "turn-json",
+    "raw_ndjson_parse_errors": 0,
+    "tool_call_counts": {
+      "read": 32,
+      "glob": 7,
+      "bash": 24,
+      "write": 5,
+      "edit": 8,
+      "grep": 6
+    },
+    "tool_call_count_source": "toolCall-blocks",
+    "test_run_tool_calls": 13,
+    "reproduced_before_first_edit": true,
+    "harness_parse_errors": 0,
+    "total_tool_errors": 3,
+    "prompt_tokens_sum": 3510138,
+    "completion_tokens_sum": 52333,
+    "reasoning_tokens_sum": null,
+    "cache_read_tokens_sum": 0,
+    "cache_write_tokens_sum": 0,
+    "assistant_turns": 65
+  },
+  "wallclock_seconds": 1486
+}

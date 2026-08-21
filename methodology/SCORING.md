@@ -354,3 +354,10 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   procedure), with the cut and the manual finalization stated in its score; rungs not reached are shown as not attempted.
   No re-run (cost limit). This result is reported alongside DeepSeek's Raptor result and, per §5, does not enter the
   pass/fail verdict rule.
+
+- 2026-08-21 05:55 EDT (COMPLETE, 48/48): the gate opened and the site prints the pre-registered outcome: "No clear
+  difference — ranking flips between lanes (harness-sensitive)" — lane A (OMP): DeepSeek 10/12, Qwen-xhigh 12/12,
+  Qwen-medium 12/12; lane B (OpenCode): 2/2 each; lane C (plain chat, chess.js): DeepSeek 1/1, Qwen-medium 0/1
+  (P3, no test), Qwen-xhigh cancelled; deeweb 9/9 both (owner's disclosed UX pick: Qwen); Raptor: DeepSeek highest rung
+  4 of 5, Qwen (medium, cut) 0 of 5. Largest measured differences are process ones: DeepSeek's wall-clock 3–5× shorter
+  and ~3–4× fewer tool calls per task. Pod terminated 04:57 EDT (≈$160).

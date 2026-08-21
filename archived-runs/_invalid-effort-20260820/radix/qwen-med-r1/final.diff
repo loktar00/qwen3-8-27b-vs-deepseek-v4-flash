@@ -1,0 +1,92 @@
+diff --git a/packages/react/slot/src/slot.test.tsx b/packages/react/slot/src/slot.test.tsx
+index 7beb9bbd..2d0218f4 100644
+--- a/packages/react/slot/src/slot.test.tsx
++++ b/packages/react/slot/src/slot.test.tsx
+@@ -191,9 +191,7 @@ describe('given a Button with Slottable nesting', () => {
+   });
+ });
+ 
+-// TODO: Unskip when underlying issue is resolved
+-// Reverted in https://github.com/radix-ui/primitives/pull/3554
+-describe.skip('given an Input', () => {
++describe('given an Input', () => {
+   const handleRef = vi.fn();
+ 
+   beforeEach(() => {
+@@ -339,6 +337,40 @@ describe('Slot prop and ref merging (single element child)', () => {
+     expect(slotRef).toHaveBeenCalledWith(button);
+     expect(childRef).toHaveBeenCalledWith(button);
+   });
++
++  it('passes the child ref through untouched when no Slot ref is given', () => {
++    const childRef = vi.fn();
++    const { unmount } = render(
++      <Slot>
++        <button ref={childRef} type="button">
++          hi
++        </button>
++      </Slot>,
++    );
++
++    const button = screen.getByRole('button');
++    // Without a forwarded ref the child's own ref is attached as-is:
++    // exactly one attach call with the rendered node, then detached with null.
++    expect(childRef).toHaveBeenCalledTimes(1);
++    expect(childRef).toHaveBeenCalledWith(button);
++
++    unmount();
++    // React 19 detaches function refs with (null, ...extra undefineds); assert the first arg.
++    expect(childRef.mock.calls.at(-1)![0]).toBe(null);
++  });
++
++  it('attaches the child RefObject to the node when no Slot ref is given', () => {
++    const childRef = React.createRef<HTMLButtonElement>();
++    render(
++      <Slot>
++        <button ref={childRef} type="button">
++          hi
++        </button>
++      </Slot>,
++    );
++
++    expect(childRef.current).toBe(screen.getByRole('button'));
++  });
+ });
+ 
+ describe('Slot with non-mergeable children', () => {
+diff --git a/packages/react/slot/src/slot.tsx b/packages/react/slot/src/slot.tsx
+index acb7e7bb..739a2a2f 100644
+--- a/packages/react/slot/src/slot.tsx
++++ b/packages/react/slot/src/slot.tsx
+@@ -1,5 +1,5 @@
+ import * as React from 'react';
+-import { composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ 
+ declare module 'react' {
+   interface ReactElement {
+@@ -59,6 +59,9 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       slottableElement = children;
+     }
+ 
++    const slottableElementRef = slottableElement ? getElementRef(slottableElement) : undefined;
++    const composedRef = useComposedRefs(forwardedRef, slottableElementRef);
++
+     if (!slottableElement) {
+       // Empty/falsy children (`null`, `undefined`, `false`, no children, etc.) are valid and
+       // render nothing. Anything else is content we couldn't slot onto a single element, which
+@@ -71,13 +74,11 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       return children;
+     }
+ 
+-    const slottableElementRef = getElementRef(slottableElement);
+-    const composedRefs = composeRefs(forwardedRef, slottableElementRef);
+     const mergedProps = mergeProps(slotProps, slottableElement.props ?? {});
+ 
+     // do not pass ref to React.Fragment for React 19 compatibility
+     if (slottableElement.type !== React.Fragment) {
+-      mergedProps.ref = forwardedRef ? composedRefs : slottableElementRef;
++      mergedProps.ref = forwardedRef ? composedRef : slottableElementRef;
+     }
+ 
+     return React.cloneElement(slottableElement, mergedProps);

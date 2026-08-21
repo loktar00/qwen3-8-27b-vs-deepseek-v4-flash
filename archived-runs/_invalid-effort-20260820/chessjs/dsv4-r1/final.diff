@@ -1,0 +1,118 @@
+diff --git a/__tests__/regression.test.ts b/__tests__/regression.test.ts
+index e77035a..1152ad3 100644
+--- a/__tests__/regression.test.ts
++++ b/__tests__/regression.test.ts
+@@ -308,4 +308,12 @@ describe('Regression Tests', () => {
+     const chess = new Chess('kb4r1/p2n3P/1PP5/1P6/8/8/6p1/R3KR2 b KQkq - 0 19')
+     expect(chess.isGameOver()).toBe(false) // this was crashing due to invalid castling moves being generated
+   })
+-})
++
++  it('does not generate off-board pawn moves on the back ranks (BigInt crash)', () => {
++    // white pawn on h8 / black pawn on a1 - forward square is off-board
++    const white = new Chess()
++    white.put({ type: 'p', color: 'w' }, 'h8')
++    white.put({ type: 'p', color: 'b' }, 'a1')
++    white.turn = 'w'
++    expect(() => white.moves({ square: 'h8', verbose: true })</parameter>
++
+diff --git a/repro.ts b/repro.ts
+new file mode 100644
+index 0000000..9eece00
+--- /dev/null
++++ b/repro.ts
+@@ -0,0 +1,10 @@
++import { Chess } from './src/chess'
++const chess = new Chess()
++chess.put({ type: 'p', color: 'w' }, 'h8')
++try {
++  const m = chess.moves({ square: 'h8', verbose: true })
++  console.log('moves:', m)
++} catch (e) {
++  console.log('ERROR:', e.message)
++  console.log(e.stack)
++}
+diff --git a/repro2.ts b/repro2.ts
+new file mode 100644
+index 0000000..d1a0872
+--- /dev/null
++++ b/repro2.ts
+@@ -0,0 +1,10 @@
++import { Chess, PAWN_OFFSETS } from './src/chess'
++const chess = new Chess()
++chess.put({ type: 'p', color: 'w' }, 'h8')
++// manually trace pawn move gen for h8
++const us = 'w'
++const from = 119 // h8
++for (let j = 0; j < 4; j++) {
++  const to = from + PAWN_OFFSETS[us][j]
++  console.log('offset', j, 'to=', to, 'hex', to.toString(16), '0x88?', to & 0x88, 'onBoard?', !(to & 0x88))
++}
+diff --git a/repro3.ts b/repro3.ts
+new file mode 100644
+index 0000000..e9f9a80
+--- /dev/null
++++ b/repro3.ts
+@@ -0,0 +1,15 @@
++import { Chess } from './src/chess'
++const chess = new Chess()
++chess.put({ type: 'p', color: 'w' }, 'h8')
++// intercept: patch _makeMove to log
++const orig = (chess as any)._makeMove
++;(chess as any)._makeMove = function (move: any) {
++  console.log('making move from', move.from, 'to', move.to, 'flags', move.flags)
++  return orig.call(this, move)
++}
++try {
++  const m = chess.moves({ square: 'h8', verbose: true })
++  console.log('moves:', m)
++} catch (e) {
++  console.log('ERROR:', e.message)
++}
+diff --git a/repro4.ts b/repro4.ts
+new file mode 100644
+index 0000000..df1553a
+--- /dev/null
++++ b/repro4.ts
+@@ -0,0 +1,6 @@
++import { Chess } from './src/chess'
++const chess = new Chess()
++chess.put({ type: 'p', color: 'w' }, 'h8')
++console.log('fen:', chess.fen())
++console.log('get h8:', chess.get('h8'))
++console.log('get h1:', chess.get('h1'))
+diff --git a/repro5.ts b/repro5.ts
+new file mode 100644
+index 0000000..57ea83a
+--- /dev/null
++++ b/repro5.ts
+@@ -0,0 +1,16 @@
++import { Chess } from './src/chess'
++
++// black pawn on a1 (edge rank 1) and h1
++for (const sq of ['a1', 'h1', 'a8', 'h8']) {
++  for (const [color, type] of [['b', 'p'], ['w', 'p']]) {
++    const chess = new Chess()
++    chess.turn = color as any
++    chess.put({ type: type as any, color: color as any }, sq as any)
++    try {
++      const m = chess.moves({ square: sq as any, verbose: true })
++      console.log(`black? ${color} pawn on ${sq}:`, m.map((x: any) => x.san).join(', ') || '(none)')
++    } catch (e) {
++      console.log(`ERROR ${color} pawn on ${sq}: ${e.message}`)
++    }
++  }
++}
+diff --git a/src/chess.ts b/src/chess.ts
+index 5efdb74..2ab4a11 100644
+--- a/src/chess.ts
++++ b/src/chess.ts
+@@ -1575,7 +1575,7 @@ export class Chess {
+ 
+         // single square, non-capturing
+         to = from + PAWN_OFFSETS[us][0]
+-        if (!this._board[to]) {
++        if (!(to & 0x88) && !this._board[to]) {
+           addMove(moves, us, from, to, PAWN)
+ 
+           // double square

@@ -1,0 +1,11 @@
+diff --git a/repro.ts b/repro.ts
+new file mode 100644
+index 0000000..eb0d10a
+--- /dev/null
++++ b/repro.ts
+@@ -0,0 +1,5 @@
++import { Chess } from './src/chess'
++
++const chess = new Chess()
++chess.put({ type: 'p', color: 'w' }, 'h8')   // white pawn on the 8th (back) rank
++console.log(chess.moves({ square: 'h8', verbose: true }))

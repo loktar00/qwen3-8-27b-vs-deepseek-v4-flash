@@ -37,6 +37,12 @@
 # paths/setup notes before publish — do not add a tasks/ sync step that would
 # overwrite that scrubbed copy from the raw _briefs/ source.
 #
+# IMPORTANT: every edit to this file must be made via write-new+mv (write the
+# new content to sync_results.sh.new, chmod +x, then `mv -f` over this file),
+# never edited in place. post_result.sh shells out to this script after every
+# scored job, so it can be mid-invocation at any time; an in-place edit risks a
+# concurrent caller reading a half-written file.
+#
 # Output contract: every other message goes to stderr; stdout carries exactly one
 # final line: "synced: <short-sha>" | "synced: skipped (<reason>)" | "synced: failed (<reason>)".
 
@@ -141,6 +147,30 @@ robocopy_update() {
   return 0
 }
 
+# Publishes a quarantine dir (_invalid-*/_restarted-*) into archived-runs/<t>/,
+# with a curated, smaller file set (score.json, final.diff, driver.log, turn-*.json,
+# session transcripts) rather than the full raw log set live runs/ entries carry --
+# these are kept for the record, not as live results (see archived-runs/README.md).
+# Uses /MIR + an explicit include list (robocopy treats bare trailing args as a
+# file-name filter) instead of /E, so stale files disappear if the source changes,
+# but only within the included patterns -- nothing outside that set is touched.
+archive_quarantine_dir() {
+  local src="$1" t="$2"
+  local dst="$DST/archived-runs/$t"
+  local rc=0 src_win dst_win
+  mkdir -p "$dst"
+  src_win="$(cygpath -w "$src" 2>/dev/null || echo "$src")"
+  dst_win="$(cygpath -w "$dst" 2>/dev/null || echo "$dst")"
+  robocopy "$src_win" "$dst_win" score.json final.diff driver.log "turn-*.json" "*.jsonl" \
+    /S /MIR /MAX:"$MAX_FILE_BYTES" /XF "*.bash.log" /NFL /NDL /NJH /NJS /NP >/dev/null 2>&1
+  rc=$?
+  if [ "$rc" -ge 8 ]; then
+    log "archive copy failed for $t (robocopy rc=$rc)"
+    return 1
+  fi
+  return 0
+}
+
 log "syncing from $SRC ..."
 
 # --- docs/ (built site) ---
@@ -160,13 +190,16 @@ cp -f "$SRC/_raptor-support/GLB-FORMAT.md" "$SRC/_raptor-support/brief-draft.md"
 
 # --- runs/ (all tasks except deeweb*, and except the _matrix/calibration pseudo-tasks) ---
 # _invalid-*/_restarted-* are orchestrator quarantine dirs created when a run gets
-# invalidated and redone (e.g. _invalid-effort-20260820, _restarted-raptor-cap-20260820)
-# -- publishing those alongside real results would present retracted/broken runs as if
-# they were live data, so they're skipped like _matrix/deeweb* are. NOT every
-# underscore-prefixed dir is quarantine, though -- _laneC is real Lane C (scripted
-# no-harness chat) results and must sync normally. Anything else starting with "_"
-# that isn't recognized is synced (default to not silently dropping real data) but
-# logged loudly, so an actually-new quarantine convention gets noticed, not swallowed.
+# invalidated and redone (e.g. _invalid-effort-20260820, _restarted-raptor-cap-20260820).
+# Policy: these ARE published, for transparency, but under archived-runs/<t>/ with a
+# curated file set and a README explaining they're not results -- never under runs/,
+# which would present a retracted/broken run as if it were live data.
+# _laneC is Lane-C *scratch* (the runner's working directory) -- the actual Lane-C
+# results are already published under runs/chessjs/<label>-c/, so _laneC itself is
+# just skipped, not archived (it's not invalidated data, just not the publish copy).
+# Anything else starting with "_" that isn't recognized is synced into runs/ as if
+# it were a normal task (default to not silently dropping real data) but logged
+# loudly, so an actually-new convention gets noticed instead of mis-handled by default.
 mkdir -p "$DST/runs/_matrix"
 cp -f "$SRC/_runs/_matrix/status.tsv" "$DST/runs/_matrix/" || fail "matrix status.tsv copy"
 for d in "$SRC/_runs"/*/; do
@@ -175,8 +208,13 @@ for d in "$SRC/_runs"/*/; do
     _matrix) continue ;;
     calibration) continue ;;
     deeweb*) log "skipping excluded task dir: $t"; continue ;;
-    _invalid-*|_restarted-*) log "skipping orchestrator quarantine dir: $t"; continue ;;
-    _*) log "WARNING: unrecognized underscore-prefixed _runs dir '$t' -- syncing it as real data. If this is actually orchestrator scratch/quarantine, add its pattern to the skip list above." ;;
+    _laneC) continue ;;
+    _invalid-*|_restarted-*)
+      log "archiving quarantine dir: $t -> archived-runs/$t"
+      archive_quarantine_dir "$d" "$t" || fail "archive $t"
+      continue
+      ;;
+    _*) log "WARNING: unrecognized underscore-prefixed _runs dir '$t' -- syncing it into runs/ as real data. If this is actually orchestrator scratch/quarantine, add its pattern to the skip/archive list above." ;;
   esac
   robomirror "$d" "$DST/runs/$t" /XD "worktree*" node_modules __pycache__ /XF "*.pyc" "*.bash.log" \
     || fail "runs/$t copy"

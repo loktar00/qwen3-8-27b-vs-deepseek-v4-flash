@@ -1,0 +1,13 @@
+START 2026-08-20T19:23:26 chessjs/qwen-med-c (attempt 2, fixed-harness v1)
+model=qwen-medium (qwen3.8-27b-bf16, reasoning_effort=medium) lane=C
+worktree=D:/dev/ab-tasks/chessjs-c-qwen-medium
+END 2026-08-20T~19:53 chessjs/qwen-med-c (attempt 2)
+INVALID: runner crashed mid-exchange-6 in run_tests() -- Windows text=True subprocess decode
+(cp1252) choked on a UTF-8 byte (0x9d) in vitest's fancy-reporter output, reader threads died,
+r.stdout/r.stderr came back None, "(None + '\n' + None)" raised TypeError, runner process exited.
+This is a HARNESS bug, not a model failure: no diff had landed at the point of the crash (only
+an untracked tests/pawn-edge-rank.test.ts from a full-file write; the exchange-6 diff itself had
+already failed to apply against src/chess.ts). Fixed in lane_c_runner.py (encoding="utf-8",
+errors="replace" on every subprocess.run touching model/tool output); archived and re-run as
+attempt 3.
+DONE chessjs/qwen-med-c (attempt 2)

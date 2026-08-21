@@ -1,0 +1,142 @@
+diff --git a/.changeset/shiny-pans-rest.md b/.changeset/shiny-pans-rest.md
+new file mode 100644
+index 00000000..3b74adcb
+--- /dev/null
++++ b/.changeset/shiny-pans-rest.md
+@@ -0,0 +1,5 @@
++---
++'@radix-ui/react-slot': patch
++---
++
++Fixed infinite re-render loop in React 19 caused by `Slot` creating a new ref callback on every render. The composed ref is now memoized via `useComposedRefs`, so ref callbacks (e.g. ones that trigger state updates, like those used by editors such as Slate/Plate) are no longer re-invoked on every render, which previously led to "Maximum update depth exceeded" errors.
+diff --git a/packages/react/slot/src/slot.test.tsx b/packages/react/slot/src/slot.test.tsx
+index 7beb9bbd..41e1e786 100644
+--- a/packages/react/slot/src/slot.test.tsx
++++ b/packages/react/slot/src/slot.test.tsx
+@@ -1,5 +1,5 @@
+ import * as React from 'react';
+-import { cleanup, render, screen, fireEvent } from '@testing-library/react';
++import { act, cleanup, render, screen, fireEvent } from '@testing-library/react';
+ import userEvent from '@testing-library/user-event';
+ import { Slot, Slottable } from './slot';
+ import { afterEach, describe, it, beforeEach, vi, expect } from 'vitest';
+@@ -589,3 +589,89 @@ const Input = React.forwardRef<
+     </Comp>
+   );
+ });
++
++describe('Slot ref stability', () => {
++  // Regression tests for the "Maximum update depth exceeded" infinite loop
++  // reported with React 19: https://github.com/radix-ui/primitives/issues/3799
++  afterEach(cleanup);
++
++  it('does not cause an infinite render loop when attaching the ref triggers a render', () => {
++    let renderCount = 0;
++
++    function App() {
++      renderCount++;
++      const [, forceRender] = React.useReducer((c) => c + 1, 0);
++      const ref = React.useCallback((node: HTMLElement | null) => {
++        if (node) forceRender();
++      }, []);
++
++      return (
++        <Slot ref={ref}>
++          <button type="button">Click me</button>
++        </Slot>
++      );
++    }
++
++    expect(() => render(<App />)).not.toThrow();
++    expect(renderCount).toBeLessThan(25);
++  });
++
++  it('passes a single stable composed ref to the child across re-renders', () => {
++    const refIdentities = new Set<unknown>();
++    let bump!: () => void;
++
++    const Child = React.forwardRef<HTMLButtonElement>(function Child(_props, ref) {
++      refIdentities.add(ref);
++      return <button type="button" ref={ref} />;
++    });
++
++    function App() {
++      const [, forceRender] = React.useReducer((c) => c + 1, 0);
++      bump = forceRender;
++      const forwardedRef = React.useRef<HTMLButtonElement>(null);
++      return (
++        <Slot ref={forwardedRef}>
++          <Child />
++        </Slot>
++      );
++    }
++
++    render(<App />);
++    act(() => bump());
++    act(() => bump());
++    expect(refIdentities.size).toBe(1);
++  });
++});
++
++describe('Slot without a forwarded ref', () => {
++  // Behavior-preservation guard: when no ref is forwarded to Slot, the child
++  // keeps its own ref untouched (no composed wrapper is injected). This path
++  // must be identical before and after the composed-ref memoization change.
++  afterEach(cleanup);
++
++  it('attaches the child ref directly when no ref is passed to Slot', () => {
++    const childRef = vi.fn();
++
++    render(
++      <Slot>
++        <button ref={childRef} type="button">
++          hi
++        </button>
++      </Slot>,
++    );
++
++    const button = screen.getByRole('button');
++    expect(childRef).toHaveBeenCalledTimes(1);
++    expect(childRef).toHaveBeenCalledWith(button);
++  });
++
++  it('still renders and does not attach any ref when neither Slot nor the child has one', () => {
++    render(
++      <Slot>
++        <button type="button">hi</button>
++      </Slot>,
++    );
++
++    expect(screen.getByRole('button')).toBeInTheDocument();
++  });
++});
+diff --git a/packages/react/slot/src/slot.tsx b/packages/react/slot/src/slot.tsx
+index acb7e7bb..5e7f354e 100644
+--- a/packages/react/slot/src/slot.tsx
++++ b/packages/react/slot/src/slot.tsx
+@@ -1,5 +1,5 @@
+ import * as React from 'react';
+-import { composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ 
+ declare module 'react' {
+   interface ReactElement {
+@@ -59,6 +59,9 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       slottableElement = children;
+     }
+ 
++    const slottableElementRef = slottableElement ? getElementRef(slottableElement) : undefined;
++    const composedRefs = useComposedRefs(forwardedRef, slottableElementRef);
++
+     if (!slottableElement) {
+       // Empty/falsy children (`null`, `undefined`, `false`, no children, etc.) are valid and
+       // render nothing. Anything else is content we couldn't slot onto a single element, which
+@@ -71,8 +74,6 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       return children;
+     }
+ 
+-    const slottableElementRef = getElementRef(slottableElement);
+-    const composedRefs = composeRefs(forwardedRef, slottableElementRef);
+     const mergedProps = mergeProps(slotProps, slottableElement.props ?? {});
+ 
+     // do not pass ref to React.Fragment for React 19 compatibility

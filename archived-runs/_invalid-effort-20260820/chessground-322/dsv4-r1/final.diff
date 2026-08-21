@@ -1,0 +1,145 @@
+diff --git a/src/config.ts b/src/config.ts
+index 745908f..4f5a665 100644
+--- a/src/config.ts
++++ b/src/config.ts
+@@ -86,6 +86,10 @@ export interface Config {
+     enabled?: boolean; // can draw
+     visible?: boolean; // can view
+     defaultSnapToValidMove?: boolean;
++    // false to keep the drawing whenever the user clicks/taps on the board.
++    // When true (default), clicking an empty square or immovable piece clears the drawing regardless, and
++    // clicking on a (currently unselected) movable piece clears it too when eraseOnMovablePieceClick is true.
++    eraseOnClick?: boolean;
+     // Clicking an empty square or immovable piece will clear the drawing regardless, but when this property is true,
+     // clicking on a (currently unselected) movable piece will also clear the drawing.
+     eraseOnMovablePieceClick?: boolean;
+diff --git a/src/drag.ts b/src/drag.ts
+index 0fbe74a..5c44dd1 100644
+--- a/src/drag.ts
++++ b/src/drag.ts
+@@ -32,6 +32,7 @@ export function start(s: State, e: cg.MouchEvent): void {
+   if (
+     !previouslySelected &&
+     s.drawable.enabled &&
++    s.drawable.eraseOnClick &&
+     (s.drawable.eraseOnMovablePieceClick || !piece || piece.color !== s.turnColor)
+   )
+     drawClear(s);
+diff --git a/src/draw.ts b/src/draw.ts
+index 1fe7d4f..ee6435b 100644
+--- a/src/draw.ts
++++ b/src/draw.ts
+@@ -44,6 +44,7 @@ export interface Drawable {
+   enabled: boolean; // can draw
+   visible: boolean; // can view
+   defaultSnapToValidMove: boolean;
++  eraseOnClick: boolean;
+   eraseOnMovablePieceClick: boolean;
+   onChange?: (shapes: DrawShape[]) => void;
+   shapes: DrawShape[]; // user shapes
+diff --git a/src/state.ts b/src/state.ts
+index df9a318..ea12c8c 100644
+--- a/src/state.ts
++++ b/src/state.ts
+@@ -177,6 +177,7 @@ export function defaults(): HeadlessState {
+       enabled: true, // can draw
+       visible: true, // can view
+       defaultSnapToValidMove: true,
++      eraseOnClick: true,
+       eraseOnMovablePieceClick: true,
+       shapes: [],
+       autoShapes: [],
+diff --git a/tests/eraseOnClick.test.ts b/tests/eraseOnClick.test.ts
+new file mode 100644
+index 0000000..720e52c
+--- /dev/null
++++ b/tests/eraseOnClick.test.ts
+@@ -0,0 +1,88 @@
++import { configure } from '../src/config';
++import * as drag from '../src/drag';
++import { defaults, type State } from '../src/state';
++import type * as cg from '../src/types';
++import { key2pos } from '../src/util';
++
++const rect = { left: 0, top: 0, width: 800, height: 800 } as DOMRectReadOnly;
++
++// Make a state whose board is 800x800 at the origin, with draggable disabled so a
++// click never starts a drag and we can assert purely on the erase-on-click behaviour.
++function makeState(pieces: cg.Pieces, eraseOnClick?: boolean): State {
++  const state = defaults() as State;
++  state.trustAllEvents = true;
++  state.turnColor = 'white';
++  state.pieces = pieces;
++  state.drawable.shapes = [{ orig: 'e4' }];
++  state.draggable.enabled = false;
++  state.dom = {
++    elements: {
++      board: document.createElement('div'),
++      wrap: document.createElement('div'),
++      container: document.createElement('div'),
++    },
++    bounds: (() => rect) as unknown as cg.Memo<DOMRectReadOnly>,
++    redraw: () => {},
++    redrawNow: () => {},
++  };
++  if (eraseOnClick !== undefined) configure(state, { drawable: { eraseOnClick } });
++  return state;
++}
++
++function click(state: State, key: cg.Key): void {
++  const pos = key2pos(key);
++  const e = new MouseEvent('mousedown', {
++    clientX: (pos[0] + 0.5) * 100,
++    clientY: (7 - pos[1] + 0.5) * 100,
++    buttons: 1,
++  });
++  drag.start(state, e);
++}
++
++test('clicking an empty square clears shapes by default', () => {
++  const state = makeState(new Map());
++  click(state, 'a1');
++  expect(state.drawable.shapes).toHaveLength(0);
++});
++
++test('eraseOnClick=false prevents clearing when clicking an empty square', () => {
++  const state = makeState(new Map(), false);
++  click(state, 'a1');
++  expect(state.drawable.shapes).toHaveLength(1);
++});
++
++test('eraseOnClick=false prevents clearing when clicking an immovable piece', () => {
++  // black pawn on a1 is not movable when it is white to move
++  const state = makeState(new Map([['a1', { role: 'pawn', color: 'black' }]]), false);
++  click(state, 'a1');
++  expect(state.drawable.shapes).toHaveLength(1);
++});
++
++test('eraseOnClick=false prevents clearing when clicking a movable piece', () => {
++  // white pawn on a2 is movable when it is white to move
++  const state = makeState(new Map([['a2', { role: 'pawn', color: 'white' }]]), false);
++  click(state, 'a2');
++  expect(state.drawable.shapes).toHaveLength(1);
++});
++
++test('eraseOnClick=true keeps eraseOnMovablePieceClick=false behaviour on empty squares', () => {
++  // clicking an empty square clears regardless of eraseOnMovablePieceClick
++  const state = makeState(new Map());
++  configure(state, { drawable: { eraseOnMovablePieceClick: false } });
++  click(state, 'a1');
++  expect(state.drawable.shapes).toHaveLength(0);
++});
++
++test('eraseOnClick=true keeps eraseOnMovablePieceClick behaviour on movable pieces', () => {
++  // clicking a movable piece clears only when eraseOnMovablePieceClick is true
++  const pieces = new Map([['a2', { role: 'pawn', color: 'white' }]]) as cg.Pieces;
++
++  const on = makeState(pieces);
++  click(on, 'a2');
++  expect(on.drawable.shapes).toHaveLength(0);
++
++  const off = makeState(pieces);
++  configure(off, { drawable: { eraseOnMovablePieceClick: false } });
++  click(off, 'a2');
++  expect(off.drawable.shapes).toHaveLength(1);
++});

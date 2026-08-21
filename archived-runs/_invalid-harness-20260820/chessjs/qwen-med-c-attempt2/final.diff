@@ -1,0 +1,46 @@
+diff --git a/tests/pawn-edge-rank.test.ts b/tests/pawn-edge-rank.test.ts
+new file mode 100644
+index 0000000..4742094
+--- /dev/null
++++ b/tests/pawn-edge-rank.test.ts
+@@ -0,0 +1,40 @@
++import { describe, it, expect } from 'vitest'
++import { Chess } from '../src/chess'
++
++describe('pawn on edge ranks (regression: BigInt TypeError)', () => {
++  it('should not throw when generating verbose moves for a white pawn on rank 8', () => {
++    const chess = new Chess()
++    chess.put({ type: 'p', color: 'w' }, 'h8')
++    expect(() => chess.moves({ square: 'h8', verbose: true })).not.toThrow()
++    expect(chess.moves({ square: 'h8', verbose: true })).toEqual([])
++  })
++
++  it('should not throw when generating verbose moves for a black pawn on rank 1', () => {
++    const chess = new Chess()
++    chess.put({ type: 'p', color: 'b' }, 'h1')
++    expect(() => chess.moves({ square: 'h1', verbose: true })).not.toThrow()
++    expect(chess.moves({ square: 'h1', verbose: true })).toEqual([])
++  })
++
++  it('should not throw for non-verbose moves on edge ranks', () => {
++    const white = new Chess()
++    white.put({ type: 'p', color: 'w' }, 'a8')
++    expect(() => white.moves({ square: 'a8' })).not.toThrow()
++    expect(white.moves({ square: 'a8' })).toEqual([])
++
++    const black = new Chess()
++    black.put({ type: 'p', color: 'b' }, 'a1')
++    expect(() => black.moves({ square: 'a1' })).not.toThrow()
++    expect(black.moves({ square: 'a1' })).toEqual([])
++  })
++
++  it('should not throw for full-board move generation with edge-rank pawns', () => {
++    const chess = new Chess()
++    chess.put({ type: 'p', color: 'w' }, 'h8')
++    expect(() => chess.moves()).not.toThrow()
++
++    const chess2 = new Chess()
++    chess2.put({ type: 'p', color: 'b' }, 'a1')
++    expect(() => chess2.moves()).not.toThrow()
++  })
++})

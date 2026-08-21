@@ -1,0 +1,162 @@
+diff --git a/packages/react/slot/src/slot.test.tsx b/packages/react/slot/src/slot.test.tsx
+index 7beb9bbd..59a242b1 100644
+--- a/packages/react/slot/src/slot.test.tsx
++++ b/packages/react/slot/src/slot.test.tsx
+@@ -191,9 +191,7 @@ describe('given a Button with Slottable nesting', () => {
+   });
+ });
+ 
+-// TODO: Unskip when underlying issue is resolved
+-// Reverted in https://github.com/radix-ui/primitives/pull/3554
+-describe.skip('given an Input', () => {
++describe('given an Input', () => {
+   const handleRef = vi.fn();
+ 
+   beforeEach(() => {
+@@ -223,6 +221,107 @@ describe.skip('given an Input', () => {
+   });
+ });
+ 
++describe('given a Slot that re-renders (React 19 ref behavior)', () => {
++  afterEach(cleanup);
++
++  it('should not re-invoke a stable ref callback on re-render', () => {
++    const handleRef = vi.fn();
++    function Wrapper() {
++      const [count, setCount] = React.useState(0);
++      return (
++        <Slot ref={handleRef}>
++          <button type="button" onClick={() => setCount((c) => c + 1)}>
++            {count}
++          </button>
++        </Slot>
++      );
++    }
++    render(<Wrapper />);
++    const button = screen.getByRole('button');
++    fireEvent.click(button);
++    fireEvent.click(button);
++    expect(handleRef).toHaveBeenCalledTimes(1);
++  });
++
++  it('should not exceed the update depth when the ref callback schedules an update', () => {
++    let renders = 0;
++    function App() {
++      renders++;
++      const [count, setCount] = React.useState(0);
++      const ref = React.useCallback(
++        (node: HTMLButtonElement | null) => {
++          if (node) setCount((c) => c + 1);
++        },
++        [],
++      );
++      return (
++        <Slot ref={ref}>
++          <button type="button">{count}</button>
++        </Slot>
++      );
++    }
++    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
++    try {
++      render(<App />);
++    } finally {
++      errorSpy.mockRestore();
++    }
++    // Before the fix, Slot re-created the composed ref on every render and
++    // React re-attached it on every commit, so this never settled and React
++    // threw "Maximum update depth exceeded".
++    expect(renders).toBeLessThanOrEqual(3);
++  });
++});
++
++describe('given a Slot without a ref (no forwardedRef)', () => {
++  afterEach(cleanup);
++
++  it('should pass the child ref through unchanged (mount, re-render, unmount)', () => {
++    const childRef = vi.fn();
++    function Wrapper() {
++      const [count, setCount] = React.useState(0);
++      return (
++        <Slot>
++          <button type="button" ref={childRef} onClick={() => setCount((c) => c + 1)}>
++            {count}
++          </button>
++        </Slot>
++      );
++    }
++    const { unmount } = render(<Wrapper />);
++    const button = screen.getByRole('button');
++    expect(childRef).toHaveBeenCalledTimes(1);
++    expect(childRef).toHaveBeenCalledWith(button);
++    // re-render must not re-attach the child's own ref
++    fireEvent.click(button);
++    expect(childRef).toHaveBeenCalledTimes(1);
++    unmount();
++    expect(childRef).toHaveBeenCalledTimes(2);
++    // React's dev build detaches refs via a 5-arg passthrough wrapper, so
++    // assert on the node argument only (a real ref callback ignores extras).
++    expect(childRef.mock.lastCall?.[0]).toBe(null);
++  });
++
++  it('should keep an object ref attached to the child across re-renders', () => {
++    const childRef = React.createRef<HTMLButtonElement>();
++    function Wrapper() {
++      const [count, setCount] = React.useState(0);
++      return (
++        <Slot>
++          <button type="button" ref={childRef} onClick={() => setCount((c) => c + 1)}>
++            {count}
++          </button>
++        </Slot>
++      );
++    }
++    render(<Wrapper />);
++    const button = screen.getByRole('button');
++    expect(childRef.current).toBe(button);
++    fireEvent.click(button);
++    expect(childRef.current).toBe(button);
++  });
++});
++
+ describe('given a Slot with React lazy components', () => {
+   afterEach(cleanup);
+ 
+diff --git a/packages/react/slot/src/slot.tsx b/packages/react/slot/src/slot.tsx
+index acb7e7bb..88762b5e 100644
+--- a/packages/react/slot/src/slot.tsx
++++ b/packages/react/slot/src/slot.tsx
+@@ -1,5 +1,5 @@
+ import * as React from 'react';
+-import { composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ 
+ declare module 'react' {
+   interface ReactElement {
+@@ -59,6 +59,18 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       slottableElement = children;
+     }
+ 
++    // Resolve the slottable element's ref before any early return so the
++    // `useComposedRefs` hook below is called unconditionally, keeping hook
++    // order stable across renders.
++    const slottableElementRef = slottableElement ? getElementRef(slottableElement) : undefined;
++    // The composed ref must be referentially stable. Re-creating it on every
++    // render makes React detach and re-attach the ref on each commit,
++    // re-invoking the user's ref callback on every render. In React 19, when
++    // that callback schedules an update (e.g. Slate/Plate editor refs), every
++    // re-attachment nests another update and React eventually throws
++    // "Maximum update depth exceeded".
++    const composedRefs = useComposedRefs(forwardedRef, slottableElementRef);
++
+     if (!slottableElement) {
+       // Empty/falsy children (`null`, `undefined`, `false`, no children, etc.) are valid and
+       // render nothing. Anything else is content we couldn't slot onto a single element, which
+@@ -71,8 +83,6 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       return children;
+     }
+ 
+-    const slottableElementRef = getElementRef(slottableElement);
+-    const composedRefs = composeRefs(forwardedRef, slottableElementRef);
+     const mergedProps = mergeProps(slotProps, slottableElement.props ?? {});
+ 
+     // do not pass ref to React.Fragment for React 19 compatibility

@@ -1,0 +1,5 @@
+# Raptor ladder — known limitations
+
+- **M1** compares a single screenshot to one fixed DOSBox reference frame; because the game world scrolls and enemies spawn on a timer, a screenshot taken whenever a port first reports "ready" generally lands at a different scroll/enemy-layout position than the reference even with correctly-ported deterministic behavior, so a low SSIM here can reflect frame-timing misalignment rather than a rendering-fidelity problem — check the screenshot by eye alongside the number.
+- **M5**'s autoplay (hold fire, jitter one random arrow key every ~1.5s, no survivability hook) is not just weak against a possibly-too-hard port: calibrated against the ORIGINAL shareware game in DOSBox under the identical policy, it dies within 30 seconds in 3 out of 3 runs, never reaching anywhere close to sector-complete — so an M5 fail under this checker does not distinguish "port is too hard" from "no port could pass this."
+- Git commit hygiene (whether a model committed after each milestone as instructed) is recorded in score.json notes but is not part of the scored milestone ladder.

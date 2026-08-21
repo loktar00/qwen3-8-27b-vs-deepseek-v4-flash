@@ -1,0 +1,76 @@
+{
+  "task": "radix",
+  "label": "qwen-r1",
+  "worktree": "D:\\dev\\ab-tasks\\radix-qwen-r1",
+  "run_dir": "D:\\dev\\ab-tasks\\_runs\\radix\\qwen-r1",
+  "overall_pass": true,
+  "P1": {
+    "status": "PASS",
+    "files": [
+      "packages/react/slot/src/slot-ref-stability.test.tsx"
+    ],
+    "rc": 0,
+    "cmd": "npx --no-install vitest run \"packages/react/slot/src/slot-ref-stability.test.tsx\"",
+    "conflicts": [],
+    "log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-qwen-r1\n\n\n Test Files  1 passed (1)\n      Tests  2 passed (2)\n   Start at  21:39:46\n   Duration  1.38s (transform 58ms, setup 126ms, import 234ms, tests 15ms, environment 824ms)\n\n"
+  },
+  "P2": {
+    "status": "PASS",
+    "rc": 0,
+    "cmd": "pnpm vitest run packages/react/slot",
+    "log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-qwen-r1\n\n\n Test Files  1 passed (1)\n      Tests  35 passed (35)\n   Start at  21:39:48\n   Duration  2.59s (transform 72ms, setup 117ms, import 276ms, tests 1.27s, environment 765ms)\n\n"
+  },
+  "P3": {
+    "files": [
+      "packages/react/slot/src/slot.test.tsx"
+    ],
+    "cmd": "npx --no-install vitest run \"packages/react/slot/src/slot.test.tsx\"",
+    "model_worktree_pass": true,
+    "model_log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-qwen-r1\n\n\n Test Files  1 passed (1)\n      Tests  35 passed (35)\n   Start at  21:39:52\n   Duration  2.68s (transform 80ms, setup 132ms, import 301ms, tests 1.30s, environment 778ms)\n\n",
+    "base_worktree_fail_as_expected": true,
+    "base_sha": "bd41d038",
+    "base_log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-p3scratch-qwen-r1\n\n \u276f packages/react/slot/src/slot.test.tsx (35 tests | 3 failed) 1426ms\n       \u00d7 should only call function refs once 216ms (retry x1)\n     \u00d7 should not re-invoke a stable ref callback on re-render 6ms (retry x1)\n     \u00d7 should not exceed the update depth when the ref callback schedules an update 11ms (retry x1)\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af Failed Tests 3 \u23af\u23af\u23af\u23af\u23af\u23af\u23af\n\n FAIL  packages/react/slot/src/slot.test.tsx > given an Input > with asChild > should only call function refs once\n FAIL  packages/react/slot/src/slot.test.tsx > given an Input > with asChild > should only call function refs once\nAssertionError: expected \"vi.fn()\" to be called 1 times, but got 7 times\n \u276f packages/react/slot/src/slot.test.tsx:219:25\n    217|       );\n    218|       await userEvent.type(screen.getByRole('textbox'), 'foo');\n    219|       expect(handleRef).toHaveBeenCalledTimes(1);\n       |                         ^\n    220|     });\n    221|   });\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/6]\u23af\n\n FAIL  packages/react/slot/src/slot.test.tsx > given a Slot that re-renders (React 19 ref behavior) > should not re-invoke a stable ref callback on re-render\n FAIL  packages/react/slot/src/slot.test.tsx > given a Slot that re-renders (React 19 ref behavior) > should not re-invoke a stable ref callback on re-render\nAssertionError: expected \"vi.fn()\" to be called 1 times, but got 5 times\n \u276f packages/react/slot/src/slot.test.tsx:243:23\n    241|     fireEvent.click(button);\n    242|     fireEvent.click(button);\n    243|     expect(handleRef).toHaveBeenCalledTimes(1);\n       |                       ^\n    244|   });\n    245|\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[2/6]\u23af\n\n FAIL  packages/react/slot/src/slot.test.tsx > given a Slot that re-renders (React 19 ref behavior) > should not exceed the update depth when the ref callback schedules an update\n FAIL  packages/react/slot/src/slot.test.tsx > given a Slot that re-renders (React 19 ref behavior) > should not exceed the update depth when the ref callback schedules an update\nError: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.\n \u276f getRootForUpdatedFiber ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:4624:11\n \u276f enqueueConcurrentHookUpdate ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:4584:14\n \u276f dispatchSetStateInternal ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:9167:18\n \u276f dispatchSetState ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:9127:7\n \u276f packages/react/slot/src/slot.test.tsx:253:21\n    251|       const ref = React.useCallback(\n    252|         (node: HTMLButtonElement | null) => {\n    253|           if (node) setCount((c) => c + 1);\n       |                     ^\n    254|         },\n    255|         [],\n \u276f setRef ../radix/packages/react/compose-refs/src/compose-refs.tsx:11:12\n \u276f ../radix/packages/react/compose-refs/src/compose-refs.tsx:25:23\n \u276f ../radix/packages/react/compose-refs/src/compose-refs.tsx:24:27\n \u276f commitAttachRef ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:13482:44\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[3/6]\u23af\n\n\n Test Files  1 failed (1)\n      Tests  3 failed | 32 passed (35)\n   Start at  21:39:56\n   Duration  2.83s (transform 124ms, setup 138ms, import 359ms, tests 1.43s, environment 747ms)\n\n",
+    "status": "PASS"
+  },
+  "secondary": {
+    "loc_added": 115,
+    "loc_removed": 6,
+    "files_touched": [
+      "packages/react/slot/src/slot.test.tsx",
+      "packages/react/slot/src/slot.tsx"
+    ],
+    "files_touched_count": 2,
+    "non_test_files_touched": [
+      "packages/react/slot/src/slot.tsx"
+    ],
+    "upstream_non_test_files": [
+      ".changeset/honest-dancers-stay.md",
+      "packages/react/slot/src/slot.tsx"
+    ],
+    "precision_subset_of_upstream": true
+  },
+  "events": {
+    "event_source": "turn-json",
+    "raw_ndjson_parse_errors": 0,
+    "tool_call_counts": {
+      "read": 216,
+      "glob": 26,
+      "grep": 69,
+      "bash": 124,
+      "write": 35,
+      "edit": 47
+    },
+    "tool_call_count_source": "toolCall-blocks",
+    "test_run_tool_calls": 85,
+    "reproduced_before_first_edit": false,
+    "harness_parse_errors": 0,
+    "total_tool_errors": 0,
+    "prompt_tokens_sum": null,
+    "completion_tokens_sum": null,
+    "reasoning_tokens_sum": null,
+    "cache_read_tokens_sum": null,
+    "cache_write_tokens_sum": null,
+    "assistant_turns": null
+  },
+  "wallclock_seconds": 7532
+}

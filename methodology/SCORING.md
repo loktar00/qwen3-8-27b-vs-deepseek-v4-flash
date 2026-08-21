@@ -170,3 +170,17 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   as "CONFIG" on the board with the reason. The crashed attempt is archived under
   `_invalid-harness-20260820/chessjs/qwen-med-c-attempt3/`; attempt 4 runs under the patched runner. DeepSeek's lane-C
   runs (complete) never exceeded ~25% of its 393k ceiling and are unaffected.
+
+- 2026-08-20 (pre-verdict, outcome of the pre-committed M5 calibration): the ORIGINAL shareware Raptor, driven in DOSBox
+  (unmodified raptor.conf, same cycles as the reference capture) by the checker's exact naive policy (hold fire, one random
+  arrow tap every 1.5 s), is destroyed in under 30 s in 3 of 3 runs (alive→dead at 3–6 s, 12–18 s, 18–24 s; never near
+  sector-complete). Branch (b) applies: the M5 checker was unpassable by construction. Amendment, identical for both
+  models: the M5 autoplay becomes a state-aware dodge that reads only `window.__raptor` contract fields (player x/y,
+  alive enemies' x/y; enemy shots only if the contract marks them), steers toward the least-threatened reachable
+  x-column each 100 ms, keeps firing, seeded PRNG, no survivability hook (`player.alive===false` still ends the run as a
+  death); session cap 300 s → 600 s as a guard; pass = wave 9 reached AND sectorComplete within the cap; 3 attempts per
+  model, pass if any attempt passes (the autoplay is the instrument, not the subject). Checker version recorded in each
+  score.json; DeepSeek re-scored under the amended checker before Qwen is scored; DeepSeek's pre-amendment M5 result is
+  kept in score.json as `m5_pre_amendment`. Calibration logs and frames are archived in the private raptor-web-ab repo.
+  Process note: the calibration drove a visible DOSBox window on the operator's desktop and disrupted it — any future
+  calibration must run headless/off-desktop; no other result depends on the desktop.

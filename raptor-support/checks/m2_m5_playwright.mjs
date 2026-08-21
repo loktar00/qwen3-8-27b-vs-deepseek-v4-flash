@@ -7,9 +7,20 @@
  *     npx playwright install chromium
  *
  * This is a skeleton: it is syntactically complete and runnable end to end,
- * but several checks (M3 hit alignment, M5 dodge/respawn handling) are
+ * but several checks (M3 hit alignment, M5 respawn handling) are
  * explicitly best-effort and marked TODO -- see the comments in each check
  * function.
+ *
+ * CHECKER_VERSION history (see the exported constant below):
+ *   v1 -- M5 used a naive autoplay: hold fire, jitter one random arrow key
+ *         every ~1.5s, 300000ms (5min) cap. Calibrated 2026-08-20 against
+ *         the ORIGINAL shareware DOSBox game under this exact policy: it
+ *         died in <30s in 3/3 runs, never approaching sector-complete --
+ *         i.e. v1's M5 was unpassable by construction, not just hard.
+ *         (Calibration logs/frames: raptor-web-ab results/calibration/.)
+ *   v2 -- M5 replaced with a state-aware dodge driven ONLY by window.__raptor
+ *         contract fields (no smarter-than-contract cheating), 600000ms
+ *         (10min) cap. See checkM5's docstring for the exact policy.
  *
  * What it does:
  *   1. Starts a local static file server (built-in `http` module only, no
@@ -29,11 +40,11 @@
  *      separately by m1_ssim.py via screenshot, not by this script.)
  *
  * Usage:
- *   node m2_m5_playwright.mjs <build-dir> [--port 8934] [--timeout-ms 300000] [--headed]
+ *   node m2_m5_playwright.mjs <build-dir> [--port 8934] [--timeout-ms 600000] [--headed]
  *
  *   <build-dir>     Path to the model's build directory (contains index.html). Required.
  *   --port          Port for the local static server. Default: 8934.
- *   --timeout-ms    Bound on the M5 autoplay loop, in ms. Default: 300000 (5 min).
+ *   --timeout-ms    Bound on the M5 autoplay loop, in ms. Default: 600000 (10 min).
  *   --headed        Run Chromium with a visible window (default: headless).
  *   --help          Print usage and exit.
  *
@@ -61,6 +72,12 @@ import { fileURLToPath } from 'node:url';
 // (e.g. for unit testing individual checks against a hand-built `page`
 // stub) without needing playwright installed just to load this module.
 let chromium;
+
+// Bumped whenever a check's *policy* changes (not for pure refactors/bugfixes
+// that don't change pass/fail semantics). Recorded in score.json for both
+// models being compared so a scoring run always names which checker version
+// produced it. See the module docstring above for the version history.
+export const CHECKER_VERSION = 'm2_m5_playwright.mjs v2 (2026-08-20, state-aware M5 dodge)';
 
 // --------------------------------------------------------------------------
 // Small helpers
@@ -359,32 +376,120 @@ export async function checkM4(page) {
 // --------------------------------------------------------------------------
 
 /**
- * M5: sector-1 loop: wave counter advances to 9 and the sector-complete
- * screen appears. Autoplay harness allowed -- this holds fire and jitters
- * movement to dodge, polling state until the win condition or timeout.
+ * Deterministic seeded PRNG (mulberry32), used ONLY for tie-breaks in the
+ * dodge column search below, so the dodge policy is exactly reproducible
+ * (same seed -> same tie-break choices) for both models being compared.
+ */
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function rng() {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * M5 v2: sector-1 loop: wave counter advances to 9 and the sector-complete
+ * screen appears, driven by a STATE-AWARE DODGE that reads ONLY the
+ * window.__raptor contract fields (no port-internal cheating -- the
+ * autoplay is the grading instrument, not something the port can special-
+ * case for).
+ *
+ * Why v2 exists: v1 (hold fire, jitter one random arrow key every ~1.5s) was
+ * calibrated 2026-08-20 against the ORIGINAL shareware game running in
+ * DOSBox under that exact policy -- it died in <30s in 3/3 runs, never
+ * approaching sector-complete. v1's M5 was therefore unpassable by
+ * construction, not a meaningful difficulty bar. See
+ * raptor-web-ab/results/calibration/ for the calibration logs/frames.
+ *
+ * Policy (every `pollMs`, default 100ms):
+ *   1. Read player{x,y} and enemies[{x,y,alive}] from window.__raptor;
+ *      alive===false enemies are ignored entirely.
+ *   2. If projectiles[] entries carry a way to tell enemy shots from the
+ *      player's own (an `owner` string ('enemy'/'player') or boolean
+ *      `enemy` field), enemy-owned projectiles are folded into the threat
+ *      model as extra threat sources with the same weighting as enemies.
+ *      If the contract doesn't distinguish, projectiles are ignored
+ *      entirely (we do not want to "dodge" the player's own bullets).
+ *   3. Threat at a candidate x-column `colX`, summed over every threat
+ *      source (alive enemy or, if distinguishable, enemy projectile) at
+ *      (sx, sy): let dy = player.y - sy (source above the player) and
+ *      dx = colX - sx.
+ *        - if NOT (0 < dy < 120): source contributes 0 (behind/level with
+ *          the player, or too far ahead to matter yet).
+ *        - else: base weight w = 1 / (1 + |dx| / 16); if the source would
+ *          be within a 24px radius of that column (i.e. hypot(dx, dy) < 24
+ *          -- an imminent-collision distance), ADD a further 4*w on top
+ *          (the "collision term 4x") so columns that walk the ship into a
+ *          near-miss are strongly disfavored, not just mildly.
+ *   4. Search every column within reachDx=24px of the player's current x
+ *      (step=2px) for the minimum-threat column. If the CURRENT column's
+ *      threat is greater than that minimum, hold ArrowLeft/ArrowRight
+ *      toward the min-threat column for this tick; otherwise release both
+ *      horizontal keys. Ties broken with a seeded PRNG (seed 1) so the
+ *      policy is exactly reproducible across models.
+ *   5. Vertical position is never touched (no ArrowUp/ArrowDown) -- the
+ *      player stays at whatever y the port considers "default".
+ *   6. Space (fire) is held continuously for the whole session, same as v1.
+ *
+ * `player.alive === false` still ends the session immediately as a death --
+ * there is no survivability/invulnerability hook. The autoplay is meant to
+ * be a competent-but-not-superhuman pilot, not a cheat.
  *
  * TODO: this assumes death ends the run (no lives/respawn handling). If a
  * model implements a lives/respawn system, `player.alive` may flip back to
  * true after a death -- a fuller harness would keep polling through that
- * instead of stopping at the first death. Left as-is for the skeleton
- * since it's model-dependent behavior we can't know in advance.
+ * instead of stopping at the first death. Left as-is since it's model-
+ * dependent behavior we can't know in advance.
  *
  * @param {import('playwright').Page} page
- * @param {{timeoutMs?: number, pollMs?: number, jitterEveryMs?: number}} [opts]
+ * @param {{timeoutMs?: number, pollMs?: number, reachDx?: number, columnStep?: number,
+ *           collisionRadius?: number, collisionMultiplier?: number, verticalWindow?: number,
+ *           seed?: number}} [opts]
  */
 export async function checkM5(page, opts = {}) {
-  const timeoutMs = opts.timeoutMs ?? 300000;
-  const pollMs = opts.pollMs ?? 500;
-  const jitterEveryMs = opts.jitterEveryMs ?? 1500;
+  const timeoutMs = opts.timeoutMs ?? 600000; // 10min guard, not a budget -- see CHECKER_VERSION
+  const pollMs = opts.pollMs ?? 100;
+  const reachDx = opts.reachDx ?? 24;
+  const columnStep = opts.columnStep ?? 2;
+  const collisionRadius = opts.collisionRadius ?? 24;
+  const collisionMultiplier = opts.collisionMultiplier ?? 4;
+  const verticalWindow = opts.verticalWindow ?? 120;
+  const rng = mulberry32(opts.seed ?? 1);
 
   const deadline = Date.now() + timeoutMs;
-  let lastJitter = 0;
   let died = false;
   let finalWave = null;
   let sectorComplete = false;
-  const jitterKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+  /** @type {'ArrowLeft'|'ArrowRight'|null} */
+  let heldDirection = null;
 
-  await page.keyboard.down('Space'); // hold fire continuously
+  function threatAtColumn(colX, sources) {
+    let total = 0;
+    for (const src of sources) {
+      const dy = src.py - src.y;
+      if (!(dy > 0 && dy < verticalWindow)) continue;
+      const dx = colX - src.x;
+      const w = 1 / (1 + Math.abs(dx) / 16);
+      total += w;
+      if (Math.hypot(dx, dy) < collisionRadius) {
+        total += collisionMultiplier * w;
+      }
+    }
+    return total;
+  }
+
+  async function setDirection(desired) {
+    if (desired === heldDirection) return;
+    if (heldDirection) await page.keyboard.up(heldDirection).catch(() => {});
+    if (desired) await page.keyboard.down(desired).catch(() => {});
+    heldDirection = desired;
+  }
+
+  await page.keyboard.down('Space'); // hold fire continuously, same as v1
   try {
     while (Date.now() < deadline) {
       const state = await readRaptorState(page);
@@ -400,20 +505,72 @@ export async function checkM5(page, opts = {}) {
         if (died) {
           break;
         }
-      }
 
-      const now = Date.now();
-      if (now - lastJitter >= jitterEveryMs) {
-        lastJitter = now;
-        const key = jitterKeys[Math.floor(Math.random() * jitterKeys.length)];
-        await tapKey(page, key, 80);
+        if (state.player && typeof state.player.x === 'number' && typeof state.player.y === 'number') {
+          const px = state.player.x;
+          const py = state.player.y;
+
+          const aliveEnemies = (Array.isArray(state.enemies) ? state.enemies : [])
+            .filter((e) => e && e.alive !== false && typeof e.x === 'number' && typeof e.y === 'number')
+            .map((e) => ({ x: e.x, y: e.y, py }));
+
+          let enemyProjectiles = [];
+          if (Array.isArray(state.projectiles) && state.projectiles.length > 0) {
+            const distinguishesOwner = state.projectiles.some(
+              (p) => p && (typeof p.owner === 'string' || typeof p.enemy === 'boolean')
+            );
+            if (distinguishesOwner) {
+              enemyProjectiles = state.projectiles
+                .filter(
+                  (p) =>
+                    p &&
+                    typeof p.x === 'number' &&
+                    typeof p.y === 'number' &&
+                    ((typeof p.owner === 'string' && p.owner === 'enemy') ||
+                      (typeof p.enemy === 'boolean' && p.enemy === true))
+                )
+                .map((p) => ({ x: p.x, y: p.y, py }));
+            }
+            // else: contract doesn't distinguish shot ownership -> ignore
+            // projectiles entirely per spec (don't dodge our own bullets).
+          }
+
+          const sources = aliveEnemies.concat(enemyProjectiles);
+          const currentThreat = threatAtColumn(px, sources);
+
+          let bestCol = px;
+          let bestThreat = currentThreat;
+          let ties = [px];
+          for (let dx = -reachDx; dx <= reachDx; dx += columnStep) {
+            const col = px + dx;
+            const t = threatAtColumn(col, sources);
+            if (t < bestThreat - 1e-9) {
+              bestThreat = t;
+              bestCol = col;
+              ties = [col];
+            } else if (Math.abs(t - bestThreat) <= 1e-9) {
+              ties.push(col);
+            }
+          }
+          if (ties.length > 1) {
+            bestCol = ties[Math.floor(rng() * ties.length)];
+          }
+
+          let desired = null;
+          if (currentThreat > bestThreat + 1e-9) {
+            if (bestCol < px) desired = 'ArrowLeft';
+            else if (bestCol > px) desired = 'ArrowRight';
+          }
+          await setDirection(desired);
+        }
       }
 
       await sleep(pollMs);
     }
   } finally {
-    // Always release the held key, even on error/timeout, so we don't leave
-    // Chromium (or a shared page in a longer test run) with a stuck key.
+    // Always release held keys, even on error/timeout, so we don't leave
+    // Chromium (or a shared page in a longer test run) with stuck keys.
+    await setDirection(null).catch(() => {});
     await page.keyboard.up('Space').catch(() => {});
   }
 
@@ -433,6 +590,7 @@ export async function checkM5(page, opts = {}) {
     died,
     timed_out: timedOut,
     elapsed_ms: timeoutMs - Math.max(0, deadline - Date.now()),
+    checker_version: CHECKER_VERSION,
   };
 }
 
@@ -443,11 +601,11 @@ export async function checkM5(page, opts = {}) {
 function printUsage() {
   console.error(
     [
-      'Usage: node m2_m5_playwright.mjs <build-dir> [--port 8934] [--timeout-ms 300000] [--headed]',
+      'Usage: node m2_m5_playwright.mjs <build-dir> [--port 8934] [--timeout-ms 600000] [--headed]',
       '',
       '  <build-dir>     Path to the model build directory (contains index.html). Required.',
       '  --port          Port for the local static server. Default: 8934.',
-      '  --timeout-ms    Bound on the M5 autoplay loop, in ms. Default: 300000 (5 min).',
+      '  --timeout-ms    Bound on the M5 autoplay loop, in ms. Default: 600000 (10 min).',
       '  --headed        Run Chromium with a visible window (default: headless).',
       '  --help          Show this message.',
     ].join('\n')
@@ -455,7 +613,7 @@ function printUsage() {
 }
 
 function parseArgs(argv) {
-  const args = { buildDir: null, port: 8934, timeoutMs: 300000, headless: true };
+  const args = { buildDir: null, port: 8934, timeoutMs: 600000, headless: true };
   const positional = [];
 
   for (let i = 0; i < argv.length; i++) {

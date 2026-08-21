@@ -1,0 +1,209 @@
+diff --git a/AGENTS.md b/AGENTS.md
+deleted file mode 100644
+index f9dbb41..0000000
+--- a/AGENTS.md
++++ /dev/null
+@@ -1,77 +0,0 @@
+-# AGENTS.md — Guidelines for AI Agents working on anyio
+-
+-## Project Overview
+-
+-AnyIO is a high-level asynchronous concurrency and networking library for Python that works on top of both **asyncio** and **Trio**. Source code lives in `src/`, tests in `tests/`.
+-
+-## Building & Testing
+-
+-- **Python**: Check the minimum Python version by looking at the `requires-python` field in `pyproject.toml`.
+-- **Install the project and test dependencies**: `pip install --group test -e .`.
+-- **Run tests**: `pytest` (runs from the `tests/` directory automatically via `pyproject.toml` config). Tests run against all supported backends by default.
+-- **Linting**: The project uses **pre-commit** for linting, formatting and static type checking. Run `pre-commit run -a` to check everything.
+-
+-## Code Style
+-
+-- Follow the existing code style — the project enforces it via Ruff (see `[tool.ruff]` in `pyproject.toml`).
+-- Import order is managed by Ruff's isort integration; always add `from __future__ import annotations` as the first import.
+-- Use the latest idioms supported by the minimum Python version (such as `X | Y` union syntax in annotations, etc.).
+-- Always add a blank line after a control block ends, and there is more code to follow. Do not add blank lines between related parts of the same control block (e.g. `if...elif...else`).
+-
+-## Pull Request Guidelines
+-
+-Every pull request **must** follow the PR template in `.github/pull_request_template.md`. Do **not** erase or replace the template contents — PRs that do so will be closed without review.
+-
+-A properly filled-out PR contains:
+-
+-### 1. Changes section
+-
+-- Reference the related issue number, if applicable (e.g., `Fixes #123.`).
+-- Provide a short description of what the PR changes and why.
+-
+-### 2. Checklist
+-
+-Complete the checklist where applicable:
+-- **Tests** — Add or update tests in `tests/` that would fail without the patch.
+-- **Documentation** — Update docs in `docs/` if behavior changes or new features are introduced.
+-- **Changelog** — Add a new entry in `docs/versionhistory.rst`.
+-
+-Trivial changes (typo fixes, code reformatting) may skip the checklist items.
+-
+-### 3. Changelog entry format
+-
+-A changelog entry should look like:
+-
+-```md
+-- Fix big bad boo-boo in task groups
+-  (`#123 <https://github.com/agronholm/anyio/issues/123>`_; PR by @yourgithubaccount)
+-```
+-
+-If there is no linked issue, link to the pull request itself instead (update the changelog after the PR is created to get the PR number).
+-
+-### 4. Changelog entry placement
+-
+-If the PR warrants a changelog entry, it must be added under the `**UNRELEASED**` section.
+-If there is no such section yet, add it to the top, right below the note about semantic versioning.
+-Entries in the changelog should be ordered as follows:
+-
+-#. Backwards incompatible changes (prefixed with `**BACKWARDS INCOMPATIBLE**`)
+-#. New features (should start with the word `Added`)
+-#. Backwards compatible API changes (should start with the word `Changed`)
+-#. Bug fixes (should start with the word `Fixed`)
+-
+-### 5. Good and bad examples
+-
+-Here is a good example of a PR that adds a new feature: https://github.com/agronholm/anyio/pull/1100
+-Here is a bad example of a PR that overwrites the PR template and lacks tests and a changelog entry: https://github.com/agronholm/anyio/pull/1112
+-
+-## Repository Layout
+-
+-| Path                               | Description                        |
+-|------------------------------------|------------------------------------|
+-| `src/anyio/`                       | Main library source                |
+-| `src/anyio/_backends/`             | Backend implementations            |
+-| `tests/`                           | Test suite (pytest + anyio plugin) |
+-| `docs/`                            | Sphinx documentation               |
+-| `docs/versionhistory.rst`          | Changelog                          |
+-| `.github/pull_request_template.md` | PR template (must be respected)    |
+diff --git a/CLAUDE.md b/CLAUDE.md
+deleted file mode 100644
+index 43c994c..0000000
+--- a/CLAUDE.md
++++ /dev/null
+@@ -1 +0,0 @@
+-@AGENTS.md
+diff --git a/docs/versionhistory.rst b/docs/versionhistory.rst
+index 98bbb70..de9a413 100644
+--- a/docs/versionhistory.rst
++++ b/docs/versionhistory.rst
+@@ -27,6 +27,13 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
+   ``CapacityLimiter.acquire_nowait_on_behalf_of()`` raising ``trio.WouldBlock`` instead
+   of ``anyio.WouldBlock`` on the ``trio`` backend when there are no tokens available
+   (`#1218 <https://github.com/agronholm/anyio/pull/1218>`_)
++- Fixed ``CapacityLimiter`` over-granting tokens on the asyncio backend: when a release
++  woke a waiting task, the freed token was briefly visible as available to
++  ``acquire_nowait()`` / ``acquire_on_behalf_of_nowait()`` before the woken task had
++  registered itself as a borrower, allowing more concurrent borrowers than
++  ``total_tokens`` and driving ``available_tokens`` negative. The token is now reserved
++  for the woken task at notification time, so a non-blocking acquire correctly raises
++  ``WouldBlock`` in that window
+ 
+ **4.14.1**
+ 
+diff --git a/src/anyio/_backends/_asyncio.py b/src/anyio/_backends/_asyncio.py
+index bc7e6ab..615d4d7 100644
+--- a/src/anyio/_backends/_asyncio.py
++++ b/src/anyio/_backends/_asyncio.py
+@@ -2077,7 +2077,8 @@ class CapacityLimiter(BaseCapacityLimiter):
+ 
+         # Notify waiting tasks that they have acquired the limiter
+         while self._wait_queue and waiters_to_notify:
+-            event = self._wait_queue.popitem(last=False)[1]
++            borrower, event = self._wait_queue.popitem(last=False)
++            self._borrowers.add(borrower)
+             event.set()
+             waiters_to_notify -= 1
+ 
+@@ -2092,7 +2093,8 @@ class CapacityLimiter(BaseCapacityLimiter):
+     def _notify_next_waiter(self) -> None:
+         """Notify the next task in line if this limiter has free capacity now."""
+         if self._wait_queue and len(self._borrowers) < self._total_tokens:
+-            event = self._wait_queue.popitem(last=False)[1]
++            borrower, event = self._wait_queue.popitem(last=False)
++            self._borrowers.add(borrower)
+             event.set()
+ 
+     def acquire_nowait(self) -> None:
+@@ -2124,6 +2126,7 @@ class CapacityLimiter(BaseCapacityLimiter):
+             except BaseException:
+                 self._wait_queue.pop(borrower, None)
+                 if event.is_set():
++                    self._borrowers.discard(borrower)
+                     self._notify_next_waiter()
+ 
+                 raise
+diff --git a/tests/test_synchronization.py b/tests/test_synchronization.py
+index 3ead3c2..cdeee76 100644
+--- a/tests/test_synchronization.py
++++ b/tests/test_synchronization.py
+@@ -993,3 +993,64 @@ class TestCapacityLimiter:
+         limiter.acquire_on_behalf_of_nowait(borrower1)
+         with pytest.raises(WouldBlock):
+             limiter.acquire_on_behalf_of_nowait(borrower2)
++
++    async def test_acquire_nowait_race(self) -> None:
++        """
++        Test against a race condition: when a release() hands the just-freed token to
++        a woken waiter, a non-blocking acquire issued before the waiter resumes must
++        raise WouldBlock instead of over-granting the limiter.
++
++        """
++        limiter = CapacityLimiter(1)
++        limiter.acquire_on_behalf_of_nowait("A")
++        async with create_task_group() as tg:
++            tg.start_soon(limiter.acquire_on_behalf_of, "B")
++            await wait_all_tasks_blocked()
++            limiter.release_on_behalf_of("A")
++            assert limiter.available_tokens == 0
++            with pytest.raises(WouldBlock):
++                limiter.acquire_on_behalf_of_nowait("X")
++
++        assert limiter.borrowed_tokens == 1
++        assert limiter.available_tokens == 0
++        assert limiter.statistics().tasks_waiting == 0
++
++    async def test_increase_tokens_nowait_race(self) -> None:
++        """
++        Test against a race condition: when increasing total_tokens wakes waiting
++        tasks, the granted tokens must be reserved for the woken tasks, so a
++        non-blocking acquire issued before they resume must raise WouldBlock, and
++        tasks that were not woken must remain in the wait queue.
++
++        """
++        limiter = CapacityLimiter(1)
++
++        async def borrow(name: str) -> None:
++            await limiter.acquire_on_behalf_of(name)
++
++        limiter.acquire_on_behalf_of_nowait("A")
++        async with create_task_group() as tg:
++            tg.start_soon(borrow, "B")
++            tg.start_soon(borrow, "C")
++            await wait_all_tasks_blocked()
++            limiter.total_tokens = 2
++            # B's granted token is reserved at notify time; C was not woken
++            assert limiter.borrowed_tokens == 2
++            assert limiter.available_tokens == 0
++            assert limiter.statistics().tasks_waiting == 1
++            with pytest.raises(WouldBlock):
++                limiter.acquire_on_behalf_of_nowait("X")
++
++            limiter.release_on_behalf_of("A")
++            # The freed token is handed to C, so none is left for a non-blocking
++            # acquire
++            assert limiter.borrowed_tokens == 2
++            assert limiter.available_tokens == 0
++            assert limiter.statistics().tasks_waiting == 0
++            with pytest.raises(WouldBlock):
++                limiter.acquire_on_behalf_of_nowait("X")
++
++        limiter.release_on_behalf_of("B")
++        limiter.release_on_behalf_of("C")
++        assert limiter.borrowed_tokens == 0
++        assert limiter.available_tokens == 2

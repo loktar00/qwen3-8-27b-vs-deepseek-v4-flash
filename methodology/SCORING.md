@@ -184,3 +184,12 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   kept in score.json as `m5_pre_amendment`. Calibration logs and frames are archived in the private raptor-web-ab repo.
   Process note: the calibration drove a visible DOSBox window on the operator's desktop and disrupted it — any future
   calibration must run headless/off-desktop; no other result depends on the desktop.
+
+- 2026-08-20 (pre-verdict, Jason's call): deeweb CAL-7207 §2C simplified — Phase 1 (three static mocks per model + blind pick)
+  is DROPPED. Each model gets one automated OMP session on its own branch from the same base commit (1f680c659), same
+  prompt (the ticket text of `_briefs/deeweb/brief.md` above its judge section, verbatim), same flags as lane A
+  (`--no-extensions --no-skills --no-rules`, tools read/write/edit/bash/grep/glob, DeepSeek at `:max`, Qwen at its
+  default xhigh), and implements the ticket choosing its own UX. Scored by the unchanged 9-criteria checklist against the
+  shipped PR #1866 (objective), plus a disclosed subjective UX note. Runs are driven by an agent, not by hand; company
+  code never leaves the machine (only the ticket text and the per-criterion verdicts are published). DeepSeek runs first
+  while its server is otherwise idle; Qwen runs on the Qwen server(s) afterwards.

@@ -1,0 +1,54 @@
+{
+  "task": "chessjs",
+  "label": "qwen-c",
+  "worktree": "D:\\dev\\ab-tasks\\chessjs-qwen-c",
+  "run_dir": "D:\\dev\\ab-tasks\\_runs\\chessjs\\qwen-c",
+  "overall_pass": false,
+  "P1": {
+    "status": "FAIL",
+    "files": [
+      "__tests__/repro-577.test.ts"
+    ],
+    "rc": 1,
+    "cmd": "npx --no-install vitest run \"__tests__/repro-577.test.ts\"",
+    "conflict": false,
+    "log_tail": "\n\u001b[1m\u001b[46m RUN \u001b[49m\u001b[22m \u001b[36mv3.2.4 \u001b[39m\u001b[90mD:/dev/ab-tasks/chessjs-qwen-c\u001b[39m\n\n \u001b[31m\u276f\u001b[39m __tests__/repro-577.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m | \u001b[22m\u001b[31m1 failed\u001b[39m\u001b[2m)\u001b[22m\u001b[32m 7\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m   \u001b[31m\u00d7\u001b[31m issue #577 \u2014 pawn on edge rank move generation\u001b[2m > \u001b[22mmoves() for a white pawn placed on h8 does not throw\u001b[39m\u001b[32m 6\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u2192 expected [Function] to not throw an error but 'TypeError: Cannot mix BigInt and othe\u2026' was thrown\u001b[39m\n\n\u001b[31m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[39m\u001b[1m\u001b[41m Failed Tests 1 \u001b[49m\u001b[22m\u001b[31m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m __tests__/repro-577.test.ts\u001b[2m > \u001b[22missue #577 \u2014 pawn on edge rank move generation\u001b[2m > \u001b[22mmoves() for a white pawn placed on h8 does not throw\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected [Function] to not throw an error but 'TypeError: Cannot mix BigInt and othe\u2026' was thrown\u001b[39m\n\n\u001b[32m- Expected:\u001b[39m \nundefined\n\n\u001b[31m+ Received:\u001b[39m \n\"TypeError: Cannot mix BigInt and other types, use explicit conversions\"\n\n\u001b[36m \u001b[2m\u276f\u001b[22m __tests__/repro-577.test.ts:\u001b[2m11:68\u001b[22m\u001b[39m\n    \u001b[90m  9| \u001b[39m    chess\u001b[33m.\u001b[39m\u001b[34mput\u001b[39m({ type\u001b[33m:\u001b[39m \u001b[32m'k'\u001b[39m\u001b[33m,\u001b[39m color\u001b[33m:\u001b[39m \u001b[32m'b'\u001b[39m }\u001b[33m,\u001b[39m \u001b[32m'e8'\u001b[39m)\n    \u001b[90m 10| \u001b[39m    chess\u001b[33m.\u001b[39m\u001b[34mput\u001b[39m({ type\u001b[33m:\u001b[39m \u001b[32m'p'\u001b[39m\u001b[33m,\u001b[39m color\u001b[33m:\u001b[39m \u001b[32m'w'\u001b[39m }\u001b[33m,\u001b[39m \u001b[32m'h8'\u001b[39m)\n    \u001b[90m 11| \u001b[39m    expect(() => chess.moves({ square: 'h8', verbose: true })).not.toT\u2026\n    \u001b[90m   | \u001b[39m                                                                   \u001b[31m^\u001b[39m\n    \u001b[90m 12| \u001b[39m  })\n    \u001b[90m 13| \u001b[39m})\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/1]\u23af\u001b[22m\u001b[39m\n\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m   Start at \u001b[22m 20:53:47\n\u001b[2m   Duration \u001b[22m 524ms\u001b[2m (transform 87ms, setup 0ms, collect 126ms, tests 7ms, environment 0ms, prepare 155ms)\u001b[22m\n\n"
+  },
+  "P2": {
+    "status": "PASS",
+    "rc": 0,
+    "cmd": "npm test",
+    "log_tail": "obrist.test.ts \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 6\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/glyphs.test.ts \u001b[2m(\u001b[22m\u001b[2m11 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 19\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/is-checkmate.test.ts \u001b[2m(\u001b[22m\u001b[2m6 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 6\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/fen.test.ts \u001b[2m(\u001b[22m\u001b[2m9 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 9\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/is-stalemate.test.ts \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 6\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/nullmove.test.ts \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 15\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/position-counts.test.ts \u001b[2m(\u001b[22m\u001b[2m5 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 11\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/is-attacked.test.ts \u001b[2m(\u001b[22m\u001b[2m10 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 5\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/setTurn.test.ts \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 6\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/is-insufficient-material.test.ts \u001b[2m(\u001b[22m\u001b[2m10 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 5\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/undo.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 6\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/attackers.test.ts \u001b[2m(\u001b[22m\u001b[2m13 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 12\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/castling-rights.test.ts \u001b[2m(\u001b[22m\u001b[2m12 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 6\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/remove.test.ts \u001b[2m(\u001b[22m\u001b[2m17 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 26\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/moves.test.ts \u001b[2m(\u001b[22m\u001b[2m18 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 16\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/move.test.ts \u001b[2m(\u001b[22m\u001b[2m20 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 41\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/put.test.ts \u001b[2m(\u001b[22m\u001b[2m22 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 33\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/comments.test.ts \u001b[2m(\u001b[22m\u001b[2m27 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 39\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/history.test.ts \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 58\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/get-square-by-piece.test.ts \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 6\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/standard-algebraic-notation.test.ts \u001b[2m(\u001b[22m\u001b[2m7 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 14\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/validate_fen.test.ts \u001b[2m(\u001b[22m\u001b[2m132 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 17\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/is-threefold-repetition.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 15\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/regression.test.ts \u001b[2m(\u001b[22m\u001b[2m19 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 48\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/pgn.test.ts \u001b[2m(\u001b[22m\u001b[2m9 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 62\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/load-pgn.test.ts \u001b[2m(\u001b[22m\u001b[2m35 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 249\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/is-promotion.test.ts \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 5\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/is-gameover.test.ts \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 4\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/board.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 5\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/find-piece.test.ts \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 3\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/is-check.test.ts \u001b[2m(\u001b[22m\u001b[2m4 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 3\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/square-color.test.ts \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 4\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/reset.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 4\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/ascii.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 3\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m __tests__/perft.test.ts \u001b[2m(\u001b[22m\u001b[2m7 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 1328\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m perft - position 1 \u001b[33m 480\u001b[2mms\u001b[22m\u001b[39m\n   \u001b[33m\u001b[2m\u2713\u001b[22m\u001b[39m perft - position 4 \u001b[33m 446\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m39 passed\u001b[39m\u001b[22m\u001b[90m (39)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m464 passed\u001b[39m\u001b[22m\u001b[90m (464)\u001b[39m\n\u001b[2m   Start at \u001b[22m 20:53:48\n\u001b[2m   Duration \u001b[22m 2.18s\u001b[2m (transform 1.85s, setup 0ms, collect 7.17s, tests 2.13s, environment 8ms, prepare 10.55s)\u001b[22m\n\n"
+  },
+  "P3": {
+    "status": "FAIL",
+    "reason": "model added/changed no test file (honesty check requires one)",
+    "files": []
+  },
+  "secondary": {
+    "loc_added": 0,
+    "loc_removed": 0,
+    "files_touched": [],
+    "files_touched_count": 0,
+    "non_test_files_touched": [],
+    "upstream_non_test_files": null,
+    "precision_subset_of_upstream": null
+  },
+  "events": {
+    "event_source": null,
+    "raw_ndjson_parse_errors": 0,
+    "tool_call_counts": null,
+    "tool_call_count_source": null,
+    "test_run_tool_calls": null,
+    "reproduced_before_first_edit": null,
+    "harness_parse_errors": null,
+    "total_tool_errors": null,
+    "prompt_tokens_sum": null,
+    "completion_tokens_sum": null,
+    "reasoning_tokens_sum": null,
+    "cache_read_tokens_sum": null,
+    "cache_write_tokens_sum": null,
+    "assistant_turns": null
+  },
+  "wallclock_seconds": null
+}

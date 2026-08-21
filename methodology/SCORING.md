@@ -136,3 +136,13 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   search → archived (_invalid-harness-20260820) and re-run. Qwen-medium OpenCode lane verified landing medium:
   same-config probe first-step input 8580 (default) vs 8543 (:medium), Δ37 tokens, consistent with the template's
   ~40-token preamble delta.
+
+- 2026-08-20 (pre-verdict): lane C (no-harness) budget clarified, same ruling as Raptor — the budget is the scripted
+  exchange count (30 per task); wall-clock is reported, not capped; the only time limit is a 4-hour-per-run runaway
+  guard applied identically to both models. Trigger: the lane-C runner's operator had armed an ad-hoc 60-minute
+  wall-clock watchdog that was not in this spec; it killed chessjs/qwen-c after 3 of 30 exchanges (Qwen is ~4× slower
+  per token than DeepSeek on our servers, so a wall cap bites only the slower model). That attempt is archived under
+  `_invalid-harness-20260820/chessjs/qwen-c-wallcap60/` and re-run under the 4-hour guard. No DeepSeek lane-C run
+  came within a factor of 2 of 60 minutes, so no DeepSeek lane-C result changes. For the same reason the lane-A per-turn
+  OMP runaway guard (`--max-time`, 90 min, never triggered on any run so far) is raised to 240 min for the remaining
+  matrix jobs; no finished run was affected.

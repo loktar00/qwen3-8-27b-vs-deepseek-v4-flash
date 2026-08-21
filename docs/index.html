@@ -376,8 +376,8 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   &#10003; = the fix works (the bug's test passes, nothing else broke, and the model's own test is honest).
   &#10007; = it didn't. CONFIG = the run is excluded from the pass count because it hit the model's context
   ceiling (SCORING.md §1.6) &mdash; neither a pass nor a fail. Click a row to see each run.</p>
-  <div class="status-line"><span>32 of 49 planned runs scored, across 8 tasks (6 bug fixes &middot; Raptor &middot; called)</span>
-    <span class="status-track"><span style="width:65%"></span></span><span>65%</span></div>
+  <div class="status-line"><span>33 of 49 planned runs scored, across 8 tasks (6 bug fixes &middot; Raptor &middot; called)</span>
+    <span class="status-track"><span style="width:67%"></span></span><span>67%</span></div>
   <div class="stbl"><div class="stbl-head"><span>Task</span><span>DeepSeek V4 Flash</span><span>Qwen3.8 (xhigh thinking)</span><span>Qwen3.8 (medium thinking)</span></div><details class="strow"><summary><span class="st-title">installHook.js:1 Error: Maximum update depth exceeded - React 19 + Radix</span><span class="st-cell"><span class="st-split" title="DeepSeek V4 Flash: 1 of 2 runs passed"><span class="st-mini fail">✗</span><span class="st-mini pass">✓</span><span class="st-split-n">(1 of 2)</span></span><span class="st-other-wrap"><span class="st-other" title="OpenCode harness">OpenCode ✓</span></span></span><span class="st-cell"><span class="st-glyph pass" title="Qwen3.8 (xhigh thinking): 1 scored">✓</span><span class="st-other-wrap"><span class="st-other" title="OpenCode harness">OpenCode ✓</span></span></span><span class="st-cell"><span class="st-glyph pass" title="Qwen3.8 (medium thinking): 2 scored">✓</span><span class="st-other-wrap"><span class="st-other" title="OpenCode harness">OpenCode ✓</span></span></span></summary><div class="strow-body"><div class="strow-models"><div class="strow-model"><div class="stm-head">DeepSeek V4 Flash</div><div class="strow-run">
       <span class="run-lane">OMP harness, run 1</span>
       <span class="st-glyph fail" style="font-size:1rem">✗</span>
@@ -567,7 +567,7 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
       <span class="run-time">—</span>
       <span class="run-tools">— tool calls</span>
       <span class="run-links"><a class="filelink" href="data/chessground/qwen-med-r2/transcript-rendered.html" target="_blank">transcript</a></span>
-    </div></div></div><p class="rowmeta" style="margin:.4em 0 0">#344 retired 2026-08-20: its code path was removed upstream; chessground is scored as hidden-ref #386 with a frozen leak test as P1.</p><a class="strow-more" href="task/chessground.html">What the model was asked, and everything else &rarr;</a></div></details><details class="strow"><summary><span class="st-title">BigInt error when generating moves for pawns on edge ranks</span><span class="st-cell"><span class="st-glyph pass" title="DeepSeek V4 Flash: 2 scored">✓</span><span class="st-other-wrap"><span class="st-other" title="Plain chat (no tools)">chat ✓</span></span></span><span class="st-glyph pass" title="Qwen3.8 (xhigh thinking): 2 scored">✓</span><span class="st-glyph none" title="Qwen3.8 (medium thinking): no runs yet">–</span></summary><div class="strow-body"><div class="strow-models"><div class="strow-model"><div class="stm-head">DeepSeek V4 Flash</div><div class="strow-run">
+    </div></div></div><p class="rowmeta" style="margin:.4em 0 0">#344 retired 2026-08-20: its code path was removed upstream; chessground is scored as hidden-ref #386 with a frozen leak test as P1.</p><a class="strow-more" href="task/chessground.html">What the model was asked, and everything else &rarr;</a></div></details><details class="strow"><summary><span class="st-title">BigInt error when generating moves for pawns on edge ranks</span><span class="st-cell"><span class="st-glyph pass" title="DeepSeek V4 Flash: 2 scored">✓</span><span class="st-other-wrap"><span class="st-other" title="Plain chat (no tools)">chat ✓</span></span></span><span class="st-glyph pass" title="Qwen3.8 (xhigh thinking): 2 scored">✓</span><span class="st-cell"><span class="st-glyph none" title="Qwen3.8 (medium thinking): no runs yet">–</span><span class="st-other-wrap"><span class="st-other" title="Plain chat (no tools)">chat CONFIG</span></span></span></summary><div class="strow-body"><div class="strow-models"><div class="strow-model"><div class="stm-head">DeepSeek V4 Flash</div><div class="strow-run">
       <span class="run-lane">OMP harness, run 1</span>
       <span class="st-glyph pass" style="font-size:1rem">✓</span>
       <span class="run-dots"><span title="The bug&#x27;s own test now passes.">✓ fix</span> &middot; <span title="The project&#x27;s test suite still passes.">✓ no regressions</span> &middot; <span title="The model&#x27;s own new test fails on the old code and passes on the new.">✓ honest test</span></span>
@@ -590,12 +590,13 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
       <span class="run-links"><a class="filelink" href="data/chessjs/dsv4-c/final.diff" target="_blank">diff</a> · <a class="filelink" href="data/chessjs/dsv4-c/final-tests.log" target="_blank">test log</a> · <a class="filelink" href="data/chessjs/dsv4-c/transcript-rendered.html" target="_blank">transcript</a></span>
     </div></div><div class="strow-model"><div class="stm-head">Qwen3.8 (medium thinking)</div><div class="strow-run">
       <span class="run-lane">Plain chat (no tools), run 1</span>
-      <span class="st-glyph none" style="font-size:1rem">–</span>
-      <span class="run-dots"><span class="na">not scored yet</span></span>
+      <span class="st-text none" style="font-size:1rem" title="excluded — context ceiling (SCORING §1.6)">CONFIG</span>
+      <span class="run-dots"><span class="na">excluded from the pass count</span></span>
       <span class="run-time">—</span>
       <span class="run-tools">— tool calls</span>
       <span class="run-links"><a class="filelink" href="data/chessjs/qwen-med-c/final.diff" target="_blank">diff</a> · <a class="filelink" href="data/chessjs/qwen-med-c/final-tests.log" target="_blank">test log</a> · <a class="filelink" href="data/chessjs/qwen-med-c/transcript-rendered.html" target="_blank">transcript</a></span>
-    </div></div><div class="strow-model"><div class="stm-head">Qwen3.8 (xhigh thinking)</div><div class="strow-run">
+    </div><div class="rowmeta" style="flex-basis:100%; width:100%; margin:.2em 0 .5em">HTTP 400 context/token error: {&quot;error&quot;:{&quot;message&quot;:&quot;This model&#x27;s maximum context length is 131072 tokens. However, you requested 4096 output tokens and your prompt contains at least 126977 input tokens, for a total of at least 131073 tokens. Please reduce the length of the input prompt or the number of requested output tokens. (parameter=input_tokens, value=126977)&quot;,&quot;type&quot;:&quot;BadRequestError&quot;,&quot;param&quot;:&quot;input_tokens&quot;,&quot;code&quot;:400}}
+exchanges=25 &mdash; Excluded from the pass count: the run hit the model's context ceiling (a configuration limit), so it is neither a pass nor a fail.</div></div><div class="strow-model"><div class="stm-head">Qwen3.8 (xhigh thinking)</div><div class="strow-run">
       <span class="run-lane">OMP harness, run 1</span>
       <span class="st-glyph pass" style="font-size:1rem">✓</span>
       <span class="run-dots"><span title="The bug&#x27;s own test now passes.">✓ fix</span> &middot; <span title="The project&#x27;s test suite still passes.">✓ no regressions</span> &middot; <span title="The model&#x27;s own new test fails on the old code and passes on the new.">✓ honest test</span></span>
@@ -638,7 +639,7 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   C = plain chat (no tools) &middot; &ndash; = not run yet</p>
   <div class="verdict progress">
     <div class="vlabel">Status</div>
-    <div class="vtext">Runs in progress — no verdict until every planned run is scored (32 of 49 scored so far).</div>
+    <div class="vtext">Runs in progress — no verdict until every planned run is scored (33 of 49 scored so far).</div>
   </div>
   <div class="tiles"><div class="tile a">
   <div class="tl">DeepSeek V4 Flash</div>

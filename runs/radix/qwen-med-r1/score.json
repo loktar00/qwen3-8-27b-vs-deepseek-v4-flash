@@ -1,0 +1,86 @@
+{
+  "task": "radix",
+  "label": "qwen-med-r1",
+  "worktree": "D:\\dev\\ab-tasks\\radix-qwen-med-r1",
+  "run_dir": "D:\\dev\\ab-tasks\\_runs\\radix\\qwen-med-r1",
+  "overall_pass": true,
+  "P1": {
+    "status": "PASS",
+    "files": [
+      "packages/react/slot/src/slot-ref-stability.test.tsx"
+    ],
+    "rc": 0,
+    "cmd": "npx --no-install vitest run \"packages/react/slot/src/slot-ref-stability.test.tsx\"",
+    "conflicts": [],
+    "log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-qwen-med-r1\n\n\n Test Files  1 passed (1)\n      Tests  2 passed (2)\n   Start at  20:13:15\n   Duration  1.31s (transform 54ms, setup 120ms, import 224ms, tests 17ms, environment 781ms)\n\n"
+  },
+  "P2": {
+    "status": "PASS",
+    "rc": 0,
+    "cmd": "pnpm vitest run packages/react/slot",
+    "log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-qwen-med-r1\n\n\n Test Files  1 passed (1)\n      Tests  32 passed | 2 skipped (34)\n   Start at  20:13:18\n   Duration  2.62s (transform 88ms, setup 148ms, import 322ms, tests 1.10s, environment 857ms)\n\n"
+  },
+  "P3": {
+    "files": [
+      "packages/react/dropdown-menu/src/dropdown-menu.test.tsx",
+      "packages/react/menu/src/menu.test.tsx",
+      "packages/react/slot/src/slot.test.tsx"
+    ],
+    "cmd": "npx --no-install vitest run \"packages/react/dropdown-menu/src/dropdown-menu.test.tsx\" \"packages/react/menu/src/menu.test.tsx\" \"packages/react/slot/src/slot.test.tsx\"",
+    "model_worktree_pass": true,
+    "model_log_tail": "\n RUN  v4.1.7 D:/dev/ab-tasks/radix-qwen-med-r1\n\n\n Test Files  3 passed (3)\n      Tests  35 passed | 2 skipped (37)\n   Start at  20:13:22\n   Duration  2.71s (transform 601ms, setup 408ms, import 1.88s, tests 1.31s, environment 2.82s)\n\n",
+    "base_worktree_fail_as_expected": true,
+    "base_sha": "bd41d038",
+    "base_log_tail": "rc/dropdown-menu.test.tsx:37:19\n     35|       const [count, setCount] = React.useState(0);\n     36|       const ref = React.useCallback((node: HTMLButtonElement | null) =\u2026\n     37|         if (node) setCount((c) => c + 1);\n       |                   ^\n     38|       }, []);\n     39|       return (\n \u276f setRef ../radix/packages/react/compose-refs/src/compose-refs.tsx:11:12\n \u276f ../radix/packages/react/compose-refs/src/compose-refs.tsx:25:23\n \u276f ../radix/packages/react/compose-refs/src/compose-refs.tsx:24:27\n \u276f setRef ../radix/packages/react/compose-refs/src/compose-refs.tsx:11:12\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[2/10]\u23af\n\n FAIL  packages/react/menu/src/menu.test.tsx > MenuSubTrigger ref stability > does not re-invoke a stable ref callback when the sub trigger re-renders\n FAIL  packages/react/menu/src/menu.test.tsx > MenuSubTrigger ref stability > does not re-invoke a stable ref callback when the sub trigger re-renders\nAssertionError: expected \"vi.fn()\" to be called 1 times, but got 3 times\n \u276f packages/react/menu/src/menu.test.tsx:40:23\n     38|\n     39|     const { rerender } = render(<Wrapper label=\"a\" />);\n     40|     expect(handleRef).toHaveBeenCalledTimes(1);\n       |                       ^\n     41|     expect(handleRef).toHaveBeenCalledWith(screen.getByText('a'));\n     42|\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[3/10]\u23af\n\n FAIL  packages/react/slot/src/slot.test.tsx > Slot ref stability across renders > does not re-invoke a stable ref callback when the slotted element re-renders\n FAIL  packages/react/slot/src/slot.test.tsx > Slot ref stability across renders > does not re-invoke a stable ref callback when the slotted element re-renders\nAssertionError: expected \"vi.fn()\" to be called 1 times, but got 3 times\n \u276f packages/react/slot/src/slot.test.tsx:381:23\n    379|\n    380|     rerender(<Wrapper text=\"b\" />);\n    381|     expect(handleRef).toHaveBeenCalledTimes(1);\n       |                       ^\n    382|   });\n    383|\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[4/10]\u23af\n\n FAIL  packages/react/slot/src/slot.test.tsx > Slot ref stability across renders > does not create an update loop when the ref callback triggers a state update\n FAIL  packages/react/slot/src/slot.test.tsx > Slot ref stability across renders > does not create an update loop when the ref callback triggers a state update\nError: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.\n \u276f getRootForUpdatedFiber ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:4624:11\n \u276f enqueueConcurrentHookUpdate ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:4584:14\n \u276f dispatchSetStateInternal ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:9167:18\n \u276f dispatchSetState ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:9127:7\n \u276f packages/react/slot/src/slot.test.tsx:388:19\n    386|       const [count, setCount] = React.useState(0);\n    387|       const ref = React.useCallback((node: HTMLButtonElement | null) =\u2026\n    388|         if (node) setCount((c) => c + 1);\n       |                   ^\n    389|       }, []);\n    390|       return (\n \u276f setRef ../radix/packages/react/compose-refs/src/compose-refs.tsx:11:12\n \u276f ../radix/packages/react/compose-refs/src/compose-refs.tsx:25:23\n \u276f ../radix/packages/react/compose-refs/src/compose-refs.tsx:24:27\n \u276f commitAttachRef ../radix/node_modules/.pnpm/react-dom@19.2.6_react@19.2.6/node_modules/react-dom/cjs/react-dom-client.development.js:13482:44\n\n\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[5/10]\u23af\n\n\n Test Files  3 failed (3)\n      Tests  5 failed | 30 passed | 2 skipped (37)\n   Start at  20:13:26\n   Duration  2.93s (transform 1.61s, setup 533ms, import 3.25s, tests 1.31s, environment 2.85s)\n\n",
+    "status": "PASS"
+  },
+  "secondary": {
+    "loc_added": 174,
+    "loc_removed": 7,
+    "files_touched": [
+      ".changeset/tidy-slots-loop.md",
+      "packages/react/dropdown-menu/src/dropdown-menu.test.tsx",
+      "packages/react/dropdown-menu/src/dropdown-menu.tsx",
+      "packages/react/menu/src/menu.test.tsx",
+      "packages/react/menu/src/menu.tsx",
+      "packages/react/slot/src/slot.test.tsx",
+      "packages/react/slot/src/slot.tsx"
+    ],
+    "files_touched_count": 7,
+    "non_test_files_touched": [
+      ".changeset/tidy-slots-loop.md",
+      "packages/react/dropdown-menu/src/dropdown-menu.tsx",
+      "packages/react/menu/src/menu.tsx",
+      "packages/react/slot/src/slot.tsx"
+    ],
+    "upstream_non_test_files": [
+      ".changeset/honest-dancers-stay.md",
+      "packages/react/slot/src/slot.tsx"
+    ],
+    "precision_subset_of_upstream": false
+  },
+  "events": {
+    "event_source": "turn-json",
+    "raw_ndjson_parse_errors": 0,
+    "tool_call_counts": {
+      "read": 108,
+      "glob": 8,
+      "bash": 105,
+      "write": 22,
+      "edit": 48,
+      "grep": 61
+    },
+    "tool_call_count_source": "toolCall-blocks",
+    "test_run_tool_calls": 68,
+    "reproduced_before_first_edit": false,
+    "harness_parse_errors": 0,
+    "total_tool_errors": 0,
+    "prompt_tokens_sum": null,
+    "completion_tokens_sum": null,
+    "reasoning_tokens_sum": null,
+    "cache_read_tokens_sum": null,
+    "cache_write_tokens_sum": null,
+    "assistant_turns": null
+  },
+  "wallclock_seconds": 2413
+}

@@ -3,22 +3,22 @@ radix	dsv4-r1	done	2026-08-20T19:32:24	2026-08-20T19:39:41	[19:39:41] DONE radix
 radix	dsv4-r2	done	2026-08-20T19:32:24	2026-08-20T19:41:46	[19:41:46] DONE radix/dsv4-r2 -> /d/dev/ab-tasks/_runs/radix/dsv4-r2
 radix	qwen-r1	running	2026-08-20T19:32:24		[19:33:01] opening: pod-qwen/qwen3.8-27b-bf16 on radix
 radix	qwen-r2	running	2026-08-20T19:32:24		[19:33:02] opening: pod-qwen/qwen3.8-27b-bf16 on radix
-radix	qwen-med-r1	running	2026-08-20T19:32:24		[19:47:53] turn 3: Is the same pattern present anywhere else in packages/react? Check and report, fix only if it is the same bug.
+radix	qwen-med-r1	done	2026-08-20T19:32:24	2026-08-20T20:12:38	[20:12:38] DONE radix/qwen-med-r1 -> /d/dev/ab-tasks/_runs/radix/qwen-med-r1
 radix	qwen-med-r2	running	2026-08-20T19:32:24		[19:55:57] turn 3: Is the same pattern present anywhere else in packages/react? Check and report, fix only if it is the same bug.
 anyio	dsv4-r1	done	2026-08-20T19:39:41	2026-08-20T19:49:33	[19:49:33] DONE anyio/dsv4-r1 -> /d/dev/ab-tasks/_runs/anyio/dsv4-r1
 anyio	dsv4-r2	done	2026-08-20T19:41:46	2026-08-20T19:45:18	[19:45:18] DONE anyio/dsv4-r2 -> /d/dev/ab-tasks/_runs/anyio/dsv4-r2
 anyio	qwen-r1	done			[18:40:09] DONE anyio/qwen-r1 -> /d/dev/ab-tasks/_runs/anyio/qwen-r1
 anyio	qwen-r2	queued			[20:04:56] turn 2: Does your fix also hold when total_tokens is raised while tasks are waiting? Add a test for that path.
 anyio	qwen-med-r1	done			[18:56:47] DONE anyio/qwen-med-r1 -> /d/dev/ab-tasks/_runs/anyio/qwen-med-r1
-anyio	qwen-med-r2	queued			
+anyio	qwen-med-r2	running	2026-08-20T20:12:38		[20:13:05] opening: pod-qwen-medium/qwen3.8-27b-bf16 on anyio
 hatetris	dsv4-r1	done	2026-08-20T19:45:18	2026-08-20T19:59:03	[19:59:03] DONE hatetris/dsv4-r1 -> /d/dev/ab-tasks/_runs/hatetris/dsv4-r1
-hatetris	dsv4-r2	running	2026-08-20T19:49:33		[20:08:05] turn 1: Run `npm run unit` and paste the summary (the suite enforces 100% coverage; keep it green).
+hatetris	dsv4-r2	running	2026-08-20T19:49:33		[20:10:29] turn 2: After a replay ends early, the user should be able to continue playing from that state without reloading. Confirm that is what your fix does, with a test.
 hatetris	qwen-r1	queued			
 hatetris	qwen-r2	queued			
 hatetris	qwen-med-r1	queued			
 hatetris	qwen-med-r2	queued			
 chessground	dsv4-r1	done	2026-08-20T19:59:03	2026-08-20T20:08:32	[20:08:32] DONE chessground/dsv4-r1 -> /d/dev/ab-tasks/_runs/chessground/dsv4-r1
-chessground	dsv4-r2	running	2026-08-20T20:08:32		[20:08:37] opening: pod-dsv4/deepseek-v4-flash-0731:max on chessground
+chessground	dsv4-r2	running	2026-08-20T20:08:32		[20:11:26] turn 1: Add a unit test (the repo uses vitest with jsdom) that proves the observer is disconnected on destroy and not duplicated on redraw, then run npm test.
 chessground	qwen-r1	queued			
 chessground	qwen-r2	queued			
 chessground	qwen-med-r1	queued			

@@ -361,3 +361,13 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   (P3, no test), Qwen-xhigh cancelled; deeweb 9/9 both (owner's disclosed UX pick: Qwen); Raptor: DeepSeek highest rung
   4 of 5, Qwen (medium, cut) 0 of 5. Largest measured differences are process ones: DeepSeek's wall-clock 3–5× shorter
   and ~3–4× fewer tool calls per task. Pod terminated 04:57 EDT (≈$160).
+
+- 2026-08-21 ~10:15 EDT (owner-approved Raptor/Qwen RE-RUN, pre-declared): because the original Qwen Raptor run was cut by
+  the spend hard stop (opening turn consumed its whole 4-hour guard; M0/5 as published), the owner funds one re-run on a
+  fresh 2×H200 pod (cap $60) with two changes, both pre-declared and disclosed: (1) the serving stack is speed-tuned first
+  (MTP draft depth / FP8 KV cache / async scheduling measured and the fastest single-stream config recorded — last night's
+  setup delivered ~73 tok/s where the hardware ceiling suggests substantially more; DeepSeek's result is untouched by this,
+  as serving speed never entered its scoring), and (2) the per-turn runaway guard is 6 hours (DeepSeek never exceeded 25
+  minutes per turn, so the wider guard cannot have affected its result). Same 6 scripted turns, medium effort, 262,144
+  context, checker v2, same M1–M5 checks. The cut run is archived under `_invalid-cut-20260821/` and remains in the
+  record; the board's Raptor/Qwen cell shows the re-run as pending and the completeness gate closes until it is scored.

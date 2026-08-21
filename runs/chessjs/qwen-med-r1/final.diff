@@ -1,0 +1,87 @@
+diff --git a/__tests__/moves.test.ts b/__tests__/moves.test.ts
+index e96a2da..34c5fe2 100644
+--- a/__tests__/moves.test.ts
++++ b/__tests__/moves.test.ts
+@@ -35,6 +35,44 @@ test('moves - single square - promotion', () => {
+   expect(chess.moves({ square: 'h2' })).to.have.members(split(moves))
+ })
+ 
++test('moves - single square - promotion - white pawn on seventh rank', () => {
++  const base = '8/8/8/8/k7/8/8/4K3 w - - 0 1'
++  const expected: Record<string, string> = {
++    a: 'a8=N a8=B a8=R+ a8=Q+',
++    b: 'b8=N b8=B b8=R b8=Q',
++    c: 'c8=N c8=B c8=R c8=Q',
++    d: 'd8=N d8=B d8=R d8=Q',
++    e: 'e8=N e8=B+ e8=R e8=Q+',
++    f: 'f8=N f8=B f8=R f8=Q',
++    g: 'g8=N g8=B g8=R g8=Q',
++    h: 'h8=N h8=B h8=R h8=Q',
++  }
++
++  for (const file of Object.keys(expected)) {
++    const chess = new Chess(base)
++    chess.put({ type: 'p', color: 'w' }, `${file}7` as Square)
++    expect(chess.moves({ square: `${file}7` as Square })).to.have.members(
++      split(expected[file]),
++    )
++  }
++})
++
++test('moves - single square - promotion - seventh-rank capture on edge files', () => {
++  const a7 = new Chess('8/8/8/8/k7/8/8/4K3 w - - 0 1')
++  a7.put({ type: 'p', color: 'b' }, 'b8')
++  a7.put({ type: 'p', color: 'w' }, 'a7')
++  expect(a7.moves({ square: 'a7' })).to.have.members(
++    split('a8=N a8=B a8=R+ a8=Q+ axb8=N axb8=B axb8=R axb8=Q'),
++  )
++
++  const h7 = new Chess('8/8/8/8/k7/8/8/4K3 w - - 0 1')
++  h7.put({ type: 'p', color: 'b' }, 'g8')
++  h7.put({ type: 'p', color: 'w' }, 'h7')
++  expect(h7.moves({ square: 'h7' })).to.have.members(
++    split('h8=N h8=B h8=R h8=Q hxg8=N hxg8=B hxg8=R hxg8=Q'),
++  )
++})
++
+ test('moves - single square - castling', () => {
+   const chess = new Chess(
+     'r1bq1rk1/1pp2ppp/p1np1n2/2b1p3/2B1P3/2NP1N2/PPPBQPPP/R3K2R w KQ - 0 8',
+diff --git a/__tests__/regression.test.ts b/__tests__/regression.test.ts
+index e77035a..85d46ac 100644
+--- a/__tests__/regression.test.ts
++++ b/__tests__/regression.test.ts
+@@ -308,4 +308,20 @@ describe('Regression Tests', () => {
+     const chess = new Chess('kb4r1/p2n3P/1PP5/1P6/8/8/6p1/R3KR2 b KQkq - 0 19')
+     expect(chess.isGameOver()).toBe(false) // this was crashing due to invalid castling moves being generated
+   })
++
++  it('pawns on edge ranks generate no moves instead of throwing a BigInt error', () => {
++    const chess = new Chess()
++    chess.put({ type: 'p', color: 'w' }, 'h8')
++    expect(chess.moves({ square: 'h8', verbose: true })).toEqual([])
++    expect(chess.moves({ square: 'h8' })).toEqual([])
++    expect(chess.moves()).toHaveLength(20)
++
++    const black = new Chess(
++      'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1',
++    )
++    black.put({ type: 'p', color: 'b' }, 'a1')
++    expect(black.moves({ square: 'a1', verbose: true })).toEqual([])
++    expect(black.moves({ square: 'a1' })).toEqual([])
++    expect(black.moves()).toHaveLength(20)
++  })
+ })
+diff --git a/src/chess.ts b/src/chess.ts
+index 5efdb74..2ab4a11 100644
+--- a/src/chess.ts
++++ b/src/chess.ts
+@@ -1575,7 +1575,7 @@ export class Chess {
+ 
+         // single square, non-capturing
+         to = from + PAWN_OFFSETS[us][0]
+-        if (!this._board[to]) {
++        if (!(to & 0x88) && !this._board[to]) {
+           addMove(moves, us, from, to, PAWN)
+ 
+           // double square

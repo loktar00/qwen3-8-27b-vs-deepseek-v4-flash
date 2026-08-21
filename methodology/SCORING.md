@@ -267,3 +267,11 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   `secondary`/`events` fields recomputed in a tests-free "secondary-only" pass (`secondary_version: 2`,
   `secondary_restated_at`); P1/P2/P3/overall results are untouched. Previously published token/tool-call/LOC figures
   were wrong and are superseded; wall-clock figures were correct throughout.
+
+- 2026-08-20 (disclosure, publication incident): the site generator copied every task's run artifacts (final diff,
+  session transcript) into the public site's `data/` directory; for the deeweb task — whose company source code is
+  private by rule — this published DeepSeek's diff and transcript for roughly 30–40 minutes (from the first site push
+  after that run finished until the fix). Remediation: the generator now treats private tasks structurally (no artifact
+  copy, no diff/transcript links or previews — only the judge's publishable verdicts, notes and mock-data UI screenshots),
+  the affected paths were removed from the public repository's entire history (rewrite + force push, no external clones
+  existed) and a cache purge was requested from GitHub. No benchmark result is affected.

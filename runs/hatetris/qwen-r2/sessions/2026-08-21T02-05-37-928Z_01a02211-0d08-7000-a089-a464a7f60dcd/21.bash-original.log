@@ -1,0 +1,105 @@
+ M src/components/Game/logic.ts
+ M test/components/Game/Game.test.tsx
+?? game-test.log
+?? sim-replay-continuation.mjs
+?? sim-undo-redo.mjs
+?? test-debug-trace.test.tsx
+---
+diff --git a/src/components/Game/logic.ts b/src/components/Game/logic.ts
+index 928e996..b82ef1c 100644
+--- a/src/components/Game/logic.ts
++++ b/src/components/Game/logic.ts
+@@ -335,7 +335,13 @@ export const getLogic = ({
+     // row (bar - 1), so there is only one line which we need to check.
+     const gameIsOver = nextWellState.core.well[bar - 1] !== 0
+ 
+-    const nextMode = gameIsOver ? 'GAME_OVER' : mode
++    let nextMode = gameIsOver ? 'GAME_OVER' : mode
++
++    // If the replay ran out before the game ended, hand control
++    // back to the player
++    if (nextMode === 'REPLAYING' && !(nextWellStateId in nextReplay)) {
++      nextMode = 'PLAYING'
++    }
+ 
+     // no live piece? make a new one
+     // suited to the new world, of course
+diff --git a/test/components/Game/Game.test.tsx b/test/components/Game/Game.test.tsx
+index c297b35..94b880f 100644
+--- a/test/components/Game/Game.test.tsx
++++ b/test/components/Game/Game.test.tsx
+@@ -7,6 +7,7 @@ import * as React from 'react'
+ import * as sinon from 'sinon'
+ import Game from '../../../src/components/Game/Game.tsx'
+ import type { GameProps } from '../../../src/components/Game/Game.tsx'
++import hatetrisReplayCodec from '../../../src/replay-codecs/hatetris-replay-codec.ts'
+ import hatetrisRotationSystem from '../../../src/rotation-systems/hatetris-rotation-system.ts'
+ 
+ // It looks like Testing Library React doesn't play well with Sinon's fake timers,
+@@ -394,4 +395,66 @@ describe('<Game>', () => {
+     // TODO: assert that `wellStateId` is now decremented?
+     game.unmount()
+   })
++
++  it('lets you continue playing from the state an incomplete replay left', async () => {
++    const game = renderGame()
++
++    // positions of the live piece's cells, as [row, column]
++    const liveCells = () => screen
++      .queryAllByTestId('well__cell well__cell--live')
++      .map(td => [
++        Array.prototype.indexOf.call(td.parentElement!.parentElement!.children, td.parentElement),
++        Array.prototype.indexOf.call(td.parentElement!.children, td)
++      ])
++
++    // A replay which does not end the game
++    const prompt = sinon.stub(window, 'prompt')
++    prompt.returns('D')
++    await user.click(screen.getByTestId('replay-button'))
++    assert.deepEqual(prompt.getCalls().map(call => call.args), [
++      ['Paste replay string...']
++    ])
++    prompt.restore()
++
++    // The single replay move finishes without ending the game;
++    // control must return to the player
++    await advanceReplaySteps(2)
++
++    assert.equal(screen.queryAllByTestId('down').length, 1)
++
++    const afterReplay = liveCells()
++
++    // Undo the replay's move to sample the state it started from
++    await user.keyboard('{Control>}z{/Control}')
++
++    // The game must continue from the state the replay left:
++    // the replay's 'D' moved the piece exactly one row down
++    assert.deepEqual(afterReplay,
++      liveCells().map(([row, col]) => [row + 1, col]))
++
++    // Redo puts the replay's final state back
++    await user.keyboard('{Control>}y{/Control}')
++    assert.deepEqual(liveCells(), afterReplay)
++
++    // and the player can keep playing on to the end of the game
++    let presses = 0
++    while (
++      screen.queryByTestId('replay-out') === null &&
++      presses < 150
++    ) {
++      await user.keyboard('{Down}')
++      presses++
++    }
++
++    assert.notEqual(screen.queryByTestId('replay-out'), null)
++
++    // The replay of the finished game is the incomplete replay
++    // followed by the player's own moves
++    assert.equal(
++      screen.getByTestId('replay-out').textContent,
++      hatetrisReplayCodec.encode(Array(presses + 1).fill('D'))
++    )
++
++    game.unmount()
++  })
+ })

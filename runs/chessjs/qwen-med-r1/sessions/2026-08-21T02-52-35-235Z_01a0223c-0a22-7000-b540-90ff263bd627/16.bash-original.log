@@ -1,0 +1,25 @@
+a7: a8=N a8=B a8=R+ a8=Q+
+b7: b8=N b8=B b8=R b8=Q
+c7: c8=N c8=B c8=R c8=Q
+d7: d8=N d8=B d8=R d8=Q
+e7: e8=N e8=B+ e8=R e8=Q+
+f7: f8=N f8=B f8=R f8=Q
+g7: g8=N g8=B g8=R g8=Q
+h7: h8=N h8=B h8=R h8=Q
+D:\dev\ab-tasks\chessjs-qwen-med-r1\src\chess.ts:813
+        throw new Error(error)
+              ^
+
+Error: Invalid FEN: some pawns are on the edge rows
+    at Chess.load (D:\dev\ab-tasks\chessjs-qwen-med-r1\src\chess.ts:813:15)
+    at new Chess (D:\dev\ab-tasks\chessjs-qwen-med-r1\src\chess.ts:772:10)
+    at <anonymous> (D:\dev\ab-tasks\chessjs-qwen-med-r1\promo.ts:14:13)
+    at Object.<anonymous> (D:\dev\ab-tasks\chessjs-qwen-med-r1\promo.ts:29:1)
+    at Module._compile (node:internal/modules/cjs/loader:1804:14)
+    at Object.transformer (D:\dev\ab-tasks\chessjs-qwen-med-r1\node_modules\tsx\dist\register-D46fvsV_.cjs:3:1104)
+    at Module.load (node:internal/modules/cjs/loader:1525:32)
+    at Module._load (node:internal/modules/cjs/loader:1327:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+
+Node.js v24.13.1

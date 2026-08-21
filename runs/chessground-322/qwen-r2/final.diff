@@ -1,0 +1,189 @@
+diff --git a/src/config.ts b/src/config.ts
+index 745908f..eb36a04 100644
+--- a/src/config.ts
++++ b/src/config.ts
+@@ -86,7 +86,9 @@ export interface Config {
+     enabled?: boolean; // can draw
+     visible?: boolean; // can view
+     defaultSnapToValidMove?: boolean;
+-    // Clicking an empty square or immovable piece will clear the drawing regardless, but when this property is true,
++    // Clicking a square clears the drawing; when false, no click ever clears it.
++    eraseOnClick?: boolean;
++    // Clicking an empty square or immovable piece will clear the drawing, but when this property is true,
+     // clicking on a (currently unselected) movable piece will also clear the drawing.
+     eraseOnMovablePieceClick?: boolean;
+     shapes?: DrawShape[];
+diff --git a/src/drag.ts b/src/drag.ts
+index 0fbe74a..5c44dd1 100644
+--- a/src/drag.ts
++++ b/src/drag.ts
+@@ -32,6 +32,7 @@ export function start(s: State, e: cg.MouchEvent): void {
+   if (
+     !previouslySelected &&
+     s.drawable.enabled &&
++    s.drawable.eraseOnClick &&
+     (s.drawable.eraseOnMovablePieceClick || !piece || piece.color !== s.turnColor)
+   )
+     drawClear(s);
+diff --git a/src/draw.ts b/src/draw.ts
+index 1fe7d4f..987393d 100644
+--- a/src/draw.ts
++++ b/src/draw.ts
+@@ -44,7 +44,8 @@ export interface Drawable {
+   enabled: boolean; // can draw
+   visible: boolean; // can view
+   defaultSnapToValidMove: boolean;
+-  eraseOnMovablePieceClick: boolean;
++  eraseOnClick: boolean; // clicking a square clears the drawing
++  eraseOnMovablePieceClick: boolean; // clicking a movable piece also clears the drawing
+   onChange?: (shapes: DrawShape[]) => void;
+   shapes: DrawShape[]; // user shapes
+   autoShapes: DrawShape[]; // computer shapes
+diff --git a/src/state.ts b/src/state.ts
+index df9a318..ea12c8c 100644
+--- a/src/state.ts
++++ b/src/state.ts
+@@ -177,6 +177,7 @@ export function defaults(): HeadlessState {
+       enabled: true, // can draw
+       visible: true, // can view
+       defaultSnapToValidMove: true,
++      eraseOnClick: true,
+       eraseOnMovablePieceClick: true,
+       shapes: [],
+       autoShapes: [],
+diff --git a/tests/draw-erase.test.ts b/tests/draw-erase.test.ts
+new file mode 100644
+index 0000000..bd4fe06
+--- /dev/null
++++ b/tests/draw-erase.test.ts
+@@ -0,0 +1,130 @@
++import { type Api, Chessground } from '../src/chessground';
++import type { Config } from '../src/config';
++import type * as cg from '../src/types';
++
++// jsdom has no layout: give the board a fixed size so that
++// board.getKeyAtDomPos() can resolve clicks to squares.
++const SIZE = 320;
++const SQ = SIZE / 8;
++const rect = {
++  left: 0,
++  top: 0,
++  width: SIZE,
++  height: SIZE,
++  right: SIZE,
++  bottom: SIZE,
++  x: 0,
++  y: 0,
++  toJSON: () => ({}),
++} as DOMRect;
++
++const instances: { chess: Api; wrap: HTMLElement }[] = [];
++
++function setup(config: Config = {}): { chess: Api; boardEl: HTMLElement } {
++  const wrap = document.createElement('div');
++  document.body.appendChild(wrap);
++  const chess = Chessground(wrap, {
++    trustAllEvents: true, // dispatched events have isTrusted = false
++    ...config,
++  });
++  const boardEl = wrap.querySelector('cg-board') as HTMLElement;
++  boardEl.getBoundingClientRect = () => rect;
++  chess.state.dom.bounds.clear();
++  instances.push({ chess, wrap });
++  return { chess, boardEl };
++}
++
++function click(boardEl: HTMLElement, key: cg.Key): void {
++  const file = key.charCodeAt(0) - 97;
++  const rank = key.charCodeAt(1) - 49;
++  const x = file * SQ + SQ / 2;
++  const y = SIZE - (rank * SQ + SQ / 2);
++  boardEl.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: x, clientY: y }));
++  document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, clientX: x, clientY: y }));
++}
++
++function withArrow(chess: Api): void {
++  chess.setShapes([{ orig: 'e4', dest: 'e5', brush: 'blue' }]);
++  expect(chess.state.drawable.shapes).toHaveLength(1);
++}
++
++afterEach(() => {
++  while (instances.length) {
++    const { chess, wrap } = instances.pop()!;
++    chess.destroy();
++    wrap.remove();
++  }
++});
++
++describe('default erase-on-click behavior (regression guard)', () => {
++  test('clicking an empty square erases all shapes', () => {
++    const { chess, boardEl } = setup();
++    withArrow(chess);
++    click(boardEl, 'd4');
++    expect(chess.state.drawable.shapes).toHaveLength(0);
++  });
++
++  test('clicking an immovable piece erases all shapes', () => {
++    const { chess, boardEl } = setup();
++    withArrow(chess);
++    click(boardEl, 'd7');
++    expect(chess.state.drawable.shapes).toHaveLength(0);
++  });
++
++  test('clicking a movable piece erases all shapes', () => {
++    const { chess, boardEl } = setup();
++    withArrow(chess);
++    click(boardEl, 'e2');
++    expect(chess.state.drawable.shapes).toHaveLength(0);
++  });
++});
++
++describe('drawable.eraseOnClick = true (explicit)', () => {
++  const config: Config = { drawable: { eraseOnClick: true } };
++
++  test('clicking an empty square erases all shapes', () => {
++    const { chess, boardEl } = setup(config);
++    withArrow(chess);
++    click(boardEl, 'd4');
++    expect(chess.state.drawable.shapes).toHaveLength(0);
++  });
++
++  test('clicking an immovable piece erases all shapes', () => {
++    const { chess, boardEl } = setup(config);
++    withArrow(chess);
++    click(boardEl, 'd7');
++    expect(chess.state.drawable.shapes).toHaveLength(0);
++  });
++
++  test('clicking a movable piece erases all shapes', () => {
++    const { chess, boardEl } = setup(config);
++    withArrow(chess);
++    click(boardEl, 'e2');
++    expect(chess.state.drawable.shapes).toHaveLength(0);
++  });
++});
++
++describe('drawable.eraseOnClick = false', () => {
++  const config: Config = { drawable: { eraseOnClick: false } };
++
++  test('clicking an empty square keeps the shapes', () => {
++    const { chess, boardEl } = setup(config);
++    withArrow(chess);
++    click(boardEl, 'd4');
++    expect(chess.state.drawable.shapes).toHaveLength(1);
++  });
++
++  test('clicking an immovable piece keeps the shapes', () => {
++    const { chess, boardEl } = setup(config);
++    withArrow(chess);
++    click(boardEl, 'd7');
++    expect(chess.state.drawable.shapes).toHaveLength(1);
++  });
++
++  test('clicking a movable piece keeps the shapes', () => {
++    const { chess, boardEl } = setup(config);
++    withArrow(chess);
++    click(boardEl, 'e2');
++    expect(chess.state.drawable.shapes).toHaveLength(1);
++  });
++});

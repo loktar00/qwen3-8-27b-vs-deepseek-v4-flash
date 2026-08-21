@@ -532,10 +532,37 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 
 </div>
 <div class="modelcol b">
-  <div class="mhead"><div class="mname">Qwen3.8 (xhigh thinking)</div><div class="meffort">xhigh effort (shipped default)</div></div>
-  <div class="rep"><span class="na">no runs published yet</span></div>
-</div></div>
+  <div class="mhead"><div class="mname">Qwen3.8 (medium thinking)</div><div class="meffort">medium effort</div></div>
   
+<div class="rep">
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: qwen">OMP harness, run 1 (qwen)</span>
+  </div>
+  <div><span class="chip unknown">pending</span></div><div class="ladder" style="margin-top:.6em"><div class="rowmeta live-progress" style="margin:0 0 .6em;padding:.5em .75em;border:1px dashed var(--line);border-radius:6px"><strong>RE-RUN LIVE</strong> &mdash; opening turn complete 15:36 EDT (3h 28m); M1 turn complete 15:37 EDT (56s); M2 turn complete 15:42 EDT (4m 47s); M3 turn in progress (0s so far).<br><span style="font-style:italic">Unscored &mdash; checker v2 + SSIM/palette gate runs at completion; scored results replace this block.</span></div><div class="mstep b"><span class="mmark st-glyph none">–</span><span class="mid" title="background + player ship render (image-similarity score ≥ 0.80 vs the DOSBox reference, via SSIM, and ≥ 90% palette)">M1</span><div class="mtrack"><div class="mfill" style="width:0%"></div></div><span class="mtime na">&ndash;</span></div><div class="mstep b"><span class="mmark st-glyph none">–</span><span class="mid" title="movement + fire spawns a projectile">M2</span><div class="mtrack"><div class="mfill" style="width:0%"></div></div><span class="mtime na">&ndash;</span></div><div class="mstep b"><span class="mmark st-glyph none">–</span><span class="mid" title="wave-1 enemies, HP/removal on hit, player can die">M3</span><div class="mtrack"><div class="mfill" style="width:0%"></div></div><span class="mtime na">&ndash;</span></div><div class="mstep b"><span class="mmark st-glyph none">–</span><span class="mid" title="HUD renders; Web Audio running, ≥1 SFX on fire">M4</span><div class="mtrack"><div class="mfill" style="width:0%"></div></div><span class="mtime na">&ndash;</span></div><div class="mstep b"><span class="mmark st-glyph none">–</span><span class="mid" title="sector-1 loop: wave 9 reached, sector-complete screen">M5</span><div class="mtrack"><div class="mfill" style="width:0%"></div></div><span class="mtime na">&ndash;</span></div><div class="shot-pair"><div class="shot"><img src="../raptor/qwen/m1-reference.png" alt="DOSBox reference, M1 crop" loading="lazy" style="max-width:100%;height:auto;border-radius:4px;border:1px solid var(--line)"></div><div class="shot">Qwen3.8 (medium thinking) build<br>M1 crop &mdash; screenshot pending</div></div><div style="margin:.4em 0 1.2em"><div class="rowmeta" style="margin-bottom:.2em">Play it</div><p class="na" style="margin:.5em 0">playable build not published yet</p></div></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>input tokens billed across all calls (context re-sent each call)</dt><dd>not recorded</dd>
+  <dt>completion tokens</dt><dd>not recorded</dd>
+  <dt>reasoning tokens</dt><dd>not recorded</dd>
+  <dt>API calls</dt><dd>not recorded</dd>
+  <dt>tool calls</dt><dd>not recorded</dd>
+  <dt>turns</dt><dd>not recorded</dd>
+  <dt>wall-clock</dt><dd>not recorded</dd>
+  <dt>reverts / dead-ends</dt><dd>not recorded</dd>
+  <dt>files changed / loc</dt><dd>not recorded</dd>
+  <dt title="image-similarity score vs the DOSBox reference, via SSIM -- M3 has no visual-fidelity check by design">image match &mdash; M1 / M3</dt><dd>M1: not recorded &middot; M3: not recorded</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><a class="filelink" href="../data/raptor/qwen/driver.log" target="_blank">driver log</a><a class="filelink" href="../data/raptor/qwen/install.log" target="_blank">install log</a><a class="filelink" href="../data/raptor/qwen/transcript-rendered.html" target="_blank">transcript</a></div>
+  
+</div>
+
+</div></div>
+  <h3>Session transcript</h3><div class="transcripts"><div class="tpane"><div class="thead">DeepSeek V4 Flash</div><iframe src="../data/raptor/dsv4/transcript-rendered.html" loading="lazy"></iframe></div><div class="tpane"><div class="thead">Qwen3.8 (medium thinking)</div><iframe src="../data/raptor/qwen/transcript-rendered.html" loading="lazy"></iframe></div></div>
 </div>
 <div class="section"><h2>Limitations</h2><h2>Raptor ladder — known limitations</h2>
 <ul><li><strong>M1 is frame-timing sensitive.</strong> The DOSBox reference frame was captured at a fixed, non-deterministic-to-reproduce point in wave-1 gameplay (a specific terrain-scroll offset and enemy layout). A model&#x27;s screenshot is taken at whatever moment <code>window.__raptor.ready</code> first flips true, which will generally land at a different scroll/spawn position even from a faithfully-ported, deterministic RNG. A low SSIM can therefore reflect frame misalignment rather than a real rendering-fidelity gap; this applies identically to both models and is not corrected for.</li><li><strong>M5&#x27;s autoplay was amended after calibration.</strong> The original naive policy (hold fire, jitter one random arrow key every ~1.5s) was pre-committed to be replaced with a state-aware <code>window.__raptor</code>-only dodge if the original shareware game, driven by that same naive policy in DOSBox, could not itself survive — which calibration confirmed (destroyed in &lt;30s in 3/3 runs), so the amendment was applied identically to both models before either was scored.</li><li><strong>Commit hygiene is not scored.</strong> Milestone turns request a commit after each step, but the checks run against the model&#x27;s actual working-tree state at session end, uncommitted changes included; a model that under-commits is not penalized on the primary ladder score for that alone.</li><li><strong>n=1 per model.</strong> Unlike the bug-fix task classes (n=2), Raptor runs once per model per effort setting, for cost reasons; a single run&#x27;s result is not averaged against any other attempt of the same milestone turns.</li></ul></div>

@@ -369,9 +369,10 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 <div class="page-head">
   <p class="eyebrow">Gate</p>
   <h1>Harness calibration</h1>
-  <p class="lede">5 tool tasks per model &times; harness, run before anything head-to-head counts. Required: 5/5 with
-  zero unrecoverable tool-call parse errors. A failing gate is a CONFIG problem, fixed and re-run &mdash; never
-  compared on a failing gate.</p>
+  <p class="lede">5 tool tasks per model &times; harness (OMP &mdash; oh-my-pi, a terminal coding agent &mdash; and
+  OpenCode), run before anything head-to-head counts. Required: 5/5 with zero unrecoverable tool-call parse errors.
+  A failing gate is a CONFIG problem, fixed and re-run &mdash; never compared on a failing gate.</p>
+  <p class="rowmeta">Plain chat (no tools) skips this gate &mdash; it has no tools to test.</p>
 </div>
 <div class="prose"><h2>Harness calibration gate (run per model, per harness, BEFORE any head-to-head)</h2>
 <p>Purpose: prove the harness parses this model&#x27;s tool calls and the model can drive the tools. 5/5 required. Failures here are HARNESS/CONFIG events, fixed before comparison — never scored as model losses. Results published alongside the comparison.</p>

@@ -159,19 +159,24 @@ cp -f "$SRC/_raptor-support/GLB-FORMAT.md" "$SRC/_raptor-support/brief-draft.md"
   || fail "raptor-support docs copy"
 
 # --- runs/ (all tasks except deeweb*, and except the _matrix/calibration pseudo-tasks) ---
-# Any top-level _runs/<name> starting with "_" (besides _matrix, handled explicitly
-# above) is orchestrator scratch/quarantine space, not a task -- e.g. _invalid-effort-*,
-# _invalid-harness-*, _restarted-*, created when a run gets invalidated and redone.
-# Publishing those alongside real results would present retracted/broken runs as if
-# they were live data, so they're skipped the same way _matrix and deeweb* are.
+# _invalid-*/_restarted-* are orchestrator quarantine dirs created when a run gets
+# invalidated and redone (e.g. _invalid-effort-20260820, _restarted-raptor-cap-20260820)
+# -- publishing those alongside real results would present retracted/broken runs as if
+# they were live data, so they're skipped like _matrix/deeweb* are. NOT every
+# underscore-prefixed dir is quarantine, though -- _laneC is real Lane C (scripted
+# no-harness chat) results and must sync normally. Anything else starting with "_"
+# that isn't recognized is synced (default to not silently dropping real data) but
+# logged loudly, so an actually-new quarantine convention gets noticed, not swallowed.
 mkdir -p "$DST/runs/_matrix"
 cp -f "$SRC/_runs/_matrix/status.tsv" "$DST/runs/_matrix/" || fail "matrix status.tsv copy"
 for d in "$SRC/_runs"/*/; do
   t="$(basename "$d")"
   case "$t" in
-    _*) log "skipping orchestrator scratch dir: $t"; continue ;;
+    _matrix) continue ;;
     calibration) continue ;;
     deeweb*) log "skipping excluded task dir: $t"; continue ;;
+    _invalid-*|_restarted-*) log "skipping orchestrator quarantine dir: $t"; continue ;;
+    _*) log "WARNING: unrecognized underscore-prefixed _runs dir '$t' -- syncing it as real data. If this is actually orchestrator scratch/quarantine, add its pattern to the skip list above." ;;
   esac
   robomirror "$d" "$DST/runs/$t" /XD "worktree*" node_modules __pycache__ /XF "*.pyc" "*.bash.log" \
     || fail "runs/$t copy"

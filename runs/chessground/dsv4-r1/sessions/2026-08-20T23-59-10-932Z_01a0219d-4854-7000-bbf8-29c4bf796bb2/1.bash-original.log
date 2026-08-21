@@ -1,0 +1,61 @@
+
+> @lichess-org/chessground@10.1.1 test
+> vitest run
+
+
+ RUN  v3.2.4 D:/dev/ab-tasks/chessground-dsv4-r1
+
+ ✓ tests/fen.test.ts (2 tests) 4ms
+ ✓ tests/premove.test.ts (1 test) 5ms
+ ❯ tests/resizeObserver.test.ts (2 tests | 2 failed) 29ms
+   × destroy disconnects the ResizeObserver 16ms
+     → expected 1 to be +0 // Object.is equality
+   × redraws do not accumulate ResizeObservers 12ms
+     → expected [ ResizeObserverMock{ …(2) }, …(3) ] to have a length of 1 but got 4
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/resizeObserver.test.ts > destroy disconnects the ResizeObserver
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/resizeObserver.test.ts:41:28
+     39|   expect(ro.observed).toContain(wrap);
+     40|   cg.destroy();
+     41|   expect(ro.observed.size).toBe(0);
+       |                            ^
+     42|   wrap.remove();
+     43| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/resizeObserver.test.ts > redraws do not accumulate ResizeObservers
+AssertionError: expected [ ResizeObserverMock{ …(2) }, …(3) ] to have a length of 1 but got 4
+
+- Expected
++ Received
+
+- 1
++ 4
+
+ ❯ tests/resizeObserver.test.ts:52:40
+     50|   cg.redrawAll();
+     51|   cg.toggleOrientation();
+     52|   expect(ResizeObserverMock.instances).toHaveLength(1);
+       |                                        ^
+     53|   cg.destroy();
+     54|   expect(ResizeObserverMock.instances[0].observed.size).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  2 failed | 3 passed (5)
+   Start at  20:00:03
+   Duration  10.50s (transform 204ms, setup 0ms, collect 565ms, tests 38ms, environment 27.92s, prepare 1.57s)
+

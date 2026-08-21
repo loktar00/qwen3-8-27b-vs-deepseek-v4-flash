@@ -367,10 +367,9 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 <div class="shell">
 
 <div class="page-head">
-  <p class="eyebrow"><a href="../index.html">&larr; Scoreboard</a> / Known-answer bug</p>
+  <p class="eyebrow"><a href="../index.html">&larr; Scoreboard</a> / Known-answer bugs</p>
   <h1>Incomplete replays cause a softlock</h1>
   <div class="tagrow">
-    <span class="badge">2A</span>
     <span class="badge">HATETRIS #301</span>
     <span class="badge">lane A</span>
     
@@ -407,8 +406,8 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <div class="mhead"><div class="mname">DeepSeek V4 Flash</div><div class="meffort">server default</div></div>
   
 <div class="rep">
-  <div class="rep-label">run 1
-    <span class="badge mono" title="raw run label on disk">dsv4-r1 &rarr; DeepSeek V4 Flash, OMP harness, run 1</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: dsv4-r1">OMP harness, run 1 (dsv4-r1)</span>
   </div>
   <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Fix verified</span></div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>Nothing broke</span></div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Honest test</span></div></div>
   <h4>Process</h4>
@@ -418,21 +417,21 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>—</dd>
   <dt>test runs</dt><dd>—</dd>
-  <dt>reproduced first</dt><dd>—</dd>
+  <dt>reproduced before editing</dt><dd>—</dd>
   <dt>diff</dt><dd>+— / -—, 0 files</dd>
-  <dt>precision</dt><dd>—</dd>
+  <dt>files touched</dt><dd>—</dd>
 </dl>
 
 
   
   
-  <div class="linkrow"><a class="filelink" href="data/hatetris/dsv4-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/hatetris/dsv4-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/hatetris/dsv4-r1/transcript-rendered.html" target="_blank">transcript</a></div>
-  
+  <div class="linkrow"><a class="filelink" href="data/hatetris/dsv4-r1/final.diff" target="_blank">diff</a><a class="filelink" href="data/hatetris/dsv4-r1/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/hatetris/dsv4-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/hatetris/dsv4-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/hatetris/dsv4-r1/transcript-rendered.html" target="_blank">transcript</a></div>
+  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/src/components/Game/logic.ts b/src/components/Game/logic.ts</span><span class="diffline ">index 928e996..babaefa 100644</span><span class="diffline d-hdr">--- a/src/components/Game/logic.ts</span><span class="diffline d-hdr">+++ b/src/components/Game/logic.ts</span><span class="diffline d-hunk">@@ -335,7 +335,13 @@ export const getLogic = ({</span><span class="diffline ">     // row (bar - 1), so there is only one line which we need to check.</span><span class="diffline ">     const gameIsOver = nextWellState.core.well[bar - 1] !== 0</span><span class="diffline "> </span><span class="diffline d-del">-    const nextMode = gameIsOver ? &#x27;GAME_OVER&#x27; : mode</span><span class="diffline d-add">+    // If a replay runs out of moves without ending the game, hand control back</span><span class="diffline d-add">+    // to the player so they aren&#x27;t stuck in replay mode.</span><span class="diffline d-add">+    const nextMode = gameIsOver</span><span class="diffline d-add">+      ? &#x27;GAME_OVER&#x27;</span><span class="diffline d-add">+      : mode === &#x27;REPLAYING&#x27; &amp;&amp; !(nextWellStateId in nextReplay)</span><span class="diffline d-add">+        ? &#x27;PLAYING&#x27;</span><span class="diffline d-add">+        : mode</span><span class="diffline "> </span><span class="diffline ">     // no live piece? make a new one</span><span class="diffline ">     // suited to the new world, of course</span><span class="diffline ">diff --git a/test/components/Game/Game.test.tsx b/test/components/Game/Game.test.tsx</span><span class="diffline ">index c297b35..a82a022 100644</span><span class="diffline d-hdr">--- a/test/components/Game/Game.test.tsx</span><span class="diffline d-hdr">+++ b/test/components/Game/Game.test.tsx</span><span class="diffline d-hunk">@@ -375,6 +375,52 @@ describe(&#x27;&lt;Game&gt;&#x27;, () =&gt; {</span><span class="diffline ">     warn.restore()</span><span class="diffline ">   })</span><span class="diffline "> </span><span class="diffline d-add">+  it(&#x27;lets you carry on playing from the same state after an incomplete replay ends&#x27;, async () =&gt; {</span><span class="diffline d-add">+    // Snapshot the rendered well so we can compare two games cell by cell</span><span class="diffline d-add">+    const getWell = (game: ReturnType&lt;typeof render&gt;) =&gt;</span><span class="diffline d-add">+      Array.from(game.container.querySelectorAll(&#x27;table tr&#x27;), row =&gt;</span><span class="diffline d-add">+        Array.from(row.querySelectorAll(&#x27;td&#x27;), td =&gt; td.getAttribute(&#x27;class&#x27;))</span><span class="diffline d-add">+      )</span><span class="diffline d-add">+</span><span class="diffline d-add">+    const game = renderGame()</span><span class="diffline d-add">+</span><span class="diffline d-add">+    // Replay is an incomplete game: a single &quot;down&quot; move</span><span class="diffline d-add">+    const prompt = sinon.stub(window, &#x27;prompt&#x27;)</span><span class="diffline d-add">+    prompt.returns(&#x27;D&#x27;)</span><span class="diffline d-add">+    await user.click(screen.getByTestId(&#x27;replay-button&#x27;))</span><span class="diffline d-add">+    assert.deepEqual(prompt.getCalls().map(call =&gt; call.args), [</span><span class="diffline d-add">+      [&#x27;Paste replay string...&#x27;]</span><span class="diffline d-add">+    ])</span><span class="diffline d-add">+    prompt.restore()</span><span class="diffline d-add">+</span><span class="diffline d-add">+    // Play the single replay step</span><span class="diffline d-add">+    await advanceReplaySteps(2)</span><span class="diffline d-add">+</span><span class="diffline d-add">+    // Not stuck in replay mode; the user can carry on playing</span><span class="diffline d-add">+    assert.equal(screen.queryAllByTestId(&#x27;bottom&#x27;).length, 0)</span><span class="diffline d-add">+    assert.equal(screen.queryAllByTestId(&#x27;down&#x27;).length, 1)</span><span class="diffline d-add">+</span><span class="diffline d-add">+    // Keep playing from the post-replay state: two more &quot;down&quot; moves</span><span class="diffline d-add">+    await user.click(screen.getByTestId(&#x27;down&#x27;))</span><span class="diffline d-add">+    await user.click(screen.getByTestId(&#x27;down&#x27;))</span><span class="diffline d-add">+    const continuedWell = getWell(game)</span><span class="diffline d-add">+</span><span class="diffline d-add">+    game.unmount()</span><span class="diffline d-add">+</span><span class="diffline d-add">+    // Compare against a game played manually from the start. The same three</span><span class="diffline d-add">+    // &quot;down&quot; moves (one from the replay, two by hand) must reach the exact</span><span class="diffline d-add">+    // same well, proving the replay handed over its state rather than restarting.</span><span class="diffline d-add">+    const manualGame = renderGame()</span><span class="diffline d-add">+    await user.click(screen.getByTestId(&#x27;start-button&#x27;))</span><span class="diffline d-add">+    await user.click(screen.getByTestId(&#x27;down&#x27;))</span><span class="diffline d-add">+    await user.click(screen.getByTestId(&#x27;down&#x27;))</span><span class="diffline d-add">+    await user.click(screen.getByTestId(&#x27;down&#x27;))</span><span class="diffline d-add">+    const manualWell = getWell(manualGame)</span><span class="diffline d-add">+</span><span class="diffline d-add">+    assert.deepEqual(continuedWell, manualWell)</span><span class="diffline d-add">+    manualGame.unmount()</span><span class="diffline d-add">+  })</span><span class="diffline d-add">+</span><span class="diffline ">   it(&#x27;lets you undo and stops replaying when a replay is in progress&#x27;, async () =&gt; {</span><span class="diffline ">     const game = renderGame()</span><span class="diffline "> </span><span class="diffline "></span></pre></details>
 </div>
 
 <div class="rep">
-  <div class="rep-label">run 2
-    <span class="badge mono" title="raw run label on disk">dsv4-r2 &rarr; DeepSeek V4 Flash, OMP harness, run 2</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: dsv4-r2">OMP harness, run 2 (dsv4-r2)</span>
   </div>
   <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Fix verified</span></div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>Nothing broke</span></div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Honest test</span></div></div>
   <h4>Process</h4>
@@ -442,9 +441,9 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>—</dd>
   <dt>test runs</dt><dd>—</dd>
-  <dt>reproduced first</dt><dd>—</dd>
+  <dt>reproduced before editing</dt><dd>—</dd>
   <dt>diff</dt><dd>+— / -—, 0 files</dd>
-  <dt>precision</dt><dd>—</dd>
+  <dt>files touched</dt><dd>—</dd>
 </dl>
 
 

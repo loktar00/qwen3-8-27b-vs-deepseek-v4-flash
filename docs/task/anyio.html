@@ -367,10 +367,9 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 <div class="shell">
 
 <div class="page-head">
-  <p class="eyebrow"><a href="../index.html">&larr; Scoreboard</a> / Known-answer bug</p>
+  <p class="eyebrow"><a href="../index.html">&larr; Scoreboard</a> / Known-answer bugs</p>
   <h1>CapacityLimiter can over-grant tokens (`borrowed_tokens &gt; total_tokens`, `available_tokens` goes negative)</h1>
   <div class="tagrow">
-    <span class="badge">2A</span>
     <span class="badge">anyio #1170</span>
     <span class="badge">lane A</span><span class="badge">lane B</span>
     
@@ -475,8 +474,8 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <div class="mhead"><div class="mname">DeepSeek V4 Flash</div><div class="meffort">server default</div></div>
   
 <div class="rep">
-  <div class="rep-label">run 1
-    <span class="badge mono" title="raw run label on disk">dsv4-r1 &rarr; DeepSeek V4 Flash, OMP harness, run 1</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: dsv4-r1">OMP harness, run 1 (dsv4-r1)</span>
   </div>
   <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">197 passed, 60 skipped in 8.26s</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">200 passed, 61 skipped in 8.38s</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">200 passed, 61 skipped in 7.99s — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
   <h4>Process</h4>
@@ -486,9 +485,9 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>153</dd>
   <dt>test runs</dt><dd>60</dd>
-  <dt>reproduced first</dt><dd>no</dd>
+  <dt>reproduced before editing</dt><dd>no</dd>
   <dt>diff</dt><dd>+53 / -4, 2 files</dd>
-  <dt>precision</dt><dd>subset of upstream</dd>
+  <dt>files touched</dt><dd>within upstream&#x27;s fix</dd>
 </dl>
 <div class="toolcalls"><span class="tc">read &times;28</span><span class="tc">glob &times;4</span><span class="tc">grep &times;16</span><span class="tc">write &times;4</span><span class="tc">bash &times;81</span><span class="tc">edit &times;20</span></div>
 
@@ -499,8 +498,8 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
 </div>
 
 <div class="rep">
-  <div class="rep-label">run 2
-    <span class="badge mono" title="raw run label on disk">dsv4-r2 &rarr; DeepSeek V4 Flash, OMP harness, run 2</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: dsv4-r2">OMP harness, run 2 (dsv4-r2)</span>
   </div>
   <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">197 passed, 60 skipped in 8.34s</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">200 passed, 61 skipped in 8.19s</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">200 passed, 61 skipped in 8.34s — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
   <h4>Process</h4>
@@ -510,9 +509,9 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>142</dd>
   <dt>test runs</dt><dd>32</dd>
-  <dt>reproduced first</dt><dd>no</dd>
+  <dt>reproduced before editing</dt><dd>no</dd>
   <dt>diff</dt><dd>+76 / -4, 2 files</dd>
-  <dt>precision</dt><dd>subset of upstream</dd>
+  <dt>files touched</dt><dd>within upstream&#x27;s fix</dd>
 </dl>
 <div class="toolcalls"><span class="tc">read &times;41</span><span class="tc">glob &times;4</span><span class="tc">grep &times;25</span><span class="tc">write &times;4</span><span class="tc">bash &times;47</span><span class="tc">edit &times;21</span></div>
 
@@ -527,8 +526,8 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <div class="mhead"><div class="mname">Qwen3.8 (xhigh thinking)</div><div class="meffort">xhigh effort (shipped default)</div></div>
   
 <div class="rep">
-  <div class="rep-label">run 1
-    <span class="badge mono" title="raw run label on disk">qwen-r1 &rarr; Qwen3.8 (xhigh thinking), OMP harness, run 1</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: qwen-r1">OMP harness, run 1 (qwen-r1)</span>
   </div>
   <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">197 passed, 60 skipped in 7.69s</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">200 passed, 61 skipped in 7.86s</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">200 passed, 61 skipped in 7.79s — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
   <h4>Process</h4>
@@ -538,9 +537,9 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>148</dd>
   <dt>test runs</dt><dd>40</dd>
-  <dt>reproduced first</dt><dd>no</dd>
+  <dt>reproduced before editing</dt><dd>no</dd>
   <dt>diff</dt><dd>+69 / -4, 3 files</dd>
-  <dt>precision</dt><dd>subset of upstream</dd>
+  <dt>files touched</dt><dd>within upstream&#x27;s fix</dd>
 </dl>
 <div class="toolcalls"><span class="tc">read &times;48</span><span class="tc">grep &times;20</span><span class="tc">write &times;4</span><span class="tc">bash &times;60</span><span class="tc">edit &times;16</span></div>
 
@@ -551,8 +550,8 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
 </div>
 
 <div class="rep">
-  <div class="rep-label">run 2
-    <span class="badge mono" title="raw run label on disk">qwen-r2 &rarr; Qwen3.8 (xhigh thinking), OMP harness, run 2</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: qwen-r2">OMP harness, run 2 (qwen-r2)</span>
   </div>
   <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Fix verified</span></div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>Nothing broke</span></div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Honest test</span></div></div>
   <h4>Process</h4>
@@ -562,9 +561,9 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>—</dd>
   <dt>test runs</dt><dd>—</dd>
-  <dt>reproduced first</dt><dd>—</dd>
+  <dt>reproduced before editing</dt><dd>—</dd>
   <dt>diff</dt><dd>+— / -—, 0 files</dd>
-  <dt>precision</dt><dd>—</dd>
+  <dt>files touched</dt><dd>—</dd>
 </dl>
 
 
@@ -579,8 +578,8 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <div class="mhead"><div class="mname">Qwen3.8 (medium thinking)</div><div class="meffort">medium effort</div></div>
   
 <div class="rep">
-  <div class="rep-label">run 1
-    <span class="badge mono" title="raw run label on disk">qwen-med-r1 &rarr; Qwen3.8 (medium thinking), OMP harness, run 1</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: qwen-med-r1">OMP harness, run 1 (qwen-med-r1)</span>
   </div>
   <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">197 passed, 60 skipped in 7.87s</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">200 passed, 59 skipped in 8.01s</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">200 passed, 59 skipped in 8.22s — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
   <h4>Process</h4>
@@ -590,9 +589,9 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>188</dd>
   <dt>test runs</dt><dd>40</dd>
-  <dt>reproduced first</dt><dd>no</dd>
+  <dt>reproduced before editing</dt><dd>no</dd>
   <dt>diff</dt><dd>+68 / -3, 2 files</dd>
-  <dt>precision</dt><dd>subset of upstream</dd>
+  <dt>files touched</dt><dd>within upstream&#x27;s fix</dd>
 </dl>
 <div class="toolcalls"><span class="tc">glob &times;4</span><span class="tc">grep &times;13</span><span class="tc">read &times;65</span><span class="tc">bash &times;85</span><span class="tc">write &times;5</span><span class="tc">edit &times;16</span></div>
 
@@ -613,8 +612,8 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <div class="mhead"><div class="mname">DeepSeek V4 Flash</div><div class="meffort">server default</div></div>
   
 <div class="rep">
-  <div class="rep-label">run 1
-    <span class="badge mono" title="raw run label on disk">dsv4-oc &rarr; DeepSeek V4 Flash, OpenCode harness, run 1</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: dsv4-oc">OpenCode harness, run 1 (dsv4-oc)</span>
   </div>
   <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">197 passed, 60 skipped in 8.96s</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">200 passed, 61 skipped in 9.00s</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">200 passed, 61 skipped in 9.41s — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
   <h4>Process</h4>
@@ -624,9 +623,9 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>—</dd>
   <dt>test runs</dt><dd>0</dd>
-  <dt>reproduced first</dt><dd>—</dd>
+  <dt>reproduced before editing</dt><dd>—</dd>
   <dt>diff</dt><dd>+64 / -4, 2 files</dd>
-  <dt>precision</dt><dd>subset of upstream</dd>
+  <dt>files touched</dt><dd>within upstream&#x27;s fix</dd>
 </dl>
 
 
@@ -641,8 +640,8 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <div class="mhead"><div class="mname">Qwen3.8 (xhigh thinking)</div><div class="meffort">xhigh effort (shipped default)</div></div>
   
 <div class="rep">
-  <div class="rep-label">run 1
-    <span class="badge mono" title="raw run label on disk">qwen-oc &rarr; Qwen3.8 (xhigh thinking), OpenCode harness, run 1</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: qwen-oc">OpenCode harness, run 1 (qwen-oc)</span>
   </div>
   <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">197 passed, 60 skipped in 7.61s</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">200 passed, 59 skipped in 8.09s</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">200 passed, 59 skipped in 7.24s — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
   <h4>Process</h4>
@@ -652,9 +651,9 @@ AssertionError: borrowed_tokens &gt; total_tokens</code></pre>
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>—</dd>
   <dt>test runs</dt><dd>0</dd>
-  <dt>reproduced first</dt><dd>—</dd>
+  <dt>reproduced before editing</dt><dd>—</dd>
   <dt>diff</dt><dd>+68 / -4, 2 files</dd>
-  <dt>precision</dt><dd>subset of upstream</dd>
+  <dt>files touched</dt><dd>within upstream&#x27;s fix</dd>
 </dl>
 
 

@@ -367,10 +367,9 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 <div class="shell">
 
 <div class="page-head">
-  <p class="eyebrow"><a href="../index.html">&larr; Scoreboard</a> / Open bug (no known fix)</p>
+  <p class="eyebrow"><a href="../index.html">&larr; Scoreboard</a> / Open bugs (no known fix)</p>
   <h1>BigInt error when generating moves for pawns on edge ranks</h1>
   <div class="tagrow">
-    <span class="badge">2B</span>
     <span class="badge">chess.js #577</span>
     <span class="badge">lane A</span><span class="badge">lane C</span>
     
@@ -417,8 +416,8 @@ chess.moves({ square: &#x27;h8&#x27;, verbose: true }))</code></pre>
   <div class="mhead"><div class="mname">DeepSeek V4 Flash</div><div class="meffort">server default</div></div>
   
 <div class="rep">
-  <div class="rep-label">run 1
-    <span class="badge mono" title="raw run label on disk">dsv4-c &rarr; DeepSeek V4 Flash, Plain chat (no tools), run 1</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: dsv4-c">Plain chat (no tools), run 1 (dsv4-c)</span>
   </div>
   <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">[2m   Duration [22m 451ms[2m (transform 63ms, setup 0ms, collect 117ms, tests 3ms, environment 0ms, prepare 121ms)[22m</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">[2m   Duration [22m 2.15s[2m (transform 1.57s, setup 0ms, collect 6.71s, tests 2.07s, environment 8ms, prepare 10.44s)[22m</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">[2m   Duration [22m 449ms[2m (transform 61ms, setup 0ms, collect 109ms, tests 5ms, environment 0ms, prepare 117ms)[22m — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
   <h4>Process</h4>
@@ -428,9 +427,9 @@ chess.moves({ square: &#x27;h8&#x27;, verbose: true }))</code></pre>
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>—</dd>
   <dt>test runs</dt><dd>—</dd>
-  <dt>reproduced first</dt><dd>—</dd>
+  <dt>reproduced before editing</dt><dd>—</dd>
   <dt>diff</dt><dd>+70 / -2, 2 files</dd>
-  <dt>precision</dt><dd>not a subset of upstream</dd>
+  <dt>files touched</dt><dd>outside upstream&#x27;s fix</dd>
 </dl>
 
 

@@ -1,0 +1,142 @@
+Finished in 204ms on 2 files using 32 threads.
+No config found, using defaults. Please add a config file or try `oxfmt --init` if needed.
+--- diff events ---
+--- events-new.ts
++++ events-out.ts
+@@ -1,9 +1,9 @@
+-import * as drag from './drag.js';
+-import * as draw from './draw.js';
+-import { drop } from './drop.js';
+-import { type State } from './state.js';
+-import type * as cg from './types.js';
+-import { isRightButton } from './util.js';
++import * as drag from "./drag.js";
++import * as draw from "./draw.js";
++import { drop } from "./drop.js";
++import { type State } from "./state.js";
++import type * as cg from "./types.js";
++import { isRightButton } from "./util.js";
+ 
+ type MouchBind = (e: cg.MouchEvent) => void;
+ type StateMouchBind = (d: State, e: cg.MouchEvent) => void;
+@@ -15,7 +15,7 @@
+   const boardEl = s.dom.elements.board;
+ 
+   if (s.disableContextMenu || s.drawable.enabled) {
+-    boardEl.addEventListener('contextmenu', e => e.preventDefault());
++    boardEl.addEventListener("contextmenu", (e) => e.preventDefault());
+   }
+ 
+   if (s.viewOnly) return;
+@@ -23,10 +23,10 @@
+   // Cannot be passive, because we prevent touch scrolling and dragging of
+   // selected elements.
+   const onStart = startDragOrDraw(s);
+-  boardEl.addEventListener('touchstart', onStart as EventListener, {
++  boardEl.addEventListener("touchstart", onStart as EventListener, {
+     passive: false,
+   });
+-  boardEl.addEventListener('mousedown', onStart as EventListener, {
++  boardEl.addEventListener("mousedown", onStart as EventListener, {
+     passive: false,
+   });
+ }
+@@ -35,29 +35,30 @@
+ export function bindDocument(s: State, onResize: () => void): cg.Unbind {
+   const unbinds: cg.Unbind[] = [];
+ 
+-  if ('ResizeObserver' in window) {
++  if ("ResizeObserver" in window) {
+     const ro = new ResizeObserver(onResize);
+     ro.observe(s.dom.elements.wrap);
+     unbinds.push(() => ro.disconnect());
+   }
+   // Old versions of Edge and Safari do not support ResizeObserver. Send
+   // chessground.resize if a user action has changed the bounds of the board.
+-  else unbinds.push(unbindable(document.body, 'chessground.resize', onResize));
++  else unbinds.push(unbindable(document.body, "chessground.resize", onResize));
+ 
+   if (!s.viewOnly) {
+     const onmove = dragOrDraw(s, drag.move, draw.move);
+     const onend = dragOrDraw(s, drag.end, draw.end);
+ 
+-    for (const ev of ['touchmove', 'mousemove'])
++    for (const ev of ["touchmove", "mousemove"])
+       unbinds.push(unbindable(document, ev, onmove as EventListener));
+-    for (const ev of ['touchend', 'mouseup']) unbinds.push(unbindable(document, ev, onend as EventListener));
++    for (const ev of ["touchend", "mouseup"])
++      unbinds.push(unbindable(document, ev, onend as EventListener));
+ 
+     const onScroll = () => s.dom.bounds.clear();
+-    unbinds.push(unbindable(document, 'scroll', onScroll, { capture: true, passive: true }));
+-    unbinds.push(unbindable(window, 'resize', onScroll, { passive: true }));
++    unbinds.push(unbindable(document, "scroll", onScroll, { capture: true, passive: true }));
++    unbinds.push(unbindable(window, "resize", onScroll, { passive: true }));
+   }
+ 
+-  return () => unbinds.forEach(f => f());
++  return () => unbinds.forEach((f) => f());
+ }
+ 
+ function unbindable(
+@@ -72,7 +73,7 @@
+ 
+ const startDragOrDraw =
+   (s: State): MouchBind =>
+-  e => {
++  (e) => {
+     if (s.draggable.current) drag.cancel(s);
+     else if (s.drawable.current) draw.cancel(s);
+     else if (e.shiftKey || isRightButton(e)) {
+@@ -85,7 +86,7 @@
+ 
+ const dragOrDraw =
+   (s: State, withDrag: StateMouchBind, withDraw: StateMouchBind): MouchBind =>
+-  e => {
++  (e) => {
+     if (s.drawable.current) {
+       if (s.drawable.enabled) withDraw(s, e);
+     } else if (!s.viewOnly) withDrag(s, e);
+--- diff chessground ---
+--- chessground-new.ts
++++ chessground-out.ts
+@@ -1,12 +1,12 @@
+-import { type Api, start } from './api.js';
+-import * as autoPieces from './autoPieces.js';
+-import { type Config, configure } from './config.js';
+-import * as events from './events.js';
+-import { render, renderResized, updateBounds } from './render.js';
+-import { defaults, type HeadlessState, type State } from './state.js';
+-import * as svg from './svg.js';
+-import * as util from './util.js';
+-import { renderWrap } from './wrap.js';
++import { type Api, start } from "./api.js";
++import * as autoPieces from "./autoPieces.js";
++import { type Config, configure } from "./config.js";
++import * as events from "./events.js";
++import { render, renderResized, updateBounds } from "./render.js";
++import { defaults, type HeadlessState, type State } from "./state.js";
++import * as svg from "./svg.js";
++import * as util from "./util.js";
++import { renderWrap } from "./wrap.js";
+ 
+ export function initModule({ el, config }: { el: HTMLElement; config?: Config }): Api {
+   return Chessground(el, config);
+@@ -18,7 +18,7 @@
+   configure(maybeState, config || {});
+ 
+   function redrawAll(): State {
+-    const prevUnbind = 'dom' in maybeState ? maybeState.dom.unbind : undefined;
++    const prevUnbind = "dom" in maybeState ? maybeState.dom.unbind : undefined;
+     // compute bounds from existing board element if possible
+     // this allows non-square boards from CSS to be handled (for 3D)
+     const elements = renderWrap(element, maybeState),
+@@ -41,7 +41,7 @@
+       redrawNow,
+       unbind: prevUnbind,
+     };
+-    state.drawable.prevSvgHash = '';
++    state.drawable.prevSvgHash = "";
+     updateBounds(state);
+     redrawNow(false);
+     events.bindBoard(state);

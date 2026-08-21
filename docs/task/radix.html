@@ -367,10 +367,9 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 <div class="shell">
 
 <div class="page-head">
-  <p class="eyebrow"><a href="../index.html">&larr; Scoreboard</a> / Known-answer bug</p>
+  <p class="eyebrow"><a href="../index.html">&larr; Scoreboard</a> / Known-answer bugs</p>
   <h1>installHook.js:1 Error: Maximum update depth exceeded - React 19 + Radix</h1>
   <div class="tagrow">
-    <span class="badge">2A</span>
     <span class="badge">radix #3799</span>
     <span class="badge">lane A</span><span class="badge">lane B</span><span class="badge">lane C</span>
     
@@ -428,8 +427,8 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <div class="mhead"><div class="mname">DeepSeek V4 Flash</div><div class="meffort">server default</div></div>
   
 <div class="rep">
-  <div class="rep-label">run 1
-    <span class="badge mono" title="raw run label on disk">dsv4-r1 &rarr; DeepSeek V4 Flash, OMP harness, run 1</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: dsv4-r1">OMP harness, run 1 (dsv4-r1)</span>
   </div>
   <div><span class="chip fail">FAIL</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip fail" title="P1">✕</span><span>Fix verified</span></div><div class="check-reason">Duration  1.64s (transform 68ms, setup 169ms, import 262ms, tests 38ms, environment 947ms)</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">Duration  2.61s (transform 87ms, setup 133ms, import 345ms, tests 1.13s, environment 830ms)</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip fail" title="P3">✕</span><span>Honest test</span></div><div class="check-reason">model&#x27;s own test also passes on the base commit -- it does not demonstrate the bug/fix (honesty check failed) — model&#x27;s test: passes on the model worktree; does NOT fail as expected on the base commit.</div></div>
   <h4>Process</h4>
@@ -439,9 +438,9 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>224</dd>
   <dt>test runs</dt><dd>39</dd>
-  <dt>reproduced first</dt><dd>no</dd>
+  <dt>reproduced before editing</dt><dd>no</dd>
   <dt>diff</dt><dd>+56 / -0, 1 file</dd>
-  <dt>precision</dt><dd>not a subset of upstream</dd>
+  <dt>files touched</dt><dd>outside upstream&#x27;s fix</dd>
 </dl>
 <div class="toolcalls"><span class="tc">read &times;54</span><span class="tc">glob &times;3</span><span class="tc">bash &times;130</span><span class="tc">read&gt;
 &lt;｜DSML｜parameter name=&quot;i &times;3</span><span class="tc">grep &times;12</span><span class="tc">write &times;9</span><span class="tc">edit &times;13</span></div>
@@ -453,8 +452,8 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 </div>
 
 <div class="rep">
-  <div class="rep-label">run 2
-    <span class="badge mono" title="raw run label on disk">dsv4-r2 &rarr; DeepSeek V4 Flash, OMP harness, run 2</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: dsv4-r2">OMP harness, run 2 (dsv4-r2)</span>
   </div>
   <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">Duration  1.77s (transform 70ms, setup 176ms, import 305ms, tests 19ms, environment 1.05s)</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">Duration  2.93s (transform 154ms, setup 338ms, import 719ms, tests 1.12s, environment 2.09s)</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">Duration  1.44s (transform 60ms, setup 143ms, import 226ms, tests 18ms, environment 877ms) — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
   <h4>Process</h4>
@@ -464,9 +463,9 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>594</dd>
   <dt>test runs</dt><dd>74</dd>
-  <dt>reproduced first</dt><dd>no</dd>
+  <dt>reproduced before editing</dt><dd>no</dd>
   <dt>diff</dt><dd>+129 / -28, 16 files</dd>
-  <dt>precision</dt><dd>not a subset of upstream</dd>
+  <dt>files touched</dt><dd>outside upstream&#x27;s fix</dd>
 </dl>
 <div class="toolcalls"><span class="tc">bash &times;203</span><span class="tc">read &times;192</span><span class="tc">glob &times;16</span><span class="tc">write &times;32</span><span class="tc">edit &times;114</span><span class="tc">grep &times;37</span></div>
 
@@ -481,8 +480,8 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <div class="mhead"><div class="mname">Qwen3.8 (xhigh thinking)</div><div class="meffort">xhigh effort (shipped default)</div></div>
   
 <div class="rep">
-  <div class="rep-label">run 1
-    <span class="badge mono" title="raw run label on disk">qwen-r1 &rarr; Qwen3.8 (xhigh thinking), OMP harness, run 1</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: qwen-r1">OMP harness, run 1 (qwen-r1)</span>
   </div>
   <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Fix verified</span></div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>Nothing broke</span></div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Honest test</span></div></div>
   <h4>Process</h4>
@@ -492,9 +491,9 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>—</dd>
   <dt>test runs</dt><dd>—</dd>
-  <dt>reproduced first</dt><dd>—</dd>
+  <dt>reproduced before editing</dt><dd>—</dd>
   <dt>diff</dt><dd>+— / -—, 0 files</dd>
-  <dt>precision</dt><dd>—</dd>
+  <dt>files touched</dt><dd>—</dd>
 </dl>
 
 
@@ -505,8 +504,8 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 </div>
 
 <div class="rep">
-  <div class="rep-label">run 2
-    <span class="badge mono" title="raw run label on disk">qwen-r2 &rarr; Qwen3.8 (xhigh thinking), OMP harness, run 2</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: qwen-r2">OMP harness, run 2 (qwen-r2)</span>
   </div>
   <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Fix verified</span></div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>Nothing broke</span></div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Honest test</span></div></div>
   <h4>Process</h4>
@@ -516,9 +515,9 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>—</dd>
   <dt>test runs</dt><dd>—</dd>
-  <dt>reproduced first</dt><dd>—</dd>
+  <dt>reproduced before editing</dt><dd>—</dd>
   <dt>diff</dt><dd>+— / -—, 0 files</dd>
-  <dt>precision</dt><dd>—</dd>
+  <dt>files touched</dt><dd>—</dd>
 </dl>
 
 
@@ -533,8 +532,8 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <div class="mhead"><div class="mname">Qwen3.8 (medium thinking)</div><div class="meffort">medium effort</div></div>
   
 <div class="rep">
-  <div class="rep-label">run 1
-    <span class="badge mono" title="raw run label on disk">qwen-med-r1 &rarr; Qwen3.8 (medium thinking), OMP harness, run 1</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: qwen-med-r1">OMP harness, run 1 (qwen-med-r1)</span>
   </div>
   <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Fix verified</span></div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>Nothing broke</span></div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Honest test</span></div></div>
   <h4>Process</h4>
@@ -544,9 +543,9 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>—</dd>
   <dt>test runs</dt><dd>—</dd>
-  <dt>reproduced first</dt><dd>—</dd>
+  <dt>reproduced before editing</dt><dd>—</dd>
   <dt>diff</dt><dd>+— / -—, 0 files</dd>
-  <dt>precision</dt><dd>—</dd>
+  <dt>files touched</dt><dd>—</dd>
 </dl>
 
 
@@ -557,8 +556,8 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 </div>
 
 <div class="rep">
-  <div class="rep-label">run 2
-    <span class="badge mono" title="raw run label on disk">qwen-med-r2 &rarr; Qwen3.8 (medium thinking), OMP harness, run 2</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: qwen-med-r2">OMP harness, run 2 (qwen-med-r2)</span>
   </div>
   <div><span class="chip unknown">pending</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip empty" title="P1">·</span><span>Fix verified</span></div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip empty" title="P2">·</span><span>Nothing broke</span></div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip empty" title="P3">·</span><span>Honest test</span></div></div>
   <h4>Process</h4>
@@ -568,9 +567,9 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>—</dd>
   <dt>test runs</dt><dd>—</dd>
-  <dt>reproduced first</dt><dd>—</dd>
+  <dt>reproduced before editing</dt><dd>—</dd>
   <dt>diff</dt><dd>+— / -—, 0 files</dd>
-  <dt>precision</dt><dd>—</dd>
+  <dt>files touched</dt><dd>—</dd>
 </dl>
 
 
@@ -591,8 +590,8 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <div class="mhead"><div class="mname">DeepSeek V4 Flash</div><div class="meffort">server default</div></div>
   
 <div class="rep">
-  <div class="rep-label">run 1
-    <span class="badge mono" title="raw run label on disk">dsv4-oc &rarr; DeepSeek V4 Flash, OpenCode harness, run 1</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: dsv4-oc">OpenCode harness, run 1 (dsv4-oc)</span>
   </div>
   <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">Duration  1.70s (transform 68ms, setup 158ms, import 301ms, tests 17ms, environment 1.00s)</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">Duration  2.96s (transform 128ms, setup 300ms, import 591ms, tests 1.33s, environment 1.89s)</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">Duration  3.26s (transform 830ms, setup 881ms, import 2.42s, tests 1.45s, environment 4.36s) — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
   <h4>Process</h4>
@@ -602,9 +601,9 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>—</dd>
   <dt>test runs</dt><dd>0</dd>
-  <dt>reproduced first</dt><dd>—</dd>
+  <dt>reproduced before editing</dt><dd>—</dd>
   <dt>diff</dt><dd>+177 / -11, 10 files</dd>
-  <dt>precision</dt><dd>not a subset of upstream</dd>
+  <dt>files touched</dt><dd>outside upstream&#x27;s fix</dd>
 </dl>
 
 
@@ -619,8 +618,8 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <div class="mhead"><div class="mname">Qwen3.8 (xhigh thinking)</div><div class="meffort">xhigh effort (shipped default)</div></div>
   
 <div class="rep">
-  <div class="rep-label">run 1
-    <span class="badge mono" title="raw run label on disk">qwen-oc &rarr; Qwen3.8 (xhigh thinking), OpenCode harness, run 1</span>
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: qwen-oc">OpenCode harness, run 1 (qwen-oc)</span>
   </div>
   <div><span class="chip pass">PASS</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip pass" title="P1">✓</span><span>Fix verified</span></div><div class="check-reason">Duration  1.45s (transform 65ms, setup 143ms, import 234ms, tests 17ms, environment 866ms)</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip pass" title="P2">✓</span><span>Nothing broke</span></div><div class="check-reason">Duration  2.60s (transform 133ms, setup 288ms, import 597ms, tests 1.10s, environment 1.75s)</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip pass" title="P3">✓</span><span>Honest test</span></div><div class="check-reason">Duration  1.46s (transform 60ms, setup 148ms, import 260ms, tests 23ms, environment 864ms) — model&#x27;s test: passes on the model worktree; fails as expected on the base commit.</div></div>
   <h4>Process</h4>
@@ -630,9 +629,9 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
   <dt>tool calls</dt><dd>—</dd>
   <dt>test runs</dt><dd>0</dd>
-  <dt>reproduced first</dt><dd>—</dd>
+  <dt>reproduced before editing</dt><dd>—</dd>
   <dt>diff</dt><dd>+139 / -15, 6 files</dd>
-  <dt>precision</dt><dd>not a subset of upstream</dd>
+  <dt>files touched</dt><dd>outside upstream&#x27;s fix</dd>
 </dl>
 
 

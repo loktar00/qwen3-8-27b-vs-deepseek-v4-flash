@@ -1,0 +1,60 @@
+diff --git a/src/config.ts b/src/config.ts
+index 745908f..42cba58 100644
+--- a/src/config.ts
++++ b/src/config.ts
+@@ -86,9 +86,8 @@ export interface Config {
+     enabled?: boolean; // can draw
+     visible?: boolean; // can view
+     defaultSnapToValidMove?: boolean;
+-    // Clicking an empty square or immovable piece will clear the drawing regardless, but when this property is true,
+-    // clicking on a (currently unselected) movable piece will also clear the drawing.
+-    eraseOnMovablePieceClick?: boolean;
++    // true to clear the drawing when clicking the board, false to keep it.
++    eraseOnClick?: boolean;
+     shapes?: DrawShape[];
+     autoShapes?: DrawShape[];
+     brushes?: DrawBrushes;
+diff --git a/src/drag.ts b/src/drag.ts
+index 0fbe74a..94a5f15 100644
+--- a/src/drag.ts
++++ b/src/drag.ts
+@@ -29,12 +29,7 @@ export function start(s: State, e: cg.MouchEvent): void {
+   if (!orig) return;
+   const piece = s.pieces.get(orig);
+   const previouslySelected = s.selected;
+-  if (
+-    !previouslySelected &&
+-    s.drawable.enabled &&
+-    (s.drawable.eraseOnMovablePieceClick || !piece || piece.color !== s.turnColor)
+-  )
+-    drawClear(s);
++  if (!previouslySelected && s.drawable.enabled && s.drawable.eraseOnClick) drawClear(s);
+   // Prevent touch scroll and create no corresponding mouse event, if there
+   // is an intent to interact with the board.
+   if (
+diff --git a/src/draw.ts b/src/draw.ts
+index 1fe7d4f..5e24b6f 100644
+--- a/src/draw.ts
++++ b/src/draw.ts
+@@ -44,7 +44,7 @@ export interface Drawable {
+   enabled: boolean; // can draw
+   visible: boolean; // can view
+   defaultSnapToValidMove: boolean;
+-  eraseOnMovablePieceClick: boolean;
++  eraseOnClick: boolean;
+   onChange?: (shapes: DrawShape[]) => void;
+   shapes: DrawShape[]; // user shapes
+   autoShapes: DrawShape[]; // computer shapes
+diff --git a/src/state.ts b/src/state.ts
+index df9a318..48ad23d 100644
+--- a/src/state.ts
++++ b/src/state.ts
+@@ -177,7 +177,7 @@ export function defaults(): HeadlessState {
+       enabled: true, // can draw
+       visible: true, // can view
+       defaultSnapToValidMove: true,
+-      eraseOnMovablePieceClick: true,
++      eraseOnClick: true,
+       shapes: [],
+       autoShapes: [],
+       brushes: {

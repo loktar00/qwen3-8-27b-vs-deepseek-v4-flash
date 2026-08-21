@@ -1,0 +1,54 @@
+pi-natives panic crash
+pid:       19040
+thread:    tokio-rt-worker
+timestamp: 1787272020430 (unix ms)
+location: crates/vendor/brush-core/src/commands.rs:469:21
+message:  OS can't spawn worker thread: The paging file is too small for this operation to complete. (os error 1455)
+backtrace:
+   0: onig_get_string_by_callout_args
+   1: onig_get_string_by_callout_args
+   2: onig_get_string_by_callout_args
+   3: onig_get_string_by_callout_args
+   4: onig_get_string_by_callout_args
+   5: onig_get_string_by_callout_args
+   6: onig_get_string_by_callout_args
+   7: onig_get_string_by_callout_args
+   8: onig_get_callout_num_by_tag
+   9: onig_get_string_by_callout_args
+  10: onig_get_string_by_callout_args
+  11: onig_get_string_by_callout_args
+  12: onig_get_string_by_callout_args
+  13: onig_get_string_by_callout_args
+  14: onig_get_string_by_callout_args
+  15: onig_get_string_by_callout_args
+  16: onig_get_string_by_callout_args
+  17: onig_get_string_by_callout_args
+  18: onig_get_string_by_callout_args
+  19: onig_get_string_by_callout_args
+  20: onig_get_string_by_callout_args
+  21: onig_get_string_by_callout_args
+  22: onig_get_string_by_callout_args
+  23: onig_get_string_by_callout_args
+  24: onig_get_string_by_callout_args
+  25: onig_get_string_by_callout_args
+  26: onig_get_string_by_callout_args
+  27: onig_get_string_by_callout_args
+  28: onig_get_string_by_callout_args
+  29: onig_get_string_by_callout_args
+  30: onig_get_string_by_callout_args
+  31: onig_get_string_by_callout_args
+  32: onig_get_string_by_callout_args
+  33: onig_get_string_by_callout_args
+  34: onig_get_string_by_callout_args
+  35: onig_get_string_by_callout_args
+  36: onig_get_string_by_callout_args
+  37: onig_get_string_by_callout_args
+  38: BaseThreadInitThunk
+  39: <unknown>
+
+
+pi-natives crash report written to C:\Users\lokta\.omp\logs\native-panic-19040-1787272020444.log
+
+thread 'tokio-rt-worker' (24340) panicked at crates/vendor/brush-core/src/commands.rs:469:21:
+OS can't spawn worker thread: The paging file is too small for this operation to complete. (os error 1455)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

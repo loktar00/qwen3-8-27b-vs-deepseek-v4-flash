@@ -1,0 +1,87 @@
+warning: in the working copy of 'packages/react/slot/src/slot.test.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'packages/react/slot/src/slot.tsx', LF will be replaced by CRLF the next time Git touches it
+diff --git a/packages/react/slot/src/slot.test.tsx b/packages/react/slot/src/slot.test.tsx
+index 7beb9bbd..cb8ed084 100644
+--- a/packages/react/slot/src/slot.test.tsx
++++ b/packages/react/slot/src/slot.test.tsx
+@@ -191,9 +191,7 @@ describe('given a Button with Slottable nesting', () => {
+   });
+ });
+ 
+-// TODO: Unskip when underlying issue is resolved
+-// Reverted in https://github.com/radix-ui/primitives/pull/3554
+-describe.skip('given an Input', () => {
++describe('given an Input', () => {
+   const handleRef = vi.fn();
+ 
+   beforeEach(() => {
+@@ -221,6 +219,27 @@ describe.skip('given an Input', () => {
+       expect(handleRef).toHaveBeenCalledTimes(1);
+     });
+   });
++
++  describe('with a ref callback that schedules an update', () => {
++    it('should not exceed the maximum update depth', async () => {
++      const App = () => {
++        const [, setTick] = React.useState(0);
++        const handleRef = React.useCallback((node: HTMLInputElement | null) => {
++          // mimic editor frameworks (eg. Slate/Plate) that schedule an update
++          // (eg. `editor.onChange`) when a ref changes
++          void node;
++          setTick((t) => t + 1);
++        }, []);
++        return (
++          <Input asChild ref={handleRef}>
++            <input />
++          </Input>
++        );
++      };
++      expect(() => render(<App />)).not.toThrow();
++      expect(screen.getByRole('textbox')).toBeTruthy();
++    });
++  });
+ });
+ 
+ describe('given a Slot with React lazy components', () => {
+diff --git a/packages/react/slot/src/slot.tsx b/packages/react/slot/src/slot.tsx
+index acb7e7bb..9b4e2413 100644
+--- a/packages/react/slot/src/slot.tsx
++++ b/packages/react/slot/src/slot.tsx
+@@ -1,5 +1,5 @@
+ import * as React from 'react';
+-import { composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ 
+ declare module 'react' {
+   interface ReactElement {
+@@ -59,6 +59,15 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       slottableElement = children;
+     }
+ 
++    const slottableElementRef = slottableElement ? getElementRef(slottableElement) : undefined;
++    // The composed ref must be memoized: creating a new ref callback on every render
++    // makes React detach/reattach the ref on every re-render, re-invoking the
++    // consumer's ref callback, which can trigger infinite update loops when the
++    // callback schedules an update (eg. React 19 + editor frameworks like Slate).
++    // `useCallback` is supported in React Server Components, so no `use client`
++    // directive is needed (see https://github.com/radix-ui/primitives/pull/3554).
++    const composedRefs = useComposedRefs(forwardedRef, slottableElementRef);
++
+     if (!slottableElement) {
+       // Empty/falsy children (`null`, `undefined`, `false`, no children, etc.) are valid and
+       // render nothing. Anything else is content we couldn't slot onto a single element, which
+@@ -71,8 +80,6 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       return children;
+     }
+ 
+-    const slottableElementRef = getElementRef(slottableElement);
+-    const composedRefs = composeRefs(forwardedRef, slottableElementRef);
+     const mergedProps = mergeProps(slotProps, slottableElement.props ?? {});
+ 
+     // do not pass ref to React.Fragment for React 19 compatibility
+
+ Test Files  1 passed (1)
+      Tests  32 passed (32)
+   Start at  20:24:06
+   Duration  3.44s (transform 114ms, setup 217ms, import 479ms, tests 1.32s, environment 1.21s)
+

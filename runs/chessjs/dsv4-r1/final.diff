@@ -1,0 +1,20 @@
+diff --git a/__tests__/moves.test.ts b/__tests__/moves.test.ts
+index e96a2da..d8ec8cd 100644
+--- a/__tests__/moves.test.ts
++++ b/__tests__/moves.test.ts
+@@ -311,3 +311,15 @@ test('isStalemate - no kings (starting position minus kings)', () => {
+ 
+   expect(noKings.isStalemate()).toEqual(false)
+ })
++
++test('moves - single square - pawn on last rank (no push off the board)', () => {
++  const chess = new Chess()
++  chess.put({ type: 'p', color: 'w' }, 'h8')
++  expect(chess.moves({ square: 'h8' })).toEqual([])
++  expect(chess.moves({ square: 'h8', verbose: true })).toEqual([])
++
++  const chess2 = new Chess()
++  chess2.put({ type: 'p', color: 'b' }, 'a1')
++  expect(chess2.moves({ square: 'a1' })).toEqual([])
++  expect(chess2.moves({ square: 'a1', verbose: true })).toEqual([])
++})

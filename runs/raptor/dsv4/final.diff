@@ -1,0 +1,59 @@
+diff --git a/js/glb.js b/js/glb.js
+index 66a4c2a..66f37d7 100644
+--- a/js/glb.js
++++ b/js/glb.js
+@@ -54,7 +54,11 @@ export class GLBFile {
+       });
+     }
+     this._byName = new Map();
+-    for (const it of this.items) this._byName.set(it.name, it);
++    for (const it of this.items) {
++      // GLB_GetItemID returns the FIRST item whose name matches; later duplicate
++      // names (e.g. MOLE_PIC at 854..858) must not clobber it.
++      if (!this._byName.has(it.name)) this._byName.set(it.name, it);
++    }
+   }
+ 
+   itemSize(nameOrIndex) {
+diff --git a/tools/_autoplay.mjs b/tools/_autoplay.mjs
+new file mode 100644
+index 0000000..04f8236
+--- /dev/null
++++ b/tools/_autoplay.mjs
+@@ -0,0 +1,36 @@
++import { loadGLB } from '../js/glb.js';
++import { Raptor } from '../js/engine.js';
++const glb0 = await loadGLB('data/FILE0000.GLB');
++const glb1 = await loadGLB('data/FILE0001.GLB');
++const g = new Raptor(glb0, glb1);
++g.init();
++g.setAudio({ play: () => false });
++g.godmode = true;
++// patch getItem to log tiny items before returning
++const origGet = g.getItem.bind(g);
++g.getItem = (n) => {
++  const d = origGet(n);
++  if (d.length < 20 && typeof n === 'number') {
++    console.log('TINY ITEM', n, 'len', d.length, 'wave', g.wave, 'frame', g.frameNo);
++    throw new Error('tiny item ' + n);
++  }
++  return d;
++};
++g.startWave(0);
++let dir = 1, strafeT = 0;
++const autoplay = () => {
++  g.keys.fire = true;
++  if (g.playerx < 10) dir = 1; else if (g.playerx > 260) dir = -1;
++  if (++strafeT % 120 === 0) dir = -dir;
++  g.keys.left = dir < 0; g.keys.right = dir > 0;
++  g.keys.down = g.playery < 150; g.keys.up = g.playery > 180;
++};
++let wave = 0, between = 0, complete = false, frames = 0;
++while (!complete && frames < 300000) {
++  frames++;
++  if (between > 0) { between--; autoplay(); if (between === 0) { wave++; g.startWave(wave); } continue; }
++  autoplay();
++  g.frame();
++  if (g.end_wave) { if (wave >= 8) { complete = true; g.sectorComplete = true; } else between = 60; }
++}
++console.log('complete:', complete, 'wave:', wave + 1, 'frames:', frames, 'score', g.score);

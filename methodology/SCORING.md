@@ -312,3 +312,8 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   DeepSeek — 16 compactions across 14 runs (triggered at 45–92k, i.e. not by its window; two radix runs used 133k–191k
   context with no compaction). Conclusion: outside Raptor the 131k cap did not produce a one-sided handicap; no lane-A/B
   re-runs. Lane-B (OpenCode) compaction detection is uncertain (no explicit event type) and is stated as such.
+
+- 2026-08-21 (disclosure, presentation only): the results site's visual design (palette, typography, logo badges,
+  milestone "metro" strip, table styling) was produced by Qwen3.8-27B (FP8, on the study owner's local server) in a
+  sandboxed session and merged by hand; data, wording, counts, the no-verdict gate and the privacy rules are unchanged by
+  it. Logo marks are the models' public GitHub organisation avatars, used for identification only.

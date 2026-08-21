@@ -528,7 +528,7 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 
 </div>
 <div class="modelcol b">
-  <div class="mhead"><div class="mname">Qwen3.8 (xhigh thinking)</div><div class="meffort">xhigh effort (shipped default)</div></div>
+  <div class="mhead"><div class="mname">Qwen3.8 (medium thinking)</div><div class="meffort">medium effort</div></div>
   
 <div class="rep">
   <div class="rep-label">
@@ -558,7 +558,7 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 </div>
 
 </div></div>
-  <h3>Session transcript</h3><div class="transcripts"><div class="tpane"><div class="thead">DeepSeek V4 Flash</div><iframe src="../data/raptor/dsv4/transcript-rendered.html" loading="lazy"></iframe></div><div class="tpane"><div class="thead">Qwen3.8 (xhigh thinking)</div><iframe src="../data/raptor/qwen/transcript-rendered.html" loading="lazy"></iframe></div></div>
+  <h3>Session transcript</h3><div class="transcripts"><div class="tpane"><div class="thead">DeepSeek V4 Flash</div><iframe src="../data/raptor/dsv4/transcript-rendered.html" loading="lazy"></iframe></div><div class="tpane"><div class="thead">Qwen3.8 (medium thinking)</div><iframe src="../data/raptor/qwen/transcript-rendered.html" loading="lazy"></iframe></div></div>
 </div>
 <div class="section"><h2>Limitations</h2><h2>Raptor ladder — known limitations</h2>
 <ul><li><strong>M1 is frame-timing sensitive.</strong> The DOSBox reference frame was captured at a fixed, non-deterministic-to-reproduce point in wave-1 gameplay (a specific terrain-scroll offset and enemy layout). A model&#x27;s screenshot is taken at whatever moment <code>window.__raptor.ready</code> first flips true, which will generally land at a different scroll/spawn position even from a faithfully-ported, deterministic RNG. A low SSIM can therefore reflect frame misalignment rather than a real rendering-fidelity gap; this applies identically to both models and is not corrected for.</li><li><strong>M5&#x27;s autoplay was amended after calibration.</strong> The original naive policy (hold fire, jitter one random arrow key every ~1.5s) was pre-committed to be replaced with a state-aware <code>window.__raptor</code>-only dodge if the original shareware game, driven by that same naive policy in DOSBox, could not itself survive — which calibration confirmed (destroyed in &lt;30s in 3/3 runs), so the amendment was applied identically to both models before either was scored.</li><li><strong>Commit hygiene is not scored.</strong> Milestone turns request a commit after each step, but the checks run against the model&#x27;s actual working-tree state at session end, uncommitted changes included; a model that under-commits is not penalized on the primary ladder score for that alone.</li><li><strong>n=1 per model.</strong> Unlike the bug-fix task classes (n=2), Raptor runs once per model per effort setting, for cost reasons; a single run&#x27;s result is not averaged against any other attempt of the same milestone turns.</li></ul></div>

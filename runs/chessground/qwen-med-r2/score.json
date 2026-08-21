@@ -1,0 +1,78 @@
+{
+  "task": "chessground",
+  "label": "qwen-med-r2",
+  "worktree": "D:\\dev\\ab-tasks\\chessground-qwen-med-r2",
+  "run_dir": "D:\\dev\\ab-tasks\\_runs\\chessground\\qwen-med-r2",
+  "overall_pass": true,
+  "P1": {
+    "status": "PASS",
+    "files": [
+      "tests/repro-386.test.ts"
+    ],
+    "rc": 0,
+    "cmd": "npx --no-install vitest run \"tests/repro-386.test.ts\"",
+    "conflict": false,
+    "log_tail": "\n\u001b[1m\u001b[46m RUN \u001b[49m\u001b[22m \u001b[36mv3.2.4 \u001b[39m\u001b[90mD:/dev/ab-tasks/chessground-qwen-med-r2\u001b[39m\n\n \u001b[32m\u2713\u001b[39m tests/repro-386.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 25\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m2 passed\u001b[39m\u001b[22m\u001b[90m (2)\u001b[39m\n\u001b[2m   Start at \u001b[22m 22:55:53\n\u001b[2m   Duration \u001b[22m 1.80s\u001b[2m (transform 124ms, setup 0ms, collect 335ms, tests 25ms, environment 816ms, prepare 263ms)\u001b[22m\n\n"
+  },
+  "P2": {
+    "status": "PASS",
+    "rc": 0,
+    "cmd": "npm test",
+    "log_tail": "\n> @lichess-org/chessground@10.1.1 test\n> vitest run\n\n\n\u001b[1m\u001b[46m RUN \u001b[49m\u001b[22m \u001b[36mv3.2.4 \u001b[39m\u001b[90mD:/dev/ab-tasks/chessground-qwen-med-r2\u001b[39m\n\n \u001b[32m\u2713\u001b[39m tests/fen.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 4\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/premove.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 7\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m\u2713\u001b[39m tests/resize-observer.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 24\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m3 passed\u001b[39m\u001b[22m\u001b[90m (3)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m5 passed\u001b[39m\u001b[22m\u001b[90m (5)\u001b[39m\n\u001b[2m   Start at \u001b[22m 22:55:57\n\u001b[2m   Duration \u001b[22m 2.00s\u001b[2m (transform 180ms, setup 0ms, collect 491ms, tests 35ms, environment 2.99s, prepare 921ms)\u001b[22m\n\n"
+  },
+  "P3": {
+    "files": [
+      "tests/resize-observer.test.ts"
+    ],
+    "cmd": "npx --no-install vitest run \"tests/resize-observer.test.ts\"",
+    "model_worktree_pass": true,
+    "model_log_tail": "\n\u001b[1m\u001b[46m RUN \u001b[49m\u001b[22m \u001b[36mv3.2.4 \u001b[39m\u001b[90mD:/dev/ab-tasks/chessground-qwen-med-r2\u001b[39m\n\n \u001b[32m\u2713\u001b[39m tests/resize-observer.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 24\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m2 passed\u001b[39m\u001b[22m\u001b[90m (2)\u001b[39m\n\u001b[2m   Start at \u001b[22m 22:56:01\n\u001b[2m   Duration \u001b[22m 2.05s\u001b[2m (transform 179ms, setup 0ms, collect 413ms, tests 24ms, environment 997ms, prepare 339ms)\u001b[22m\n\n",
+    "base_worktree_fail_as_expected": true,
+    "base_sha": "e47565c",
+    "base_log_tail": "\n\u001b[1m\u001b[46m RUN \u001b[49m\u001b[22m \u001b[36mv3.2.4 \u001b[39m\u001b[90mD:/dev/ab-tasks/chessground-p3scratch-qwen-med-r2\u001b[39m\n\n \u001b[31m\u276f\u001b[39m tests/resize-observer.test.ts \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m | \u001b[22m\u001b[31m2 failed\u001b[39m\u001b[2m)\u001b[22m\u001b[32m 23\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m   \u001b[31m\u00d7\u001b[31m destroy disconnects the ResizeObserver\u001b[39m\u001b[32m 16\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u2192 expected 1 to be +0 // Object.is equality\u001b[39m\n\u001b[31m   \u001b[31m\u00d7\u001b[31m redraw disconnects the previous ResizeObserver\u001b[39m\u001b[32m 6\u001b[2mms\u001b[22m\u001b[39m\n\u001b[31m     \u2192 expected 2 to be 1 // Object.is equality\u001b[39m\n\n\u001b[31m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[39m\u001b[1m\u001b[41m Failed Tests 2 \u001b[49m\u001b[22m\u001b[31m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m tests/resize-observer.test.ts\u001b[2m > \u001b[22mdestroy disconnects the ResizeObserver\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected 1 to be +0 // Object.is equality\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- 0\u001b[39m\n\u001b[31m+ 1\u001b[39m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m tests/resize-observer.test.ts:\u001b[2m40:45\u001b[22m\u001b[39m\n    \u001b[90m 38| \u001b[39m  \u001b[34mexpect\u001b[39m(\u001b[33mFakeResizeObserver\u001b[39m\u001b[33m.\u001b[39minstances\u001b[33m.\u001b[39msize)\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m1\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m 39| \u001b[39m  cg\u001b[33m.\u001b[39m\u001b[34mdestroy\u001b[39m()\u001b[33m;\u001b[39m\n    \u001b[90m 40| \u001b[39m  \u001b[34mexpect\u001b[39m(\u001b[33mFakeResizeObserver\u001b[39m\u001b[33m.\u001b[39minstances\u001b[33m.\u001b[39msize)\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m0\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                                            \u001b[31m^\u001b[39m\n    \u001b[90m 41| \u001b[39m  wrap\u001b[33m.\u001b[39m\u001b[34mremove\u001b[39m()\u001b[33m;\u001b[39m\n    \u001b[90m 42| \u001b[39m})\u001b[33m;\u001b[39m\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[1/2]\u23af\u001b[22m\u001b[39m\n\n\u001b[41m\u001b[1m FAIL \u001b[22m\u001b[49m tests/resize-observer.test.ts\u001b[2m > \u001b[22mredraw disconnects the previous ResizeObserver\n\u001b[31m\u001b[1mAssertionError\u001b[22m: expected 2 to be 1 // Object.is equality\u001b[39m\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- 1\u001b[39m\n\u001b[31m+ 2\u001b[39m\n\n\u001b[36m \u001b[2m\u276f\u001b[22m tests/resize-observer.test.ts:\u001b[2m50:45\u001b[22m\u001b[39m\n    \u001b[90m 48| \u001b[39m  \u001b[90m// a config change that rebuilds the board DOM\u001b[39m\n    \u001b[90m 49| \u001b[39m  cg\u001b[33m.\u001b[39m\u001b[35mset\u001b[39m({ orientation\u001b[33m:\u001b[39m \u001b[32m'black'\u001b[39m })\u001b[33m;\u001b[39m\n    \u001b[90m 50| \u001b[39m  \u001b[34mexpect\u001b[39m(\u001b[33mFakeResizeObserver\u001b[39m\u001b[33m.\u001b[39minstances\u001b[33m.\u001b[39msize)\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m1\u001b[39m)\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                                            \u001b[31m^\u001b[39m\n    \u001b[90m 51| \u001b[39m  cg\u001b[33m.\u001b[39m\u001b[34mdestroy\u001b[39m()\u001b[33m;\u001b[39m\n    \u001b[90m 52| \u001b[39m  \u001b[34mexpect\u001b[39m(\u001b[33mFakeResizeObserver\u001b[39m\u001b[33m.\u001b[39minstances\u001b[33m.\u001b[39msize)\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m(\u001b[34m0\u001b[39m)\u001b[33m;\u001b[39m\n\n\u001b[31m\u001b[2m\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af\u23af[2/2]\u23af\u001b[22m\u001b[39m\n\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[31m2 failed\u001b[39m\u001b[22m\u001b[90m (2)\u001b[39m\n\u001b[2m   Start at \u001b[22m 22:56:06\n\u001b[2m   Duration \u001b[22m 2.49s\u001b[2m (transform 428ms, setup 0ms, collect 658ms, tests 23ms, environment 1.12s, prepare 337ms)\u001b[22m\n\n",
+    "status": "PASS"
+  },
+  "secondary": {
+    "loc_added": 76,
+    "loc_removed": 5,
+    "files_touched": [
+      "src/chessground.ts",
+      "src/events.ts",
+      "tests/resize-observer.test.ts"
+    ],
+    "files_touched_count": 3,
+    "non_test_files_touched": [
+      "src/chessground.ts",
+      "src/events.ts"
+    ],
+    "upstream_non_test_files": [
+      "src/chessground.ts",
+      "src/events.ts"
+    ],
+    "precision_subset_of_upstream": true
+  },
+  "events": {
+    "event_source": "turn-json",
+    "raw_ndjson_parse_errors": 0,
+    "tool_call_counts": {
+      "glob": 24,
+      "read": 96,
+      "grep": 60,
+      "bash": 94,
+      "write": 63,
+      "edit": 52
+    },
+    "tool_call_count_source": "toolCall-blocks",
+    "test_run_tool_calls": 16,
+    "reproduced_before_first_edit": false,
+    "harness_parse_errors": 0,
+    "total_tool_errors": 0,
+    "prompt_tokens_sum": null,
+    "completion_tokens_sum": null,
+    "reasoning_tokens_sum": null,
+    "cache_read_tokens_sum": null,
+    "cache_write_tokens_sum": null,
+    "assistant_turns": null
+  },
+  "wallclock_seconds": 1975
+}

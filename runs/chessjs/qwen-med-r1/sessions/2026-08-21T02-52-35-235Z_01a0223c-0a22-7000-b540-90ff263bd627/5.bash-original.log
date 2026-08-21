@@ -1,0 +1,33 @@
+pawn(w) on a8: verbose=[] sans=[] all=20
+pawn(b) on a1: verbose=[] sans=[] all=20
+pawn(w) on b8: verbose=[] sans=[] all=20
+pawn(b) on b1: verbose=["Na3","Nc3"] sans=["Na3","Nc3"] all=20
+pawn(w) on c8: verbose=[] sans=[] all=20
+pawn(b) on c1: verbose=[] sans=[] all=20
+pawn(w) on d8: verbose=[] sans=[] all=20
+pawn(b) on d1: verbose=[] sans=[] all=20
+pawn(w) on e8: verbose=[] sans=[] all=20
+pawn(b) on e1: verbose=[] sans=[] all=20
+pawn(w) on f8: verbose=[] sans=[] all=20
+pawn(b) on f1: verbose=[] sans=[] all=20
+pawn(w) on g8: verbose=[] sans=[] all=20
+pawn(b) on g1: verbose=["Nf3","Nh3"] sans=["Nf3","Nh3"] all=20
+pawn(w) on h8: verbose=[] sans=[] all=20
+pawn(b) on h1: verbose=[] sans=[] all=20
+D:\dev\ab-tasks\chessjs-qwen-med-r1\src\chess.ts:813
+        throw new Error(error)
+              ^
+
+Error: Invalid FEN: missing white king
+    at Chess.load (D:\dev\ab-tasks\chessjs-qwen-med-r1\src\chess.ts:813:15)
+    at new Chess (D:\dev\ab-tasks\chessjs-qwen-med-r1\src\chess.ts:772:10)
+    at <anonymous> (D:\dev\ab-tasks\chessjs-qwen-med-r1\repro.ts:22:11)
+    at Object.<anonymous> (D:\dev\ab-tasks\chessjs-qwen-med-r1\repro.ts:29:60)
+    at Module._compile (node:internal/modules/cjs/loader:1804:14)
+    at Object.transformer (D:\dev\ab-tasks\chessjs-qwen-med-r1\node_modules\tsx\dist\register-D46fvsV_.cjs:3:1104)
+    at Module.load (node:internal/modules/cjs/loader:1525:32)
+    at Module._load (node:internal/modules/cjs/loader:1327:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+
+Node.js v24.13.1

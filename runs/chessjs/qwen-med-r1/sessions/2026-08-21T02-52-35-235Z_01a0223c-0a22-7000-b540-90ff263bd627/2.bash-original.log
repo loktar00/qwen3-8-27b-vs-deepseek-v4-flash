@@ -1,0 +1,18 @@
+fen: rnbqkbnP/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQq - 0 1
+D:\dev\ab-tasks\chessjs-qwen-med-r1\src\chess.ts:1808
+    this._hash ^= this._pieceKey(to)
+                       ^
+
+TypeError: Cannot mix BigInt and other types, use explicit conversions
+    at Chess._movePiece (D:\dev\ab-tasks\chessjs-qwen-med-r1\src\chess.ts:1808:24)
+    at Chess._makeMove (D:\dev\ab-tasks\chessjs-qwen-med-r1\src\chess.ts:1835:10)
+    at Chess._moves (D:\dev\ab-tasks\chessjs-qwen-med-r1\src\chess.ts:1714:12)
+    at Chess.moves (D:\dev\ab-tasks\chessjs-qwen-med-r1\src\chess.ts:1519:24)
+    at <anonymous> (D:\dev\ab-tasks\chessjs-qwen-med-r1\repro.ts:6:21)
+    at Object.<anonymous> (D:\dev\ab-tasks\chessjs-qwen-med-r1\repro.ts:22:31)
+    at Module._compile (node:internal/modules/cjs/loader:1804:14)
+    at Object.transformer (D:\dev\ab-tasks\chessjs-qwen-med-r1\node_modules\tsx\dist\register-D46fvsV_.cjs:3:1104)
+    at Module.load (node:internal/modules/cjs/loader:1525:32)
+    at Module._load (node:internal/modules/cjs/loader:1327:12)
+
+Node.js v24.13.1

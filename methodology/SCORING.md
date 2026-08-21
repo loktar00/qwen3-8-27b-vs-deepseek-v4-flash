@@ -248,3 +248,10 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   generation-config override) came up on those GPUs at ~127 tok/s single-stream vs ~71 on the original; the remaining queued Qwen lane-A
   jobs and Qwen's deeweb session run there. Runs already in flight on the original Qwen server (lane C, Raptor, several lane-A) continue
   there untouched. Each run's driver.log records the model ref (server) it used.
+
+- 2026-08-20 (pre-verdict, harness event): chessjs/qwen-c attempt 3 (started 20:58, i.e. on the lane-C runner BEFORE its
+  dynamic-completion-budget/CONFIG patch at 21:03) crashed at exchange 8 with an unhandled HTTP 400 when prompt (~95k
+  tokens) + the fixed 32,768-token completion budget exceeded Qwen's 131,072 ceiling — the exact failure the patch
+  prevents. Harness failure, not a model result: archived under `_invalid-harness-20260820/chessjs/qwen-c-oldrunner400/`
+  and re-run under the patched runner (same model, on the second Qwen instance), 4-hour guard. The chessjs/qwen-med-c
+  attempt 4 ran on the patched runner and ended CONFIG by the 80% rule as recorded above.

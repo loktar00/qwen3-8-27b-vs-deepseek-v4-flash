@@ -1,0 +1,21 @@
+white h7: [ 'h8=N', 'h8=B', 'h8=R+', 'h8=Q+' ]
+white h7 verbose: [ 'h8=N', 'h8=B', 'h8=R+', 'h8=Q+' ]
+white a7: [ 'a8=N', 'a8=B', 'a8=R+', 'a8=Q+' ]
+white a7 verbose: [ 'a8=N', 'a8=B', 'a8=R+', 'a8=Q+' ]
+D:\dev\ab-tasks\chessjs-dsv4-r2\src\chess.ts:813
+        throw new Error(error)
+              ^
+
+Error: Invalid FEN: piece data does not contain 8 '/'-delimited rows
+    at Chess.load (D:\dev\ab-tasks\chessjs-dsv4-r2\src\chess.ts:813:15)
+    at new Chess (D:\dev\ab-tasks\chessjs-dsv4-r2\src\chess.ts:772:10)
+    at <anonymous> (D:\dev\ab-tasks\chessjs-dsv4-r2\verify-promo.ts:17:11)
+    at Object.<anonymous> (D:\dev\ab-tasks\chessjs-dsv4-r2\verify-promo.ts:25:52)
+    at Module._compile (node:internal/modules/cjs/loader:1804:14)
+    at Object.transformer (D:\dev\ab-tasks\chessjs-dsv4-r2\node_modules\tsx\dist\register-D46fvsV_.cjs:3:1104)
+    at Module.load (node:internal/modules/cjs/loader:1525:32)
+    at Module._load (node:internal/modules/cjs/loader:1327:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+
+Node.js v24.13.1

@@ -1,0 +1,68 @@
+diff --git a/__tests__/moves.test.ts b/__tests__/moves.test.ts
+index e96a2da..8dda405 100644
+--- a/__tests__/moves.test.ts
++++ b/__tests__/moves.test.ts
+@@ -1,4 +1,4 @@
+-import { Chess, Square, Move } from '../src/chess'
++import { Chess, Square, Move, PAWN, WHITE, BLACK } from '../src/chess'
+ import { split } from './utils'
+ import { expect, test } from 'vitest'
+ 
+@@ -15,6 +15,44 @@ test('moves - single square', () => {
+   expect(chess.moves({ square: 'e2' })).to.have.members(split(moves))
+ })
+ 
++test('moves - single square - pawn on last rank', () => {
++  const chess = new Chess()
++  chess.clear()
++  chess.put({ type: PAWN, color: WHITE }, 'h8')
++
++  expect(chess.moves({ square: 'h8' })).toEqual([])
++  expect(chess.moves({ square: 'h8', verbose: true })).toEqual([])
++})
++
++test('moves - single square - black pawn on first rank', () => {
++  const chess = new Chess()
++  chess.clear()
++  chess.put({ type: PAWN, color: BLACK }, 'a1')
++  chess.setTurn(BLACK)
++
++  expect(chess.moves({ square: 'a1' })).toEqual([])
++  expect(chess.moves({ square: 'a1', verbose: true })).toEqual([])
++})
++
++test('moves - single square - promotion on 7th rank (both colors)', () => {
++  // the off-board pawn push guard must not affect promotion generation from the
++  // 7th rank (rank 2 for black); edge files included
++  const cases: [Chess, Square, string][] = [
++    [new Chess('k7/7P/8/8/8/8/8/7K w - - 0 1'), 'h7', 'h8=N h8=B h8=R+ h8=Q+'],
++    [new Chess('7k/P7/8/8/8/8/8/7K w - - 0 1'), 'a7', 'a8=N a8=B a8=R+ a8=Q+'],
++    [new Chess('8/k7/8/8/8/8/7p/K7 b - - 0 1'), 'h2', 'h1=N h1=B h1=R+ h1=Q+'],
++    [new Chess('7K/8/k7/8/8/8/p7/8 b - - 0 1'), 'a2', 'a1=N a1=B+ a1=R a1=Q+'],
++  ]
++
++  for (const [chess, square, expected] of cases) {
++    expect(chess.moves({ square })).to.have.members(split(expected))
++
++    const verbose = chess.moves({ square, verbose: true })
++    expect(verbose.length).toEqual(4)
++    expect(verbose.every((move) => move.promotion !== undefined)).toEqual(true)
++  }
++})
++
+ test('moves - single square - invalid square', () => {
+   const chess = new Chess()
+   const moves: string[] = []
+diff --git a/src/chess.ts b/src/chess.ts
+index 5efdb74..2ab4a11 100644
+--- a/src/chess.ts
++++ b/src/chess.ts
+@@ -1575,7 +1575,7 @@ export class Chess {
+ 
+         // single square, non-capturing
+         to = from + PAWN_OFFSETS[us][0]
+-        if (!this._board[to]) {
++        if (!(to & 0x88) && !this._board[to]) {
+           addMove(moves, us, from, to, PAWN)
+ 
+           // double square

@@ -284,7 +284,7 @@ for d in "$SRC/_runs"/*/; do
       ;;
     _*) log "WARNING: unrecognized underscore-prefixed _runs dir '$t' -- syncing it into runs/ as real data. If this is actually orchestrator scratch/quarantine, add its pattern to the skip/archive list above." ;;
   esac
-  robomirror "$d" "$DST/runs/$t" /XD "worktree*" node_modules __pycache__ /XF "*.pyc" "*.bash.log" \
+  robomirror "$d" "$DST/runs/$t" /XD "worktree*" node_modules __pycache__ scratch .git /XF "*.pyc" "*.bash.log" \
     || fail "runs/$t copy"
 done
 

@@ -9,3 +9,6 @@ __pycache__/
 
 # raw OMP tool-output logs can exceed GitHub limits; transcripts/diffs are kept
 runs/**/sessions/**/*.bash.log
+
+# nested scratch worktrees (contain their own .git -> would become broken submodule pointers; breaks Pages checkout)
+**/scratch/

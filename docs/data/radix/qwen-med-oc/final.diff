@@ -1,0 +1,247 @@
+diff --git a/packages/react/dropdown-menu/src/dropdown-menu.tsx b/packages/react/dropdown-menu/src/dropdown-menu.tsx
+index 8744ee76..b515093f 100644
+--- a/packages/react/dropdown-menu/src/dropdown-menu.tsx
++++ b/packages/react/dropdown-menu/src/dropdown-menu.tsx
+@@ -1,6 +1,6 @@
+ import * as React from 'react';
+ import { composeEventHandlers } from '@radix-ui/primitive';
+-import { composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ import { createContextScope } from '@radix-ui/react-context';
+ import { useControllableState } from '@radix-ui/react-use-controllable-state';
+ import { Primitive } from '@radix-ui/react-primitive';
+@@ -101,6 +101,7 @@ const DropdownMenuTrigger = React.forwardRef<DropdownMenuTriggerElement, Dropdow
+     const { __scopeDropdownMenu, disabled = false, ...triggerProps } = props;
+     const context = useDropdownMenuContext(TRIGGER_NAME, __scopeDropdownMenu);
+     const menuScope = useMenuScope(__scopeDropdownMenu);
++    const composedRefs = useComposedRefs(forwardedRef, context.triggerRef);
+     return (
+       <MenuPrimitive.Anchor asChild {...menuScope}>
+         <Primitive.button
+@@ -113,7 +114,7 @@ const DropdownMenuTrigger = React.forwardRef<DropdownMenuTriggerElement, Dropdow
+           data-disabled={disabled ? '' : undefined}
+           disabled={disabled}
+           {...triggerProps}
+-          ref={composeRefs(forwardedRef, context.triggerRef)}
++          ref={composedRefs}
+           onPointerDown={composeEventHandlers(props.onPointerDown, (event) => {
+             // only call handler if it's the left button (mousedown gets triggered by all mouse buttons)
+             // but not when the control key is pressed (avoiding MacOS right click)
+diff --git a/packages/react/menu/src/menu.tsx b/packages/react/menu/src/menu.tsx
+index dff0c1e9..59198e94 100644
+--- a/packages/react/menu/src/menu.tsx
++++ b/packages/react/menu/src/menu.tsx
+@@ -1,7 +1,7 @@
+ import * as React from 'react';
+ import { composeEventHandlers } from '@radix-ui/primitive';
+ import { createCollection } from '@radix-ui/react-collection';
+-import { useComposedRefs, composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ import { createContextScope } from '@radix-ui/react-context';
+ import { useDirection } from '@radix-ui/react-direction';
+ import { DismissableLayer } from '@radix-ui/react-dismissable-layer';
+@@ -1029,6 +1029,8 @@ const MenuSubTrigger = React.forwardRef<MenuSubTriggerElement, MenuSubTriggerPro
+     const { pointerGraceTimerRef, onPointerGraceIntentChange } = contentContext;
+     const scope = { __scopeMenu: props.__scopeMenu };
+ 
++    const composedRefs = useComposedRefs(forwardedRef, subContext.onTriggerChange);
++
+     const clearOpenTimer = React.useCallback(() => {
+       if (openTimerRef.current) window.clearTimeout(openTimerRef.current);
+       openTimerRef.current = null;
+@@ -1053,7 +1055,7 @@ const MenuSubTrigger = React.forwardRef<MenuSubTriggerElement, MenuSubTriggerPro
+           aria-controls={subContext.contentId}
+           data-state={getOpenState(context.open)}
+           {...props}
+-          ref={composeRefs(forwardedRef, subContext.onTriggerChange)}
++          ref={composedRefs}
+           // This is redundant for mouse users but we cannot determine pointer type from
+           // click event and we cannot use pointerup event (see git history for reasons why)
+           onClick={(event) => {
+diff --git a/packages/react/slot/src/slot.test.tsx b/packages/react/slot/src/slot.test.tsx
+index 7beb9bbd..160bb963 100644
+--- a/packages/react/slot/src/slot.test.tsx
++++ b/packages/react/slot/src/slot.test.tsx
+@@ -191,9 +191,7 @@ describe('given a Button with Slottable nesting', () => {
+   });
+ });
+ 
+-// TODO: Unskip when underlying issue is resolved
+-// Reverted in https://github.com/radix-ui/primitives/pull/3554
+-describe.skip('given an Input', () => {
++describe('given an Input', () => {
+   const handleRef = vi.fn();
+ 
+   beforeEach(() => {
+@@ -223,6 +221,32 @@ describe.skip('given an Input', () => {
+   });
+ });
+ 
++describe('given a Slot whose child ref callback triggers state updates', () => {
++  // Errors thrown during render are also logged by React; silence them to keep test output clean.
++  let errorSpy: ReturnType<typeof vi.spyOn>;
++  beforeEach(() => {
++    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
++  });
++
++  afterEach(() => {
++    errorSpy.mockRestore();
++    cleanup();
++  });
++
++  it('does not throw Maximum update depth exceeded and keeps working', async () => {
++    // Ref callbacks that call setState (e.g. Slate/Plate registering editor nodes) used to
++    // re-run on every re-render because Slot created a new composed ref identity per render:
++    // reattach -> setState -> re-render -> new ref identity -> reattach -> ... -> "Maximum
++    // update depth exceeded". The composed ref must keep a stable identity so the callback
++    // runs once, not on every update.
++    render(<CountingInput />);
++    const input = screen.getByRole('textbox');
++    await userEvent.type(input, 'foo');
++    expect(input).toHaveValue('foo');
++    expect(input.getAttribute('data-ref-calls')).toBe('1');
++  });
++});
++
+ describe('given a Slot with React lazy components', () => {
+   afterEach(cleanup);
+ 
+@@ -341,6 +365,75 @@ describe('Slot prop and ref merging (single element child)', () => {
+   });
+ });
+ 
++// Without a forwarded ref, Slot must keep using the child's own ref directly (unwrapped).
++// These tests lock that behavior in: they pass on both the pre-fix and post-fix Slot,
++// proving the ref-composition change only affects the identity of the *composed* ref
++// (i.e. only when a forwarded ref is present), not the child-ref pass-through path.
++describe('Slot without a forwarded ref (child ref pass-through)', () => {
++  afterEach(cleanup);
++
++  it('calls the child ref once on mount, not on re-render, and with null on unmount', () => {
++    const childRef = vi.fn();
++    const { rerender, unmount } = render(
++      <Slot>
++        <button ref={childRef} type="button">
++          hi
++        </button>
++      </Slot>,
++    );
++    const button = screen.getByRole('button');
++    expect(childRef).toHaveBeenCalledTimes(1);
++    expect(childRef).toHaveBeenLastCalledWith(button);
++
++    rerender(
++      <Slot>
++        <button ref={childRef} type="button">
++          hi
++        </button>
++      </Slot>,
++    );
++    expect(childRef).toHaveBeenCalledTimes(1);
++
++    unmount();
++    expect(childRef).toHaveBeenCalledTimes(2);
++    // React 19 passes extra arguments (prev instance) to ref callbacks on detach.
++    expect(childRef.mock.calls.at(-1)![0]).toBeNull();
++  });
++
++  it('keeps native re-attach semantics when the child ref identity changes', () => {
++    const calls: (HTMLButtonElement | null)[] = [];
++
++    const Parent = () => {
++      const [, setTick] = React.useState(0);
++      // A fresh identity on every render, as an inline `ref={(n) => ...}` would be.
++      const childRef = (node: HTMLButtonElement | null) => {
++        calls.push(node);
++      };
++
++      return (
++        <React.Fragment>
++          <Slot data-slot="">
++            <button ref={childRef} type="button">
++              slotted
++            </button>
++          </Slot>
++          <button type="button" onClick={() => setTick((t) => t + 1)}>
++            tick
++          </button>
++        </React.Fragment>
++      );
++    };
++
++    render(<Parent />);
++    fireEvent.click(screen.getByRole('button', { name: 'tick' }));
++    const slotted = screen.getByRole('button', { name: 'slotted' });
++
++    // Exactly what React does with the child's own ref: attach on mount, then
++    // null + node whenever the ref identity changes. No extra wrapping.
++    expect(calls).toEqual([slotted, null, slotted]);
++  });
++});
++
+ describe('Slot with non-mergeable children', () => {
+   // Errors thrown during render are also logged by React; silence them to keep test output clean.
+   let errorSpy: ReturnType<typeof vi.spyOn>;
+@@ -569,6 +662,26 @@ const ButtonNested = React.forwardRef<
+   );
+ });
+ 
++const CountingInput = () => {
++  const [value, setValue] = React.useState('');
++  const [refCalls, setRefCalls] = React.useState(0);
++  const slotRef = React.useRef<HTMLInputElement | null>(null);
++  const countRef = React.useCallback((_node: HTMLInputElement | null) => {
++    // A state update that never settles on its own, like the node bookkeeping
++    // Slate/Plate perform inside ref callbacks.
++    setRefCalls((count) => count + 1);
++  }, []);
++
++  return (
++    <Slot
++      ref={slotRef}
++      onChange={(event) => setValue((event.target as HTMLInputElement).value)}
++    >
++      <input data-ref-calls={refCalls} ref={countRef} value={value} />
++    </Slot>
++  );
++};
++
+ const Input = React.forwardRef<
+   React.ComponentRef<'input'>,
+   React.ComponentProps<'input'> & {
+diff --git a/packages/react/slot/src/slot.tsx b/packages/react/slot/src/slot.tsx
+index acb7e7bb..4f606a90 100644
+--- a/packages/react/slot/src/slot.tsx
++++ b/packages/react/slot/src/slot.tsx
+@@ -1,5 +1,5 @@
+ import * as React from 'react';
+-import { composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ 
+ declare module 'react' {
+   interface ReactElement {
+@@ -59,6 +59,15 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       slottableElement = children;
+     }
+ 
++    // Compose with `useComposedRefs` (not `composeRefs`) so the ref callback identity is
++    // stable across re-renders. A fresh identity on every render makes React detach and
++    // reattach the refs on each update, which loops forever ("Maximum update depth
++    // exceeded") when a ref callback triggers a state update, as Slate/Plate do on
++    // React 19. Called before the early return below so hook order stays stable when
++    // children toggle between slottable and empty.
++    const slottableElementRef = slottableElement ? getElementRef(slottableElement) : undefined;
++    const composedRefs = useComposedRefs(forwardedRef, slottableElementRef);
++
+     if (!slottableElement) {
+       // Empty/falsy children (`null`, `undefined`, `false`, no children, etc.) are valid and
+       // render nothing. Anything else is content we couldn't slot onto a single element, which
+@@ -71,8 +80,6 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+       return children;
+     }
+ 
+-    const slottableElementRef = getElementRef(slottableElement);
+-    const composedRefs = composeRefs(forwardedRef, slottableElementRef);
+     const mergedProps = mergeProps(slotProps, slottableElement.props ?? {});
+ 
+     // do not pass ref to React.Fragment for React 19 compatibility

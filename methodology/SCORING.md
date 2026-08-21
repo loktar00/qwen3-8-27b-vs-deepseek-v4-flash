@@ -193,3 +193,22 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   shipped PR #1866 (objective), plus a disclosed subjective UX note. Runs are driven by an agent, not by hand; company
   code never leaves the machine (only the ticket text and the per-criterion verdicts are published). DeepSeek runs first
   while its server is otherwise idle; Qwen runs on the Qwen server(s) afterwards.
+
+- 2026-08-20 (pre-verdict, infra event): the DeepSeek vLLM server crashed on its own at 20:33:08 EDT (CUDA device-side
+  assert during CUDA-graph capture; it returned one 500 and exited; nothing listened on its port afterwards). Runs that
+  overlapped the crash are audited from their transcripts: chessjs/dsv4-r1 (20:30–20:37) and chessjs/dsv4-r2
+  (20:32–20:48) are SUSPECT and, if the transcripts show server errors, are archived under
+  `_invalid-infra-20260820/` and re-run when the server is restored — an infra failure is never scored as a model
+  result; raptor/dsv4 (ended 20:32) is checked for a clean final turn. The lane-B radix/dsv4-oc re-run (started 20:56
+  against the dead server) is archived as a harness/infra stall and re-run. While DeepSeek is down and all its other
+  lane-A work is complete, its two GPUs serve two additional Qwen replicas (qwen-b, qwen-c; byte-identical vLLM launch
+  to the original Qwen server except GPU/port; same weights, same generation-config override, MTP, vision) so queued
+  Qwen jobs can run ~3× wider. This is a serving-capacity change only: no model, sampling, or context change; which
+  replica served a run is recorded in its driver.log (model ref). DeepSeek is restored with its original launch script
+  for its remaining jobs (chessjs re-runs, lane-B radix, deeweb) before the matrix is declared complete.
+  Audit outcome (transcripts, read-only): chessjs/dsv4-r1 — first error 20:33:08.876, its final scripted turn (turn 3) ran
+  entirely after the crash as 11 failed agent-loop attempts with 0 tool calls/0 tokens; chessjs/dsv4-r2 — first error
+  20:33:08.695 inside turn 0 after 63 real tool calls, turns 1–3 entirely empty retry loops. Both → INFRA-CONTAMINATED,
+  archived under `_invalid-infra-20260820/chessjs/`, re-run with the restored server. raptor/dsv4 — no error signature in
+  any of its 6 turns, last turn ended 20:32:37 (≈30 s before the crash) → VALID. Lane-B radix/dsv4-oc (two attempts, 20:56
+  and 21:50, both against the dead server, 0 output) → archived as harness/infra stalls, re-run with the restored server.

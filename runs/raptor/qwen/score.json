@@ -1,0 +1,111 @@
+{
+  "task": "raptor",
+  "label": "qwen",
+  "model": "Qwen3.8-27B BF16 (medium effort)",
+  "lane": "A",
+  "checker_version": "m2_m5_playwright.mjs v2 (2026-08-20, state-aware M5 dodge)",
+  "run_context": "This run followed a capped (131,072-context) attempt on pod-qwen that was killed WITHOUT scoring after infra decided to relaunch uncapped (see _runs/_extra-capped-131k or _invalid-capped-131k for that discarded attempt -- it does not count toward any result). This scored run used pod-qwen-medium (medium effort) on the restarted Qwen-A server at --max-model-len 262144 (models.yml contextWindow 262144, confirmed at launch time). It did not complete naturally: the opening turn (turn 0, general exploration/research, not a milestone) ran the full 4-hour per-turn guard and was force-aborted (turn-0.json's final event: stopReason='aborted', errorMessage='Deadline exceeded', matching the same shape as an earlier radix/qwen-r2 guard-hit). Turn 1 (the M1 milestone turn) then started immediately at 03:45:51 EDT and ran until the pod's scheduled 04:55/04:57 EDT hard stop terminated it mid-turn; the harness was left retrying against the now-dead server and had to be finalized manually by the queue-runner, which appended 'turn 1 rc=cut (pod terminated 04:57 EDT at the spend hard stop; turns 2-5 not attempted)' and 'DONE raptor/qwen' to driver.log at 05:42:10 EDT. Turns 2-5 (M2-M5) never started. Per the pre-committed contingency, this partial run is scored exactly as it stands, with unreached milestones marked as not attempted rather than failed.",
+  "milestones": [
+    {
+      "id": "M1",
+      "label": "renders level + ship",
+      "pass": false,
+      "ssim": 0.0014,
+      "palette_coverage": 0.0345,
+      "time_to_s": 3692,
+      "notes": "M1 was implemented and committed (0005fbadbaa652b89c30967d96d1f52f56102ca6, 'M1: level-1 background + player ship from real GLB data', 2026-08-21 04:47:23 EDT -- 3692s after turn 1 started at 03:45:51). The model's own tasks/todo.md marks M1 done and says 'Verified headless (scripts/smoke.js -> PNG)'. However M1 FAILS the acceptance check, and for a real, reproducible reason: js/game.js allocates one reusable ImageData buffer at load time (`const img = ctx.createImageData(W, H)`, W=320 H=200 = 64,000 pixels) and sets its alpha channel with `for (let i = 0; i < 256; i++) { px[i*4+3] = 255; }` -- an off-by-a-lot bound (256 instead of W*H=64000) that leaves 63,744 of the canvas's 64,000 pixels at alpha=0 (fully transparent) for the entire session; only the first 256 pixels (less than one scanline) are ever made opaque. The RGB color computation itself runs correctly every frame (present()'s per-pixel loop writes real r/g/b for all 64,000 pixels from the game's own screen buffer and palette), so the underlying render logic is not obviously broken -- but because almost the entire canvas stays transparent, essentially nothing is visually rendered: a page screenshot shows solid black (the page background showing through), and a direct canvas.toDataURL() capture (bypassing the page background, capturing the raw buffer as DSV4's M1 capture script does) shows a near-blank frame with a short opaque sliver in the top-left corner. Confirmed via direct getImageData() sampling in headless Chromium (multiple sample points at alpha=0, only pixel (0,0) at alpha=255) -- not a checker artifact. SSIM/palette were measured against the correct capture (canvas.toDataURL, matching DSV4's own M1 methodology), not a full-page screenshot. This is scored as a straightforward M1 FAIL; the bug was not fixed for scoring purposes (checker/scorer never edits model code)."
+    },
+    {
+      "id": "M2",
+      "label": "arrow keys move ship, fire spawns projectile",
+      "pass": null,
+      "notes": "Not attempted -- turn 2 (the M2 milestone turn) never started; driver.log explicitly records 'turns 2-5 not attempted' after the pod hard-stop cut turn 1. Diagnostic-only run of checkM2 against the build as it stands confirms this: moved=false, fired=false (no code implements movement or firing yet -- tasks/todo.md lists M2 as an unchecked, planned-but-not-built item). This diagnostic result is informational only and is NOT scored as a milestone FAIL; the rung is marked not-attempted because the model was never given the turn to try."
+    },
+    {
+      "id": "M3",
+      "label": "wave-1 enemies, hit decrements HP / removes enemy, player can die",
+      "pass": null,
+      "notes": "Not attempted -- turn 3 never started; same reasoning as M2."
+    },
+    {
+      "id": "M4",
+      "label": "HUD renders; Web Audio running, >=1 SFX on fire",
+      "pass": null,
+      "notes": "Not attempted -- turn 4 never started; same reasoning as M2. (window.__raptor.hud/audio fields are present with correct shape/types even at this stage -- game.js exposes the full grader-contract object from the start -- but hud/audio functionality itself was never built out.)"
+    },
+    {
+      "id": "M5",
+      "label": "sector-1 loop: wave counter to 9 + sector-complete screen",
+      "pass": null,
+      "notes": "Not attempted -- turn 5 never started. Also structurally unreachable at this build state regardless: M5 requires working movement/fire/enemies/waves (M2-M4), none of which exist yet, so no M5 attempts (0 of the usual 3) were run -- there is nothing for the state-aware dodge autoplay to meaningfully dodge or progress."
+    }
+  ],
+  "milestones_reached": 0,
+  "milestones_passed_count": 0,
+  "commits": [
+    "0005fbadbaa652b89c30967d96d1f52f56102ca6 (2026-08-21 04:47:23 EDT) \"M1: level-1 background + player ship from real GLB data\" -- only commit made against the base install commit (4fd5b8f)."
+  ],
+  "secondary": {
+    "note": "Computed the same way as dsv4's secondary metrics (see D:\\dev\\ab-tasks\\_runs\\raptor\\_scoring_work\\raptor_secondary_metrics.py for the shared methodology), adapted for this run's 2-turn shape (turn 0 aborted by the 4h guard, turn 1 cut by the pod hard stop). Tool-call counts are DEDUPED by tool-call id (analyze_events()'s raw count inflates ~4x by counting every streaming snapshot as a separate call -- see the benchmark-wide flag already reported for dsv4). Token 'input' figures are cumulative across every API call in the agentic loop (context resent each call), not unique-conversation tokens -- same convention used for dsv4.",
+    "prompt_tokens": 102561694,
+    "prompt_tokens_by_turn": { "turn_0_opening": 80289698, "turn_1_M1": 22271996 },
+    "completion_tokens": 451887,
+    "completion_tokens_by_turn": { "turn_0_opening": 321621, "turn_1_M1": 130266 },
+    "reasoning_tokens": null,
+    "reasoning_tokens_note": "not exposed as a separate field in this harness's usage schema, same as dsv4",
+    "assistant_api_calls_total": 789,
+    "assistant_api_calls_by_turn": { "turn_0_opening": 614, "turn_1_M1": 175 },
+    "tool_calls_total": 848,
+    "tool_calls_by_tool": { "bash": 343, "read": 387, "grep": 77, "glob": 4, "write": 13, "edit": 24 },
+    "tool_calls_by_turn": { "turn_0_opening": 669, "turn_1_M1": 179 },
+    "tool_calls_total_raw_from_analyze_events": 3406,
+    "tool_calls_inflation_note": "raw toolCall node count (every streaming snapshot) is 3406 across both turns; deduped by id it's 848 (~4.02x inflation) -- same benchmark-wide analyze_events() issue already flagged for dsv4.",
+    "turns": 2,
+    "turns_note": "Only turn-0.json (opening, general exploration -- not a milestone) and turn-1.json (M1) exist. Turns 2-5 (M2-M5) never started.",
+    "wall_s_turn_0_opening": 14400,
+    "wall_s_turn_0_note": "Ran the FULL 4-hour per-turn guard (23:45:50 -> 03:45:50 EDT) and was force-aborted, not a natural completion -- turn-0.json's final event has stopReason='aborted', errorMessage='Deadline exceeded'.",
+    "wall_s_turn_1_M1_real_work": 4269,
+    "wall_s_turn_1_M1_real_work_note": "03:45:51 (turn 1 start) to ~04:57:00 EDT (pod terminated at the spend hard stop) = ~71m9s of actual model work; M1 itself was committed at 04:47:23, i.e. 3692s into this window (see M1's time_to_s above).",
+    "wall_s_turn_1_stuck_retry": 2710,
+    "wall_s_turn_1_stuck_retry_note": "04:57:00 (pod terminated) to 05:42:10 EDT (manual finalization by the queue-runner) = ~45m10s where the harness was retrying against the now-dead server, not doing real work. Excluded from 'real work' time above; included here for completeness since it's real elapsed wall-clock in driver.log.",
+    "wall_s_total_driver_log": 21740,
+    "wall_s_total_driver_log_note": "23:45:49 EDT (worktree created) to 05:42:10 EDT (DONE) = 6h56m21s total elapsed, including the two non-productive stretches above (the 4h guard-out and the 45min stuck-retry).",
+    "reverts_dead_ends": {
+      "count": 1,
+      "detail": [
+        { "turn": "turn-1.json (M1)", "command": "cd D:/dev/ab-tasks/raptor-qwen && rm -rf tools assets && git add -A && git status --short", "note": "Deduped from 3 raw streaming-snapshot hits of the same single tool call. Reads as deliberate cleanup of superseded build artifacts (the model's own accompanying text: 'Removing superseded artifacts, staging'), not an abandon-and-restart/dead-end pattern -- flagged per the metric definition (mass deletion) regardless, for consistency with how dsv4 was scanned." }
+      ]
+    },
+    "loc_and_files": {
+      "base_sha": "4fd5b8f",
+      "method": "git diff base_sha..HEAD (worktree status was clean -- everything committed, unlike dsv4 which had uncommitted M5 changes)",
+      "files_touched": [".gitignore", "README.md", "index.html", "js/assets.js", "js/game.js", "scripts/build.js", "scripts/glb.js", "scripts/smoke.js", "tasks/todo.md"],
+      "files_touched_count": 9,
+      "per_file": {
+        ".gitignore": { "added": 1, "removed": 0 },
+        "README.md": { "added": 40, "removed": 19 },
+        "index.html": { "added": 24, "removed": 0 },
+        "js/assets.js": { "added": 31992, "removed": 0, "note": "generated by scripts/build.js -- baked-in base64 game data extracted from the two GLB archives, not hand-written code; the runtime never fetch()es the GLB files at all (unlike dsv4's architecture)" },
+        "js/game.js": { "added": 494, "removed": 0 },
+        "scripts/build.js": { "added": 101, "removed": 0 },
+        "scripts/glb.js": { "added": 97, "removed": 0 },
+        "scripts/smoke.js": { "added": 79, "removed": 0 },
+        "tasks/todo.md": { "added": 52, "removed": 0 }
+      },
+      "loc_added": 32880,
+      "loc_removed": 19
+    },
+    "compaction": {
+      "count_turn_0_opening": 6,
+      "count_turn_1_M1": 1,
+      "count_total": 7,
+      "context_window": 262144,
+      "note": "Far fewer compaction cycles than the discarded 131k-capped attempt saw in a comparable window (21+ cycles there vs 7 here across both turns combined), consistent with the wider 262144 context window reducing but not eliminating compaction pressure -- turn 0's 4-hour exploration turn still triggered 6 cycles even at 262k."
+    }
+  },
+  "image_match": {
+    "M1": { "ssim": 0.0014, "palette": 0.0345 },
+    "M3": "not measured -- only the M1 frame has a DOSBox reference, and M3 was never reached (turn 3 not attempted)"
+  },
+  "notes": "opening turn ended by the 4-hour per-turn guard (Qwen's opening turn: 4h, vs DeepSeek's opening turn: 25 min); M1 turn cut at 04:57 EDT by the 262k-server pod's spend hard stop; driver finalized manually by the queue-runner at 05:42:10 EDT; turns 2-5 not attempted. window.__raptor contract: fully present with correct shapes/types (ready/player{x,y,alive}/projectiles[]/enemies[]/hud{score,shields}/audio{contextState,sfxCount}/wave/sectorComplete) from the M1 commit onward, even though only M1's own functionality (rendering) was built. Canvas is 320x200 internal buffer, CSS-scaled to 960x600 -- confirmed via getBoundingClientRect(), the CSS scaling itself is not the M1 failure's cause (isolated the actual cause to the alpha-channel bug documented on the M1 milestone entry above). Commit hygiene: clean, single milestone commit, no uncommitted changes left in the worktree (contrast with dsv4, which left M5 changes uncommitted). Architecture note: unlike dsv4 (which decodes the two GLB archives at runtime via fetch()), this build pre-decodes everything at build time into js/assets.js (a 31,992-line generated file of base64-embedded asset data) via scripts/build.js, so the shipped runtime (js/game.js) makes no network/file requests at all."
+}

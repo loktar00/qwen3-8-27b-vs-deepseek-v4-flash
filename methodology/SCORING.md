@@ -341,3 +341,16 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   fixed to compare only lanes where both sides have at least one valid run — today's wording is unaffected because Qwen-medium's
   real lane-C result produces the same lane flip; (2) the §5 tie-break by process efficiency is not needed for this outcome
   (no lane decision rests on a tie) and is therefore not applied by the page; stated as such.
+
+- 2026-08-21 03:50 EDT (Raptor/Qwen-medium, in flight): the opening turn of Qwen's uncapped medium-effort Raptor run ended at
+  exactly the 4-hour per-turn runaway guard (23:45:50 → 03:45:50); the milestone turns then began. DeepSeek's opening turn
+  took 25 minutes at ~4× the token rate. The pod's spend hard stop (04:50 EDT) may cut the later milestone turns; if so the
+  run is scored on the milestone turns completed, the cut is stated, and no re-run is made (study-owner cost limit).
+
+- 2026-08-21 05:45 EDT (Raptor/Qwen-medium, final state): the pod was terminated at 04:57 EDT at the study owner's spend hard
+  stop (≈$160) while the run was in its M1 turn (opening turn 23:45–03:45 ended by the 4-hour guard; M1 turn 03:45–04:57
+  cut). The driver then kept retrying against the dead server and never wrote DONE, so it was stopped by hand and its
+  driver.log finalized with "turn 1 rc=cut … DONE". The run is scored on the worktree as it stood (checker v2, same
+  procedure), with the cut and the manual finalization stated in its score; rungs not reached are shown as not attempted.
+  No re-run (cost limit). This result is reported alongside DeepSeek's Raptor result and, per §5, does not enter the
+  pass/fail verdict rule.

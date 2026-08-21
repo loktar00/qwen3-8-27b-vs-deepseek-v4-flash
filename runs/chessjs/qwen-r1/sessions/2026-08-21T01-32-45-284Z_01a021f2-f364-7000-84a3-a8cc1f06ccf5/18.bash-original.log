@@ -1,0 +1,24 @@
+white pawn h8 verbose: []
+white pawn h8 plain: []
+all moves with pawn on h8 (count): 20
+fen intact: rnbqkbnP/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQq - 0 1
+board intact: { type: 'p', color: 'w' }
+white pawn a8: []
+white pawn a8 verbose: []
+D:\dev\ab-tasks\chessjs-qwen-r1\src\chess.ts:813
+        throw new Error(error)
+              ^
+
+Error: Invalid FEN: piece data is invalid (too many squares in rank)
+    at Chess.load (D:\dev\ab-tasks\chessjs-qwen-r1\src\chess.ts:813:15)
+    at new Chess (D:\dev\ab-tasks\chessjs-qwen-r1\src\chess.ts:772:10)
+    at <anonymous> (D:\dev\ab-tasks\chessjs-qwen-r1\verify.ts:19:11)
+    at Object.<anonymous> (D:\dev\ab-tasks\chessjs-qwen-r1\verify.ts:40:49)
+    at Module._compile (node:internal/modules/cjs/loader:1804:14)
+    at Object.transformer (D:\dev\ab-tasks\chessjs-qwen-r1\node_modules\tsx\dist\register-D46fvsV_.cjs:3:1104)
+    at Module.load (node:internal/modules/cjs/loader:1525:32)
+    at Module._load (node:internal/modules/cjs/loader:1327:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+
+Node.js v24.13.1

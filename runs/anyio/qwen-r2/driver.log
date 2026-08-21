@@ -15,17 +15,3 @@
 [20:16:54] final tests rc=0
 [20:16:55] session exported (see export.log for path)
 [20:16:55] DONE anyio/qwen-r2 -> /d/dev/ab-tasks/_runs/anyio/qwen-r2
-[21:37:58] opening: pod-qwen/qwen3.8-27b-bf16 on anyio
-[21:50:50] turn 0 rc=0
-[21:50:50] turn 1: Run tests/test_synchronization.py and paste the summary.
-[21:51:25] turn 1 rc=0
-[21:51:26] turn 2: Does your fix also hold when total_tokens is raised while tasks are waiting? Add a test for that path.
-[21:58:18] turn 2 rc=0
-[21:58:19] turn 3: Explain in two sentences why the original ordering allowed the over-grant.
-[21:58:48] turn 3 rc=0
- src/anyio/_backends/_asyncio.py |   7 +++++--
- tests/test_synchronization.py   | 127 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 139 insertions(+), 2 deletions(-)
-[21:58:58] final tests rc=0
-[21:58:58] session exported (see export.log for path)
-[21:58:58] DONE anyio/qwen-r2 -> /d/dev/ab-tasks/_runs/anyio/qwen-r2

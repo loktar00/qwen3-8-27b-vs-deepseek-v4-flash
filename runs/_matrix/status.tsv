@@ -2,19 +2,19 @@ task	label	state	start	end	last_driver_log_line
 radix	dsv4-r1	done	2026-08-20T19:32:24	2026-08-20T19:39:41	[19:39:41] DONE radix/dsv4-r1 -> /d/dev/ab-tasks/_runs/radix/dsv4-r1
 radix	dsv4-r2	done	2026-08-20T19:32:24	2026-08-20T19:41:46	[19:41:46] DONE radix/dsv4-r2 -> /d/dev/ab-tasks/_runs/radix/dsv4-r2
 radix	qwen-r1	done	2026-08-20T19:32:24	2026-08-20T21:37:58	[21:37:57] DONE radix/qwen-r1 -> /d/dev/ab-tasks/_runs/radix/qwen-r1
-radix	qwen-r2	running	2026-08-20T19:32:24		[20:35:19] turn 3: Is the same pattern present anywhere else in packages/react? Check and report, fix only if it is the same bug.
+radix	qwen-r2	done	2026-08-20T19:32:24	2026-08-20T22:05:25	[22:05:24] DONE radix/qwen-r2 -> /d/dev/ab-tasks/_runs/radix/qwen-r2
 radix	qwen-med-r1	done	2026-08-20T19:32:24	2026-08-20T20:12:38	[20:12:38] DONE radix/qwen-med-r1 -> /d/dev/ab-tasks/_runs/radix/qwen-med-r1
 radix	qwen-med-r2	done	2026-08-20T19:32:24	2026-08-20T20:39:22	[20:39:22] DONE radix/qwen-med-r2 -> /d/dev/ab-tasks/_runs/radix/qwen-med-r2
 anyio	dsv4-r1	done	2026-08-20T19:39:41	2026-08-20T19:49:33	[19:49:33] DONE anyio/dsv4-r1 -> /d/dev/ab-tasks/_runs/anyio/dsv4-r1
 anyio	dsv4-r2	done	2026-08-20T19:41:46	2026-08-20T19:45:18	[19:45:18] DONE anyio/dsv4-r2 -> /d/dev/ab-tasks/_runs/anyio/dsv4-r2
 anyio	qwen-r1	done			[18:40:09] DONE anyio/qwen-r1 -> /d/dev/ab-tasks/_runs/anyio/qwen-r1
-anyio	qwen-r2	done	2026-08-20T21:37:58	2026-08-20T21:58:58	[21:58:58] DONE anyio/qwen-r2 -> /d/dev/ab-tasks/_runs/anyio/qwen-r2
+anyio	qwen-r2	done	2026-08-20T21:37:58	2026-08-20T21:58:58	[20:16:55] DONE anyio/qwen-r2 -> /d/dev/ab-tasks/_runs/anyio/qwen-r2
 anyio	qwen-med-r1	done			[18:56:47] DONE anyio/qwen-med-r1 -> /d/dev/ab-tasks/_runs/anyio/qwen-med-r1
 anyio	qwen-med-r2	done	2026-08-20T20:12:38	2026-08-20T20:42:43	[20:42:43] DONE anyio/qwen-med-r2 -> /d/dev/ab-tasks/_runs/anyio/qwen-med-r2
 hatetris	dsv4-r1	done	2026-08-20T19:45:18	2026-08-20T19:59:03	[19:59:03] DONE hatetris/dsv4-r1 -> /d/dev/ab-tasks/_runs/hatetris/dsv4-r1
 hatetris	dsv4-r2	done	2026-08-20T19:49:33	2026-08-20T20:27:16	[20:27:16] DONE hatetris/dsv4-r2 -> /d/dev/ab-tasks/_runs/hatetris/dsv4-r2
-hatetris	qwen-r1	running	2026-08-20T21:58:58		[21:58:59] removed project-level AGENTS.md/CLAUDE.md/.cursorrules from worktree (lane-consistency policy)
-hatetris	qwen-r2	queued			
+hatetris	qwen-r1	running	2026-08-20T21:58:58		[21:59:16] opening: pod-qwen/qwen3.8-27b-bf16 on hatetris
+hatetris	qwen-r2	running	2026-08-20T22:05:25		[22:05:37] opening: pod-qwen/qwen3.8-27b-bf16 on hatetris
 hatetris	qwen-med-r1	running	2026-08-20T20:39:22		[21:50:54] turn 2: After a replay ends early, the user should be able to continue playing from that state without reloading. Confirm that is what your fix does, with a test.
 hatetris	qwen-med-r2	done	2026-08-20T20:42:44	2026-08-20T21:22:49	[21:22:49] DONE hatetris/qwen-med-r2 -> /d/dev/ab-tasks/_runs/hatetris/qwen-med-r2
 chessground	dsv4-r1	done	2026-08-20T19:59:03	2026-08-20T20:08:32	[20:08:32] DONE chessground/dsv4-r1 -> /d/dev/ab-tasks/_runs/chessground/dsv4-r1
@@ -32,6 +32,6 @@ chessground-322	qwen-med-r2	queued
 chessjs	dsv4-r1	done	2026-08-20T20:30:49	2026-08-20T20:37:01	
 chessjs	dsv4-r2	done	2026-08-20T20:32:29	2026-08-20T20:48:21	
 chessjs	qwen-r1	queued			[21:32:44] opening: pod-qwen/qwen3.8-27b-bf16 on chessjs
-chessjs	qwen-r2	queued			[21:32:45] opening: pod-qwen/qwen3.8-27b-bf16 on chessjs
+chessjs	qwen-r2	queued			[22:06:34] turn 3: Confirm promotion moves for pawns on the 7th rank are unaffected, with a test.
 chessjs	qwen-med-r1	queued			
 chessjs	qwen-med-r2	queued			

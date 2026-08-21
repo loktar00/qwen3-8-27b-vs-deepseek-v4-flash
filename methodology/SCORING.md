@@ -212,3 +212,26 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   archived under `_invalid-infra-20260820/chessjs/`, re-run with the restored server. raptor/dsv4 — no error signature in
   any of its 6 turns, last turn ended 20:32:37 (≈30 s before the crash) → VALID. Lane-B radix/dsv4-oc (two attempts, 20:56
   and 21:50, both against the dead server, 0 output) → archived as harness/infra stalls, re-run with the restored server.
+
+- 2026-08-20 (pre-verdict, sampling-parameter audit — disclosure, no change): no harness (OMP verified from captured raw
+  request bodies; OpenCode from config + transcripts; lane C from code) sends temperature/top_p/top_k/min_p/penalties; both
+  models receive identical, sampling-free requests in every lane, and the server-side `--override-generation-config`
+  applies. Effective sampling — DeepSeek V4 Flash: temperature 1.0, top_p 0.95 (= the vendor's "agentic scenarios"
+  recommendation; top_k/min_p/penalties at vLLM defaults, no vendor guidance). Qwen3.8-27B: temperature 1.0, top_p 0.95,
+  top_k 20, min_p 0, presence 0, repetition 1.0 (= the model's shipped generation_config; matches the vendor card's
+  "Thinking – General Tasks" profile except presence_penalty 0 vs 1.5). The vendor card's "Thinking – Precise Coding"
+  profile recommends temperature 0.6 (presence 0); it was NOT used. Disclosed as a possible, unquantified disadvantage for
+  Qwen on these coding tasks. Not changed mid-run: a sampling change is a model-config change and would invalidate every
+  Qwen run completed so far; a post-completion spot-check at temperature 0.6 is an optional extra, budget permitting.
+  Note: vLLM 0.27.1 does not log per-request SamplingParams; evidence is the launch command lines, startup "non-default
+  args" lines, and OMP's captured request bodies.
+
+- 2026-08-20 (pre-verdict, duplicate dispatch): run_matrix.sh re-dispatched anyio/qwen-r2 at 21:37 although that job had
+  completed at 20:16 and been scored (PASS) — the earlier run had been launched outside the matrix's own state. The
+  second dispatch reused the existing worktree and therefore started from the first run's uncommitted edits (its test-file
+  insertions stacked 61→127), so it is not an independent repetition. Rule applied: the FIRST valid run per (task, model,
+  rep) is canonical; the duplicate is quarantined under `_runs/_extra-20260820/anyio/qwen-r2-dup/` and excluded. The run
+  dir and worktree were restored to the first run's end state (its final.diff recovered from the public repo history, its
+  OMP session transcript intact; its raw turn-*.json captures were overwritten and are lost) and the first run was
+  re-scored on the restored tree to confirm the recorded PASS. No other job was dispatched twice (verified from the
+  matrix state and driver.logs).

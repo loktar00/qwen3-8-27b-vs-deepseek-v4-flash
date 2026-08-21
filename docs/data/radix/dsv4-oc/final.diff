@@ -1,0 +1,677 @@
+diff --git a/.changeset/calm-slot-refs-loop.md b/.changeset/calm-slot-refs-loop.md
+new file mode 100644
+index 00000000..16a9df8a
+--- /dev/null
++++ b/.changeset/calm-slot-refs-loop.md
+@@ -0,0 +1,17 @@
++---
++'@radix-ui/react-slot': patch
++'@radix-ui/react-dropdown-menu': patch
++'@radix-ui/react-menu': patch
++'@radix-ui/react-navigation-menu': patch
++'@radix-ui/react-dismissable-layer': patch
++'@radix-ui/react-toast': patch
++'@radix-ui/react-switch': patch
++'@radix-ui/react-slider': patch
++'@radix-ui/react-select': patch
++'@radix-ui/react-scroll-area': patch
++'@radix-ui/react-radio-group': patch
++'@radix-ui/react-popper': patch
++'@radix-ui/react-focus-scope': patch
++---
++
++Fix "Maximum update depth exceeded" in React 19 by keeping composed ref callbacks stable so they aren't detached and re-attached on every render (refs that schedule state updates used to loop)
+diff --git a/packages/react/dismissable-layer/src/dismissable-layer.tsx b/packages/react/dismissable-layer/src/dismissable-layer.tsx
+index a59c7347..51754b38 100644
+--- a/packages/react/dismissable-layer/src/dismissable-layer.tsx
++++ b/packages/react/dismissable-layer/src/dismissable-layer.tsx
+@@ -73,7 +73,11 @@ const DismissableLayer = React.forwardRef<DismissableLayerElement, DismissableLa
+     const [node, setNode] = React.useState<DismissableLayerElement | null>(null);
+     const ownerDocument = node?.ownerDocument ?? globalThis?.document;
+     const [, force] = React.useState({});
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setNode(node));
++    // `setNode` is used directly as a ref callback: an inline wrapper would be
++    // recreated every render, making the composed ref unstable so React 19 detaches
++    // and re-attaches it on each render (which can loop when a function ref
++    // schedules state updates - see the Slot "Maximum update depth exceeded" bug).
++    const composedRefs = useComposedRefs(forwardedRef, setNode);
+     const layers = Array.from(context.layers);
+     const [highestLayerWithOutsidePointerEventsDisabled] = [...context.layersWithOutsidePointerEventsDisabled].slice(-1); // prettier-ignore
+     const highestLayerWithOutsidePointerEventsDisabledIndex = layers.indexOf(highestLayerWithOutsidePointerEventsDisabled!); // prettier-ignore
+diff --git a/packages/react/dropdown-menu/src/dropdown-menu.test.tsx b/packages/react/dropdown-menu/src/dropdown-menu.test.tsx
+new file mode 100644
+index 00000000..1a90bb23
+--- /dev/null
++++ b/packages/react/dropdown-menu/src/dropdown-menu.test.tsx
+@@ -0,0 +1,37 @@
++import * as React from 'react';
++import { cleanup, render, screen } from '@testing-library/react';
++import userEvent from '@testing-library/user-event';
++import { DropdownMenu, DropdownMenuTrigger } from './dropdown-menu';
++import { afterEach, describe, it, expect, vi } from 'vitest';
++
++describe('DropdownMenuTrigger unstable composed ref (React 19)', () => {
++  afterEach(cleanup);
++
++  it('does not throw "Maximum update depth exceeded" when a function ref schedules state', async () => {
++    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
++
++    function Repro() {
++      const [text, setText] = React.useState('');
++      const ref = React.useCallback((_node: HTMLButtonElement | null) => {
++        setText((t) => t + '!');
++      }, []);
++
++      return (
++        <div>
++          <input value={text} onChange={(e) => setText(e.target.value)} />
++          <DropdownMenu>
++            <DropdownMenuTrigger ref={ref}>open</DropdownMenuTrigger>
++          </DropdownMenu>
++        </div>
++      );
++    }
++
++    render(<Repro />);
++    await userEvent.type(screen.getByRole('textbox'), 'a');
++
++    expect(console.error).not.toHaveBeenCalledWith(
++      expect.stringContaining('Maximum update depth exceeded'),
++    );
++    errorSpy.mockRestore();
++  });
++});
+diff --git a/packages/react/dropdown-menu/src/dropdown-menu.tsx b/packages/react/dropdown-menu/src/dropdown-menu.tsx
+index 8744ee76..b8b349fb 100644
+--- a/packages/react/dropdown-menu/src/dropdown-menu.tsx
++++ b/packages/react/dropdown-menu/src/dropdown-menu.tsx
+@@ -1,6 +1,6 @@
+ import * as React from 'react';
+ import { composeEventHandlers } from '@radix-ui/primitive';
+-import { composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ import { createContextScope } from '@radix-ui/react-context';
+ import { useControllableState } from '@radix-ui/react-use-controllable-state';
+ import { Primitive } from '@radix-ui/react-primitive';
+@@ -101,6 +101,10 @@ const DropdownMenuTrigger = React.forwardRef<DropdownMenuTriggerElement, Dropdow
+     const { __scopeDropdownMenu, disabled = false, ...triggerProps } = props;
+     const context = useDropdownMenuContext(TRIGGER_NAME, __scopeDropdownMenu);
+     const menuScope = useMenuScope(__scopeDropdownMenu);
++    // Memoize the composed ref: an unstable ref callback makes React 19 detach and
++    // re-attach the ref on every render, which can loop when a function ref
++    // schedules state updates (see the Slot "Maximum update depth exceeded" bug).
++    const composedRefs = useComposedRefs(forwardedRef, context.triggerRef);
+     return (
+       <MenuPrimitive.Anchor asChild {...menuScope}>
+         <Primitive.button
+@@ -113,7 +117,7 @@ const DropdownMenuTrigger = React.forwardRef<DropdownMenuTriggerElement, Dropdow
+           data-disabled={disabled ? '' : undefined}
+           disabled={disabled}
+           {...triggerProps}
+-          ref={composeRefs(forwardedRef, context.triggerRef)}
++          ref={composedRefs}
+           onPointerDown={composeEventHandlers(props.onPointerDown, (event) => {
+             // only call handler if it's the left button (mousedown gets triggered by all mouse buttons)
+             // but not when the control key is pressed (avoiding MacOS right click)
+diff --git a/packages/react/focus-scope/src/focus-scope.tsx b/packages/react/focus-scope/src/focus-scope.tsx
+index 605c1e79..6125675a 100644
+--- a/packages/react/focus-scope/src/focus-scope.tsx
++++ b/packages/react/focus-scope/src/focus-scope.tsx
+@@ -57,7 +57,7 @@ const FocusScope = React.forwardRef<FocusScopeElement, FocusScopeProps>((props,
+   const onMountAutoFocus = useCallbackRef(onMountAutoFocusProp);
+   const onUnmountAutoFocus = useCallbackRef(onUnmountAutoFocusProp);
+   const lastFocusedElementRef = React.useRef<HTMLElement | null>(null);
+-  const composedRefs = useComposedRefs(forwardedRef, (node) => setContainer(node));
++  const composedRefs = useComposedRefs(forwardedRef, setContainer);
+ 
+   const focusScope = React.useRef({
+     paused: false,
+diff --git a/packages/react/menu/src/menu.test.tsx b/packages/react/menu/src/menu.test.tsx
+new file mode 100644
+index 00000000..b27ae778
+--- /dev/null
++++ b/packages/react/menu/src/menu.test.tsx
+@@ -0,0 +1,44 @@
++import * as React from 'react';
++import { cleanup, render, screen } from '@testing-library/react';
++import userEvent from '@testing-library/user-event';
++import { Menu, MenuAnchor, MenuPortal, MenuContent, MenuSub, MenuSubTrigger } from './menu';
++import { afterEach, describe, it, expect, vi } from 'vitest';
++
++describe('MenuSubTrigger unstable composed ref (React 19)', () => {
++  afterEach(cleanup);
++
++  it('does not throw "Maximum update depth exceeded" when a function ref schedules state', async () => {
++    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
++
++    function Repro() {
++      const [text, setText] = React.useState('');
++      const ref = React.useCallback((_node: HTMLElement | null) => {
++        setText((t) => t + '!');
++      }, []);
++
++      return (
++        <div>
++          <input value={text} onChange={(e) => setText(e.target.value)} />
++          <Menu open modal={false} onOpenChange={() => {}}>
++            <MenuAnchor />
++            <MenuPortal>
++              <MenuContent>
++                <MenuSub>
++                  <MenuSubTrigger ref={ref}>sub →</MenuSubTrigger>
++                </MenuSub>
++              </MenuContent>
++            </MenuPortal>
++          </Menu>
++        </div>
++      );
++    }
++
++    render(<Repro />);
++    await userEvent.type(screen.getByRole('textbox'), 'a');
++
++    expect(console.error).not.toHaveBeenCalledWith(
++      expect.stringContaining('Maximum update depth exceeded'),
++    );
++    errorSpy.mockRestore();
++  });
++});
+diff --git a/packages/react/menu/src/menu.tsx b/packages/react/menu/src/menu.tsx
+index dff0c1e9..4a4d971e 100644
+--- a/packages/react/menu/src/menu.tsx
++++ b/packages/react/menu/src/menu.tsx
+@@ -1,7 +1,7 @@
+ import * as React from 'react';
+ import { composeEventHandlers } from '@radix-ui/primitive';
+ import { createCollection } from '@radix-ui/react-collection';
+-import { useComposedRefs, composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ import { createContextScope } from '@radix-ui/react-context';
+ import { useDirection } from '@radix-ui/react-direction';
+ import { DismissableLayer } from '@radix-ui/react-dismissable-layer';
+@@ -1028,6 +1028,10 @@ const MenuSubTrigger = React.forwardRef<MenuSubTriggerElement, MenuSubTriggerPro
+     const openTimerRef = React.useRef<number | null>(null);
+     const { pointerGraceTimerRef, onPointerGraceIntentChange } = contentContext;
+     const scope = { __scopeMenu: props.__scopeMenu };
++    // Memoize the composed ref: an unstable ref callback makes React 19 detach and
++    // re-attach the ref on every render, which can loop when a function ref schedules
++    // state updates (see the Slot "Maximum update depth exceeded" bug).
++    const composedRefs = useComposedRefs(forwardedRef, subContext.onTriggerChange);
+ 
+     const clearOpenTimer = React.useCallback(() => {
+       if (openTimerRef.current) window.clearTimeout(openTimerRef.current);
+@@ -1053,7 +1057,7 @@ const MenuSubTrigger = React.forwardRef<MenuSubTriggerElement, MenuSubTriggerPro
+           aria-controls={subContext.contentId}
+           data-state={getOpenState(context.open)}
+           {...props}
+-          ref={composeRefs(forwardedRef, subContext.onTriggerChange)}
++          ref={composedRefs}
+           // This is redundant for mouse users but we cannot determine pointer type from
+           // click event and we cannot use pointerup event (see git history for reasons why)
+           onClick={(event) => {
+diff --git a/packages/react/navigation-menu/src/navigation-menu.test.tsx b/packages/react/navigation-menu/src/navigation-menu.test.tsx
+new file mode 100644
+index 00000000..6187810c
+--- /dev/null
++++ b/packages/react/navigation-menu/src/navigation-menu.test.tsx
+@@ -0,0 +1,51 @@
++import * as React from 'react';
++import { cleanup, render, screen } from '@testing-library/react';
++import userEvent from '@testing-library/user-event';
++import {
++  NavigationMenu,
++  NavigationMenuList,
++  NavigationMenuItem,
++  NavigationMenuTrigger,
++  NavigationMenuContent,
++} from './navigation-menu';
++import { afterEach, describe, it, expect, vi } from 'vitest';
++
++describe('NavigationMenuContent unstable composed ref (React 19)', () => {
++  afterEach(cleanup);
++
++  it('does not throw "Maximum update depth exceeded" when a function ref schedules state', async () => {
++    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
++
++    function Repro() {
++      const [text, setText] = React.useState('');
++      const ref = React.useCallback((_node: HTMLElement | null) => {
++        setText((t) => t + '!');
++      }, []);
++
++      return (
++        <div>
++          <input value={text} onChange={(e) => setText(e.target.value)} />
++          <NavigationMenu>
++            <NavigationMenuList>
++              <NavigationMenuItem>
++                <NavigationMenuTrigger>Products</NavigationMenuTrigger>
++                <NavigationMenuContent ref={ref}>
++                  <a href="/">link</a>
++                </NavigationMenuContent>
++              </NavigationMenuItem>
++            </NavigationMenuList>
++          </NavigationMenu>
++        </div>
++      );
++    }
++
++    render(<Repro />);
++    await userEvent.click(screen.getByRole('button', { name: 'Products' }));
++    await userEvent.type(screen.getByRole('textbox'), 'a');
++
++    expect(console.error).not.toHaveBeenCalledWith(
++      expect.stringContaining('Maximum update depth exceeded'),
++    );
++    errorSpy.mockRestore();
++  });
++});
+diff --git a/packages/react/navigation-menu/src/navigation-menu.tsx b/packages/react/navigation-menu/src/navigation-menu.tsx
+index e363f5e9..77258dc9 100644
+--- a/packages/react/navigation-menu/src/navigation-menu.tsx
++++ b/packages/react/navigation-menu/src/navigation-menu.tsx
+@@ -4,7 +4,7 @@ import { createContextScope } from '@radix-ui/react-context';
+ import { composeEventHandlers } from '@radix-ui/primitive';
+ import { Primitive, dispatchDiscreteCustomEvent } from '@radix-ui/react-primitive';
+ import { useControllableState } from '@radix-ui/react-use-controllable-state';
+-import { composeRefs, useComposedRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ import { useDirection } from '@radix-ui/react-direction';
+ import { Presence } from '@radix-ui/react-presence';
+ import { useId } from '@radix-ui/react-id';
+@@ -116,7 +116,7 @@ const NavigationMenu = React.forwardRef<NavigationMenuElement, NavigationMenuPro
+       ...NavigationMenuProps
+     } = props;
+     const [navigationMenu, setNavigationMenu] = React.useState<NavigationMenuElement | null>(null);
+-    const composedRef = useComposedRefs(forwardedRef, (node) => setNavigationMenu(node));
++    const composedRef = useComposedRefs(forwardedRef, setNavigationMenu);
+     const direction = useDirection(dir);
+     const openTimerRef = React.useRef(0);
+     const closeTimerRef = React.useRef(0);
+@@ -1022,6 +1022,37 @@ NavigationMenuViewport.displayName = VIEWPORT_NAME;
+ 
+ /* -----------------------------------------------------------------------------------------------*/
+ 
++interface NavigationMenuViewportContentProps extends NavigationMenuContentImplProps {
++  forceMount?: true;
++  isActive: boolean;
++  registeredRef?: React.Ref<NavigationMenuContentElement>;
++  onContentChange(node: NavigationMenuContentElement | null): void;
++}
++
++const NavigationMenuViewportContent = (props: NavigationMenuViewportContentProps) => {
++  const { forceMount, isActive, registeredRef, onContentChange, ...contentProps } = props;
++  // Memoize the composed ref: an unstable ref callback makes React 19 detach and
++  // re-attach the ref on every render, which can loop when a function ref schedules
++  // state updates (see the Slot "Maximum update depth exceeded" bug). The inner
++  // callback stays stable via `useCallbackRef` while still reading fresh values.
++  const composedRefs = useComposedRefs(
++    registeredRef,
++    useCallbackRef((node: NavigationMenuContentElement | null) => {
++      // We only want to update the stored node when another is available
++      // as we need to smoothly transition between them.
++      if (isActive && node) onContentChange(node);
++    }),
++  );
++
++  return (
++    <Presence present={forceMount || isActive}>
++      <NavigationMenuContentImpl {...contentProps} ref={composedRefs} />
++    </Presence>
++  );
++};
++
++/* -----------------------------------------------------------------------------------------------*/
++
+ type NavigationMenuViewportImplElement = React.ComponentRef<typeof Primitive.div>;
+ interface NavigationMenuViewportImplProps extends PrimitiveDivProps {}
+ 
+@@ -1072,21 +1103,16 @@ const NavigationMenuViewportImpl = React.forwardRef<
+       onPointerEnter={composeEventHandlers(props.onPointerEnter, context.onContentEnter)}
+       onPointerLeave={composeEventHandlers(props.onPointerLeave, whenMouse(context.onContentLeave))}
+     >
+-      {Array.from(viewportContentContext.items).map(([value, { ref, forceMount, ...props }]) => {
+-        const isActive = activeContentValue === value;
+-        return (
+-          <Presence key={value} present={forceMount || isActive}>
+-            <NavigationMenuContentImpl
+-              {...props}
+-              ref={composeRefs(ref, (node) => {
+-                // We only want to update the stored node when another is available
+-                // as we need to smoothly transition between them.
+-                if (isActive && node) setContent(node);
+-              })}
+-            />
+-          </Presence>
+-        );
+-      })}
++      {Array.from(viewportContentContext.items).map(([value, { ref, forceMount, ...props }]) => (
++        <NavigationMenuViewportContent
++          key={value}
++          {...props}
++          forceMount={forceMount}
++          isActive={activeContentValue === value}
++          registeredRef={ref}
++          onContentChange={setContent}
++        />
++      ))}
+     </Primitive.div>
+   );
+ });
+diff --git a/packages/react/popper/src/popper.tsx b/packages/react/popper/src/popper.tsx
+index a7a74529..bfd91fd9 100644
+--- a/packages/react/popper/src/popper.tsx
++++ b/packages/react/popper/src/popper.tsx
+@@ -180,7 +180,7 @@ const PopperContent = React.forwardRef<PopperContentElement, PopperContentProps>
+     const context = usePopperContext(CONTENT_NAME, __scopePopper);
+ 
+     const [content, setContent] = React.useState<HTMLDivElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setContent(node));
++    const composedRefs = useComposedRefs(forwardedRef, setContent);
+ 
+     const [arrow, setArrow] = React.useState<HTMLSpanElement | null>(null);
+     const arrowSize = useSize(arrow);
+diff --git a/packages/react/radio-group/src/radio.tsx b/packages/react/radio-group/src/radio.tsx
+index 8daca0c2..7db9822b 100644
+--- a/packages/react/radio-group/src/radio.tsx
++++ b/packages/react/radio-group/src/radio.tsx
+@@ -43,7 +43,7 @@ const Radio = React.forwardRef<RadioElement, RadioProps>(
+       ...radioProps
+     } = props;
+     const [button, setButton] = React.useState<HTMLButtonElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setButton(node));
++    const composedRefs = useComposedRefs(forwardedRef, setButton);
+     const hasConsumerStoppedPropagationRef = React.useRef(false);
+     // We set this to true by default so that events bubble to forms without JS (SSR)
+     const isFormControl = button ? form || !!button.closest('form') : true;
+diff --git a/packages/react/scroll-area/src/scroll-area.tsx b/packages/react/scroll-area/src/scroll-area.tsx
+index fa806b8e..19f2c8c7 100644
+--- a/packages/react/scroll-area/src/scroll-area.tsx
++++ b/packages/react/scroll-area/src/scroll-area.tsx
+@@ -88,7 +88,7 @@ const ScrollArea = React.forwardRef<ScrollAreaElement, ScrollAreaProps>(
+     const [cornerHeight, setCornerHeight] = React.useState(0);
+     const [scrollbarXEnabled, setScrollbarXEnabled] = React.useState(false);
+     const [scrollbarYEnabled, setScrollbarYEnabled] = React.useState(false);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setScrollArea(node));
++    const composedRefs = useComposedRefs(forwardedRef, setScrollArea);
+     const direction = useDirection(dir);
+ 
+     return (
+@@ -662,7 +662,7 @@ const ScrollAreaScrollbarImpl = React.forwardRef<
+   } = props;
+   const context = useScrollAreaContext(SCROLLBAR_NAME, __scopeScrollArea);
+   const [scrollbar, setScrollbar] = React.useState<ScrollAreaScrollbarElement | null>(null);
+-  const composeRefs = useComposedRefs(forwardedRef, (node) => setScrollbar(node));
++  const composeRefs = useComposedRefs(forwardedRef, setScrollbar);
+   const rectRef = React.useRef<DOMRect | null>(null);
+   const prevWebkitUserSelectRef = React.useRef<string>('');
+   const viewport = context.viewport;
+@@ -780,8 +780,9 @@ const ScrollAreaThumbImpl = React.forwardRef<ScrollAreaThumbImplElement, ScrollA
+     const scrollAreaContext = useScrollAreaContext(THUMB_NAME, __scopeScrollArea);
+     const scrollbarContext = useScrollbarContext(THUMB_NAME, __scopeScrollArea);
+     const { onThumbPositionChange } = scrollbarContext;
+-    const composedRef = useComposedRefs(forwardedRef, (node) =>
+-      scrollbarContext.onThumbChange(node),
++    const composedRef = useComposedRefs(
++      forwardedRef,
++      useCallbackRef((node) => scrollbarContext.onThumbChange(node)),
+     );
+     const removeUnlinkedScrollListenerRef = React.useRef<() => void>(undefined);
+     const debounceScrollEnd = useDebounceCallback(() => {
+diff --git a/packages/react/select/src/select.tsx b/packages/react/select/src/select.tsx
+index 69a1f0c5..d732bbe8 100644
+--- a/packages/react/select/src/select.tsx
++++ b/packages/react/select/src/select.tsx
+@@ -560,7 +560,7 @@ const SelectContentImpl = React.forwardRef<SelectContentImplElement, SelectConte
+     const context = useSelectContext(CONTENT_NAME, __scopeSelect);
+     const [content, setContent] = React.useState<SelectContentImplElement | null>(null);
+     const [viewport, setViewport] = React.useState<SelectViewportElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setContent(node));
++    const composedRefs = useComposedRefs(forwardedRef, setContent);
+     const [selectedItem, setSelectedItem] = React.useState<SelectItemElement | null>(null);
+     const [selectedItemText, setSelectedItemText] = React.useState<SelectItemTextElement | null>(
+       null,
+@@ -836,7 +836,7 @@ const SelectItemAlignedPosition = React.forwardRef<
+   const contentContext = useSelectContentContext(CONTENT_NAME, __scopeSelect);
+   const [contentWrapper, setContentWrapper] = React.useState<HTMLDivElement | null>(null);
+   const [content, setContent] = React.useState<SelectItemAlignedPositionElement | null>(null);
+-  const composedRefs = useComposedRefs(forwardedRef, (node) => setContent(node));
++  const composedRefs = useComposedRefs(forwardedRef, setContent);
+   const getItems = useCollection(__scopeSelect);
+   const shouldExpandOnScrollRef = React.useRef(false);
+   const shouldRepositionRef = React.useRef(true);
+@@ -1264,8 +1264,9 @@ const SelectItem = React.forwardRef<SelectItemElement, SelectItemProps>(
+     const isSelected = context.value === value;
+     const [textValue, setTextValue] = React.useState(textValueProp ?? '');
+     const [isFocused, setIsFocused] = React.useState(false);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) =>
+-      contentContext.itemRefCallback?.(node, value, disabled),
++    const composedRefs = useComposedRefs(
++      forwardedRef,
++      useCallbackRef((node) => contentContext.itemRefCallback?.(node, value, disabled)),
+     );
+     const textId = useId();
+     const pointerTypeRef = React.useRef<React.PointerEvent['pointerType']>('touch');
+diff --git a/packages/react/slider/src/slider.tsx b/packages/react/slider/src/slider.tsx
+index c23521ba..fcc15aae 100644
+--- a/packages/react/slider/src/slider.tsx
++++ b/packages/react/slider/src/slider.tsx
+@@ -253,7 +253,7 @@ const SliderHorizontal = React.forwardRef<SliderHorizontalElement, SliderHorizon
+       ...sliderProps
+     } = props;
+     const [slider, setSlider] = React.useState<SliderImplElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setSlider(node));
++    const composedRefs = useComposedRefs(forwardedRef, setSlider);
+     const rectRef = React.useRef<DOMRect>(undefined);
+     const direction = useDirection(dir);
+     const isDirectionLTR = direction === 'ltr';
+@@ -541,7 +541,7 @@ const SliderThumb = React.forwardRef<SliderThumbElement, SliderThumbProps>(
+   (props: ScopedProps<SliderThumbProps>, forwardedRef) => {
+     const getItems = useCollection(props.__scopeSlider);
+     const [thumb, setThumb] = React.useState<SliderThumbImplElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setThumb(node));
++    const composedRefs = useComposedRefs(forwardedRef, setThumb);
+     const index = React.useMemo(
+       () => (thumb ? getItems().findIndex((item) => item.ref.current === thumb) : -1),
+       [getItems, thumb],
+@@ -562,7 +562,7 @@ const SliderThumbImpl = React.forwardRef<SliderThumbImplElement, SliderThumbImpl
+     const context = useSliderContext(THUMB_NAME, __scopeSlider);
+     const orientation = useSliderOrientationContext(THUMB_NAME, __scopeSlider);
+     const [thumb, setThumb] = React.useState<HTMLSpanElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setThumb(node));
++    const composedRefs = useComposedRefs(forwardedRef, setThumb);
+     // We set this to true by default so that events bubble to forms without JS (SSR)
+     const isFormControl = thumb ? context.form || !!thumb.closest('form') : true;
+     const size = useSize(thumb);
+diff --git a/packages/react/slot/src/slot.test.tsx b/packages/react/slot/src/slot.test.tsx
+index 7beb9bbd..fbba411f 100644
+--- a/packages/react/slot/src/slot.test.tsx
++++ b/packages/react/slot/src/slot.test.tsx
+@@ -223,6 +223,44 @@ describe.skip('given an Input', () => {
+   });
+ });
+ 
++describe('given a Slot that re-renders (React 19 ref behavior)', () => {
++  afterEach(cleanup);
++
++  // Regression: https://github.com/radix-ui/primitives/issues (Maximum update depth exceeded).
++  // In React 19 a ref callback whose identity changes between renders is detached (called with
++  // `null`) and re-attached. If the Slot re-created its composed ref on every render and a
++  // function ref scheduled state updates, this detached/attached in a loop. The composed ref
++  // must be stable across re-renders.
++  it('does not throw "Maximum update depth exceeded" when a function ref schedules updates', async () => {
++    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
++
++    function Repro() {
++      const [text, setText] = React.useState('');
++      const ref = React.useCallback((_node: HTMLButtonElement | null) => {
++        setText((t) => t + '!');
++      }, []);
++
++      return (
++        <div>
++          <input value={text} onChange={(e) => setText(e.target.value)} />
++          <Slot ref={ref}>
++            <button type="button">hi</button>
++          </Slot>
++        </div>
++      );
++    }
++
++    render(<Repro />);
++    await userEvent.type(screen.getByRole('textbox'), 'a');
++
++    expect(console.error).not.toHaveBeenCalledWith(
++      expect.stringContaining('Maximum update depth exceeded'),
++    );
++
++    errorSpy.mockRestore();
++  });
++});
++
+ describe('given a Slot with React lazy components', () => {
+   afterEach(cleanup);
+ 
+@@ -339,6 +377,37 @@ describe('Slot prop and ref merging (single element child)', () => {
+     expect(slotRef).toHaveBeenCalledWith(button);
+     expect(childRef).toHaveBeenCalledWith(button);
+   });
++
++  it('does not alter the child ref when no ref is passed to the Slot', async () => {
++    const childRef = vi.fn();
++
++    function Repro() {
++      const [text, setText] = React.useState('');
++      return (
++        <div>
++          <input value={text} onChange={(e) => setText(e.target.value)} />
++          <Slot>
++            <button ref={childRef} type="button">
++              hi
++            </button>
++          </Slot>
++        </div>
++      );
++    }
++
++    render(<Repro />);
++    const button = screen.getByRole('button');
++    // Child ref attaches to the node...
++    expect(childRef).toHaveBeenCalledTimes(1);
++    expect(childRef).toHaveBeenLastCalledWith(button);
++
++    // ...and stays attached (not detached/re-attached) across re-renders.
++    await userEvent.type(screen.getByRole('textbox'), 'a');
++
++    expect(childRef).toHaveBeenCalledTimes(1);
++    expect(childRef).toHaveBeenLastCalledWith(button);
++    expect(childRef).not.toHaveBeenCalledWith(null);
++  });
+ });
+ 
+ describe('Slot with non-mergeable children', () => {
+diff --git a/packages/react/slot/src/slot.tsx b/packages/react/slot/src/slot.tsx
+index acb7e7bb..51b84d35 100644
+--- a/packages/react/slot/src/slot.tsx
++++ b/packages/react/slot/src/slot.tsx
+@@ -1,5 +1,5 @@
+ import * as React from 'react';
+-import { composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ 
+ declare module 'react' {
+   interface ReactElement {
+@@ -72,7 +72,10 @@ interface SlotProps extends React.HTMLAttributes<HTMLElement> {
+     }
+ 
+     const slottableElementRef = getElementRef(slottableElement);
+-    const composedRefs = composeRefs(forwardedRef, slottableElementRef);
++    // Use a memoized (stable) composed ref. Creating a new composed callback on
++    // every render makes React 19 detach (call with `null`) and re-attach the ref
++    // on each render, which can loop when a user's function ref schedules updates.
++    const composedRefs = useComposedRefs(forwardedRef, slottableElementRef);
+     const mergedProps = mergeProps(slotProps, slottableElement.props ?? {});
+ 
+     // do not pass ref to React.Fragment for React 19 compatibility
+diff --git a/packages/react/switch/src/switch.test.tsx b/packages/react/switch/src/switch.test.tsx
+index 02fc2f07..bfcc0bc9 100644
+--- a/packages/react/switch/src/switch.test.tsx
++++ b/packages/react/switch/src/switch.test.tsx
+@@ -1,6 +1,8 @@
++import * as React from 'react';
+ import * as Switch from './switch';
+-import { cleanup, render } from '@testing-library/react';
+-import { afterEach, describe, it, expect } from 'vitest';
++import { cleanup, render, screen } from '@testing-library/react';
++import userEvent from '@testing-library/user-event';
++import { afterEach, describe, it, expect, vi } from 'vitest';
+ 
+ describe('given a default Switch', () => {
+   afterEach(cleanup);
+@@ -25,3 +27,40 @@ describe('given a default Switch', () => {
+     expect(cleanedUp).toBe(true);
+   });
+ });
++
++describe('given a Switch with a function ref that schedules state (React 19)', () => {
++  afterEach(cleanup);
++
++  // Regression: a function ref that schedules state used to loop with
++  // "Maximum update depth exceeded" because the composed ref was unstable and React 19
++  // detached/re-attached it on every render (see the Slot bug). The composed ref must
++  // stay stable across re-renders.
++  it('does not throw "Maximum update depth exceeded" when the parent re-renders', async () => {
++    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
++
++    function Repro() {
++      const [text, setText] = React.useState('');
++      const ref = React.useCallback(() => {
++        setText((t) => t + '!');
++      }, []);
++
++      return (
++        <div>
++          <input value={text} onChange={(e) => setText(e.target.value)} />
++          <Switch.Root ref={ref}>
++            <Switch.Thumb />
++          </Switch.Root>
++        </div>
++      );
++    }
++
++    render(<Repro />);
++    await userEvent.type(screen.getByRole('textbox'), 'a');
++
++    expect(console.error).not.toHaveBeenCalledWith(
++      expect.stringContaining('Maximum update depth exceeded'),
++    );
++
++    errorSpy.mockRestore();
++  });
++});
+diff --git a/packages/react/switch/src/switch.tsx b/packages/react/switch/src/switch.tsx
+index 1be64519..53ebbdf8 100644
+--- a/packages/react/switch/src/switch.tsx
++++ b/packages/react/switch/src/switch.tsx
+@@ -45,7 +45,7 @@ const Switch = React.forwardRef<SwitchElement, SwitchProps>(
+       ...switchProps
+     } = props;
+     const [button, setButton] = React.useState<HTMLButtonElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setButton(node));
++    const composedRefs = useComposedRefs(forwardedRef, setButton);
+     const hasConsumerStoppedPropagationRef = React.useRef(false);
+     // We set this to true by default so that events bubble to forms without JS (SSR)
+     const isFormControl = button ? form || !!button.closest('form') : true;
+diff --git a/packages/react/toast/src/toast.tsx b/packages/react/toast/src/toast.tsx
+index db040cc4..8d05add2 100644
+--- a/packages/react/toast/src/toast.tsx
++++ b/packages/react/toast/src/toast.tsx
+@@ -480,7 +480,7 @@ const ToastImpl = React.forwardRef<ToastImplElement, ToastImplProps>(
+     } = props;
+     const context = useToastProviderContext(TOAST_NAME, __scopeToast);
+     const [node, setNode] = React.useState<ToastImplElement | null>(null);
+-    const composedRefs = useComposedRefs(forwardedRef, (node) => setNode(node));
++    const composedRefs = useComposedRefs(forwardedRef, setNode);
+     const pointerStartRef = React.useRef<{ x: number; y: number } | null>(null);
+     const swipeDeltaRef = React.useRef<{ x: number; y: number } | null>(null);
+     const duration = durationProp || context.duration;

@@ -1,0 +1,15 @@
+diff --git a/__tests__/repro.test.ts b/__tests__/repro.test.ts
+new file mode 100644
+index 0000000..16af6df
+--- /dev/null
++++ b/__tests__/repro.test.ts
+@@ -0,0 +1,9 @@
++import { Chess } from '../src/chess'
++import { expect, test } from 'vitest'
++
++test('repro: pawn on edge rank', () => {
++  const chess = new Chess()
++  chess.put({ type: 'p', color: 'w' }, 'h8')
++  const moves = chess.moves({ square: 'h8', verbose: true })
++  expect(moves).toEqual([])
++})

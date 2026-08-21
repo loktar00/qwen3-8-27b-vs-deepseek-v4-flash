@@ -255,3 +255,15 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   prevents. Harness failure, not a model result: archived under `_invalid-harness-20260820/chessjs/qwen-c-oldrunner400/`
   and re-run under the patched runner (same model, on the second Qwen instance), 4-hour guard. The chessjs/qwen-med-c
   attempt 4 ran on the patched runner and ended CONFIG by the 80% rule as recorded above.
+
+- 2026-08-20 (pre-verdict, secondary-metrics restatement — pass/fail unaffected): an audit of the scorer's SECONDARY
+  metrics found three defects in `score_task.py` (analyze_events / secondary_metrics): (1) token totals were read from the
+  wrong event type, so prompt/completion token sums were null for every run; (2) tool-call counts counted every streaming
+  snapshot of a call instead of distinct call ids (≈3.5–4× inflation); (3) LOC/files came from final.diff, which for a
+  run that committed mid-session covers only the delta since its last commit. Fix: usage taken from message_end events
+  (summed across assistant API calls — "input tokens billed across all calls", since context is re-sent each call);
+  tool calls deduplicated by id; LOC/files computed base commit → final working tree (plus untracked files the model
+  created, lockfiles excluded) with the number of mid-run commits recorded. All already-scored runs have their
+  `secondary`/`events` fields recomputed in a tests-free "secondary-only" pass (`secondary_version: 2`,
+  `secondary_restated_at`); P1/P2/P3/overall results are untouched. Previously published token/tool-call/LOC figures
+  were wrong and are superseded; wall-clock figures were correct throughout.

@@ -1,0 +1,39 @@
+ M __tests__/regression.test.ts
+ M src/chess.ts
+diff --git a/__tests__/regression.test.ts b/__tests__/regression.test.ts
+index e77035a..8fd2fa2 100644
+--- a/__tests__/regression.test.ts
++++ b/__tests__/regression.test.ts
+@@ -308,4 +308,19 @@ describe('Regression Tests', () => {
+     const chess = new Chess('kb4r1/p2n3P/1PP5/1P6/8/8/6p1/R3KR2 b KQkq - 0 19')
+     expect(chess.isGameOver()).toBe(false) // this was crashing due to invalid castling moves being generated
+   })
++
++  it('BigInt error when generating moves for pawns on edge ranks', () => {
++    const chess = new Chess()
++    chess.put({ type: 'p', color: 'w' }, 'h8')
++    expect(() => chess.moves({ square: 'h8', verbose: true })).not.toThrow()
++    expect(chess.moves({ square: 'h8', verbose: true })).toEqual([])
++    expect(chess.moves({ square: 'h8' })).toEqual([])
++
++    // black pawn on rank 1 would otherwise generate phantom promotion moves
++    const chess2 = new Chess()
++    chess2.put({ type: 'p', color: 'b' }, 'a1')
++    expect(() => chess2.moves({ square: 'a1', verbose: true })).not.toThrow()
++    expect(chess2.moves({ square: 'a1', verbose: true })).toEqual([])
++    expect(chess2.moves({ square: 'a1' })).toEqual([])
++  })
+ })
+diff --git a/src/chess.ts b/src/chess.ts
+index 5efdb74..2ab4a11 100644
+--- a/src/chess.ts
++++ b/src/chess.ts
+@@ -1575,7 +1575,7 @@ export class Chess {
+ 
+         // single square, non-capturing
+         to = from + PAWN_OFFSETS[us][0]
+-        if (!this._board[to]) {
++        if (!(to & 0x88) && !this._board[to]) {
+           addMove(moves, us, from, to, PAWN)
+ 
+           // double square

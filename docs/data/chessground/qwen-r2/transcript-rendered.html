@@ -270,8 +270,12 @@ details.strow[open] .st-title::before { transform: rotate(90deg); }
 .st-text { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: .82rem; color: var(--ink-2); font-weight: 600; }
 .st-text.none { color: var(--ink-muted); font-weight: 400; font-size: .76rem; }
 .st-cell { display: flex; flex-direction: column; align-items: center; gap: .2em; }
-.st-other-wrap { display: flex; gap: .45em; flex-wrap: wrap; justify-content: center; }
-.st-other { font-family: var(--mono); font-size: .64rem; color: var(--ink-muted); white-space: nowrap; }
+/* Every lane's mark gets the SAME size/color as lane A's -- only the label (OMP/OpenCode/
+   chat) is small. A muted, undersized lane-B/C mark previously looked like it was hiding a
+   real fail behind a footnote. */
+.st-lanes { display: flex; gap: .6em; flex-wrap: wrap; justify-content: center; align-items: flex-end; }
+.st-lane { display: flex; flex-direction: column; align-items: center; gap: .1em; }
+.st-lane-label { font-family: var(--mono); font-size: .62rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .03em; }
 .strow-body { padding: .5em 1.1em 1.25rem 2.7rem; background: var(--surface); border-top: 1px dashed var(--line-strong); }
 .strow-model { margin-top: 1.05em; } .strow-model:first-child { margin-top: 0; }
 .stm-head { display: flex; align-items: center; gap: .55em; font-family: var(--mono); font-weight: 700; font-size: .8rem;

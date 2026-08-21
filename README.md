@@ -25,6 +25,7 @@ ticket (results for that last one are limited to score data — see below).
 | `answer-keys/` | Upstream fix diffs, frozen repro tests, and issue data — withheld from the models at run time, published here for verifiability |
 | `calibration/` | Raw calibration run data used to sanity-check the harness before the real matrix |
 | `runs/` | Raw per-task, per-model results: diffs, test logs, driver logs, session transcripts |
+| `archived-runs/` | Attempts invalidated by a configuration or harness defect — kept for the record, not counted anywhere (see [archived-runs/README.md](archived-runs/README.md)) |
 | `raptor-support/` | Reference material for the Raptor HTML5 port task (screenshots, format notes, verification checks) |
 
 ## The `deeweb` task

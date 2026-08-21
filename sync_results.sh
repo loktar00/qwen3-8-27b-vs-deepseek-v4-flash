@@ -1,11 +1,26 @@
 #!/usr/bin/env bash
 # sync_results.sh — re-copy the latest scored/allowed results into this repo and push.
 #
+# usage:
+#   sync_results.sh              copy+commit; push, unless the last push was < 5 min
+#                                 ago (debounce), in which case just commit locally
+#   sync_results.sh --force      copy+commit+push regardless of the debounce window
+#   sync_results.sh --push-now   push any already-committed, not-yet-pushed commits;
+#                                 does no copying/committing of its own
+#
 # Safe to call frequently and from multiple concurrent callers (e.g. post_result.sh
 # after every scored job): uses an atomic mkdir-based lock, so a second concurrent
 # invocation skips instead of racing (a lock older than STALE_SECS is treated as
-# abandoned and taken over). Only commits+pushes when `git status --porcelain` is
-# actually non-empty after syncing.
+# abandoned and taken over). Only commits when `git status --porcelain` is actually
+# non-empty after syncing.
+#
+# Push debounce: pushing on every single scored job (which can be every 1-2 minutes
+# under this harness) hammers GitHub Pages' build queue -- one push already caused a
+# transient build failure from rapid-fire successive pushes. So a normal invocation
+# always does the copy+commit (nothing is ever lost), but skips the push if the last
+# successful push was under DEBOUNCE_SECS ago; the commit sits local until either a
+# later sync's debounce window has elapsed, or something runs --push-now / --force.
+# Last-push time lives in PUSH_STATE, a local dotfile, not committed to the repo.
 #
 # This environment has no `rsync`/`flock` (plain Git-for-Windows Git Bash), so
 # mirroring uses Windows' built-in `robocopy` instead — see robomirror() below for
@@ -43,8 +58,16 @@
 # scored job, so it can be mid-invocation at any time; an in-place edit risks a
 # concurrent caller reading a half-written file.
 #
+# IMPORTANT: no destructive git operations against this repo, ever -- no reset
+# --hard, no force-push, no branch deletion. Comparisons against the remote are
+# fetch + diff/log only.
+#
 # Output contract: every other message goes to stderr; stdout carries exactly one
-# final line: "synced: <short-sha>" | "synced: skipped (<reason>)" | "synced: failed (<reason>)".
+# final line, one of:
+#   "synced: <short-sha>"                          -- committed (if applicable) and pushed
+#   "synced: committed, push deferred (debounce)"   -- committed locally, push skipped
+#   "synced: skipped (<reason>)"                    -- nothing to do
+#   "synced: failed (<reason>)"                     -- see reason
 
 set -uo pipefail
 
@@ -58,8 +81,19 @@ SRC="D:/dev/ab-tasks"
 AB="D:/dev/style-pilot/labs/qwen38-day0/ab"
 DST="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOCKDIR="$DST/.sync.lock"
+PUSH_STATE="$DST/.sync-push-state"
 STALE_SECS=600
+DEBOUNCE_SECS=300
 MAX_FILE_BYTES=$((95 * 1024 * 1024))   # 95 MiB; GitHub's hard limit is 100MB
+
+FORCE=0
+PUSH_NOW=0
+case "${1:-}" in
+  --force) FORCE=1 ;;
+  --push-now) PUSH_NOW=1 ;;
+  "") ;;
+  *) echo "synced: failed (unknown argument: $1)"; exit 1 ;;
+esac
 
 log() { echo "[sync_results] $*" >&2; }
 
@@ -95,6 +129,40 @@ if ! acquire_lock; then
   exit 0
 fi
 trap 'rm -rf "$LOCKDIR"' EXIT
+
+# Pushes whatever is currently committed (caller decides whether that's warranted),
+# records the successful-push time for the debounce window, and prints the final
+# "synced: ..." line. Never returns on failure -- calls fail(), same as elsewhere.
+do_push() {
+  local push_out push_rc first_line sha
+  push_out="$(git push -q 2>&1)"
+  push_rc=$?
+  if [ "$push_rc" -ne 0 ]; then
+    first_line="$(printf '%s\n' "$push_out" | grep -m1 -E '^(remote: )?error:')"
+    [ -z "$first_line" ] && first_line="$(printf '%s\n' "$push_out" | grep -m1 .)"
+    fail "git push: ${first_line:-no output}"
+  fi
+  date +%s > "$PUSH_STATE"
+  sha="$(git rev-parse --short HEAD)"
+  echo "synced: $sha"
+}
+
+# --push-now: no copying, no committing -- just flush whatever's already committed
+# locally but not yet on origin/main. Still takes the lock (shares git state with a
+# normal sync) and still respects the "no destructive git ops" rule: fetch, compare,
+# push -- never reset/force.
+if [ "$PUSH_NOW" -eq 1 ]; then
+  cd "$DST" || fail "cd to repo"
+  git fetch -q origin || fail "git fetch"
+  LOCAL_SHA="$(git rev-parse HEAD)"
+  REMOTE_SHA="$(git rev-parse origin/main 2>/dev/null || echo "")"
+  if [ "$LOCAL_SHA" = "$REMOTE_SHA" ]; then
+    echo "synced: skipped (nothing to push)"
+    exit 0
+  fi
+  do_push
+  exit 0
+fi
 
 # Sanity check: if src has any files, dst must end up with at least one too.
 # Catches robocopy "succeeding" (exit <8) while having silently copied nothing
@@ -262,13 +330,20 @@ fi
 
 git commit -q -m "results sync $(date -u +%FT%TZ)" || fail "git commit"
 
-PUSH_OUT="$(git push -q 2>&1)"
-PUSH_RC=$?
-if [ "$PUSH_RC" -ne 0 ]; then
-  FIRST_LINE="$(printf '%s\n' "$PUSH_OUT" | grep -m1 -E '^(remote: )?error:')"
-  [ -z "$FIRST_LINE" ] && FIRST_LINE="$(printf '%s\n' "$PUSH_OUT" | grep -m1 .)"
-  fail "git push: ${FIRST_LINE:-no output}"
+# --- push debounce: always commit locally (nothing is ever lost); only push if
+# forced, or if the last successful push was >= DEBOUNCE_SECS ago. A deferred
+# commit sits local until a later sync's window has elapsed, or --push-now/--force
+# flushes it explicitly. ---
+if [ "$FORCE" -ne 1 ]; then
+  NOW=$(date +%s)
+  LAST_PUSH=0
+  [ -f "$PUSH_STATE" ] && LAST_PUSH="$(cat "$PUSH_STATE" 2>/dev/null || echo 0)"
+  ELAPSED=$(( NOW - LAST_PUSH ))
+  if [ "$ELAPSED" -lt "$DEBOUNCE_SECS" ]; then
+    log "last push was ${ELAPSED}s ago (< ${DEBOUNCE_SECS}s debounce window) -- deferring push"
+    echo "synced: committed, push deferred (debounce)"
+    exit 0
+  fi
 fi
 
-SHA="$(git rev-parse --short HEAD)"
-echo "synced: $SHA"
+do_push

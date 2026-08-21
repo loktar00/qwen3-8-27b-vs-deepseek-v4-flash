@@ -1,0 +1,80 @@
+commit 71a7122a8f52cd2146a4fd0e5ac4016e394f6e9c
+Author: Georgios <9407018+nakisgr@users.noreply.github.com>
+Date:   Mon Jun 15 23:43:33 2026 +0200
+
+    Stabilize composed ref identities to end React 19 render loop (#3963)
+
+ packages/react/dismissable-layer/src/dismissable-layer.tsx |  2 +-
+ packages/react/dropdown-menu/src/dropdown-menu.tsx         |  5 +++--
+ packages/react/focus-scope/src/focus-scope.tsx             |  2 +-
+ packages/react/menu/src/menu.tsx                           |  6 ++++--
+ packages/react/popper/src/popper.tsx                       |  2 +-
+ packages/react/scroll-area/src/scroll-area.tsx             |  8 +++-----
+ packages/react/select/src/select.tsx                       | 16 ++++++++++------
+ 7 files changed, 23 insertions(+), 18 deletions(-)
+commit 71a7122a8f52cd2146a4fd0e5ac4016e394f6e9c
+Author: Georgios <9407018+nakisgr@users.noreply.github.com>
+Date:   Mon Jun 15 23:43:33 2026 +0200
+
+    Stabilize composed ref identities to end React 19 render loop (#3963)
+
+diff --git a/packages/react/dropdown-menu/src/dropdown-menu.tsx b/packages/react/dropdown-menu/src/dropdown-menu.tsx
+index 8744ee76..b515093f 100644
+--- a/packages/react/dropdown-menu/src/dropdown-menu.tsx
++++ b/packages/react/dropdown-menu/src/dropdown-menu.tsx
+@@ -1,6 +1,6 @@
+ import * as React from 'react';
+ import { composeEventHandlers } from '@radix-ui/primitive';
+-import { composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ import { createContextScope } from '@radix-ui/react-context';
+ import { useControllableState } from '@radix-ui/react-use-controllable-state';
+ import { Primitive } from '@radix-ui/react-primitive';
+@@ -101,6 +101,7 @@ const DropdownMenuTrigger = React.forwardRef<DropdownMenuTriggerElement, Dropdow
+     const { __scopeDropdownMenu, disabled = false, ...triggerProps } = props;
+     const context = useDropdownMenuContext(TRIGGER_NAME, __scopeDropdownMenu);
+     const menuScope = useMenuScope(__scopeDropdownMenu);
++    const composedRefs = useComposedRefs(forwardedRef, context.triggerRef);
+     return (
+       <MenuPrimitive.Anchor asChild {...menuScope}>
+         <Primitive.button
+@@ -113,7 +114,7 @@ const DropdownMenuTrigger = React.forwardRef<DropdownMenuTriggerElement, Dropdow
+           data-disabled={disabled ? '' : undefined}
+           disabled={disabled}
+           {...triggerProps}
+-          ref={composeRefs(forwardedRef, context.triggerRef)}
++          ref={composedRefs}
+           onPointerDown={composeEventHandlers(props.onPointerDown, (event) => {
+             // only call handler if it's the left button (mousedown gets triggered by all mouse buttons)
+             // but not when the control key is pressed (avoiding MacOS right click)
+diff --git a/packages/react/menu/src/menu.tsx b/packages/react/menu/src/menu.tsx
+index b6c4c994..6011982e 100644
+--- a/packages/react/menu/src/menu.tsx
++++ b/packages/react/menu/src/menu.tsx
+@@ -1,7 +1,7 @@
+ import * as React from 'react';
+ import { composeEventHandlers } from '@radix-ui/primitive';
+ import { createCollection } from '@radix-ui/react-collection';
+-import { useComposedRefs, composeRefs } from '@radix-ui/react-compose-refs';
++import { useComposedRefs } from '@radix-ui/react-compose-refs';
+ import { createContextScope } from '@radix-ui/react-context';
+ import { useDirection } from '@radix-ui/react-direction';
+ import { DismissableLayer } from '@radix-ui/react-dismissable-layer';
+@@ -1057,6 +1057,8 @@ const MenuSubTrigger = React.forwardRef<MenuSubTriggerElement, MenuSubTriggerPro
+       };
+     }, [pointerGraceTimerRef, onPointerGraceIntentChange]);
+ 
++    const composedRefs = useComposedRefs(forwardedRef, subContext.onTriggerChange);
++
+     return (
+       <MenuAnchor asChild {...scope}>
+         <MenuItemImpl
+@@ -1066,7 +1068,7 @@ const MenuSubTrigger = React.forwardRef<MenuSubTriggerElement, MenuSubTriggerPro
+           aria-controls={context.open ? subContext.contentId : undefined}
+           data-state={getOpenState(context.open)}
+           {...props}
+-          ref={composeRefs(forwardedRef, subContext.onTriggerChange)}
++          ref={composedRefs}
+           // This is redundant for mouse users but we cannot determine pointer type from
+           // click event and we cannot use pointerup event (see git history for reasons why)
+           onClick={(event) => {

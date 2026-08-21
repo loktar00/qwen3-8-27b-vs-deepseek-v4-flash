@@ -122,3 +122,17 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
 - 2026-08-20 (pre-verdict): lane-C scripted-human runner fixed (file-request parsing for list formats; apply-failure feedback with full-file fallback) after its first runs failed on harness mechanics; affected lane-C runs archived and re-run.
 - 2026-08-20 (pre-verdict): Raptor budget clarified — scored on milestones reached within the same 6 scripted turns; wall-clock is reported, not capped; the only time limit is a 4-hour-per-turn runaway guard applied identically to both models (the earlier 90-minute per-turn setting would have penalized the slower model); both in-flight Raptor runs restarted under the new rule and the earlier attempts archived.
 - 2026-08-21 (pre-verdict): lane-C runner crash fixed (Windows cp1252 decode of vitest's UTF-8 output killed the runner); Qwen-medium lane-C attempt 2 archived and re-run; all lane-C runs for a model row count only under the final runner.
+
+- 2026-08-20 (scorer robustness, no rule change): `score_task.py` `run_shell` now kills the whole process tree on
+  timeout (`taskkill /T /F`) instead of `subprocess.run(timeout=…)`, which on Windows kills only the direct bash
+  child and then blocks forever waiting for the stdout pipe that an orphaned grandchild still holds. Trigger:
+  hatetris/dsv4-r2's own test file spins forever (CPU-bound) in its own worktree; the P3 "model's own test passes
+  in the model's worktree" step timed out at 300s as designed, but the scorer then hung on the orphaned node
+  process. A test that never finishes inside the timeout is scored exactly as before: P3 = FAIL ("model's own
+  test does not pass in the model's worktree"). The run was re-scored under the fixed scorer; no other run's
+  result is affected (no other scoring hit a timeout).
+- 2026-08-20 (pre-verdict): Lane B pre-`--agent ab` runs audited by tool-call name: anyio/dsv4-oc, radix/qwen-oc,
+  anyio/qwen-oc clean (no task/webfetch/websearch/skill) and kept; radix/dsv4-oc used webfetch against GitHub issue
+  search → archived (_invalid-harness-20260820) and re-run. Qwen-medium OpenCode lane verified landing medium:
+  same-config probe first-step input 8580 (default) vs 8543 (:medium), Δ37 tokens, consistent with the template's
+  ~40-token preamble delta.

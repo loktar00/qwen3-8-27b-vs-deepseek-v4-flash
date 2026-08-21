@@ -369,9 +369,10 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 <div class="page-head">
   <p class="eyebrow">2D</p>
   <h1>Raptor &rarr; web port ladder</h1>
-  <p class="lede">Fixed budget per model: same scripted milestone turns, same wall-clock cap, set before the run.
-  Highest milestone reached with its acceptance check passing, 0&ndash;5, each check scripted in Playwright against
-  <code>window.__raptor</code>. n=1 (cost), stated plainly.</p>
+  <p class="lede">Fixed budget per model: the same 6 scripted milestone turns, set before the run. Wall-clock is reported
+  (time to each milestone) but is <em>not</em> a cap &mdash; the only time limit is a 4-hour-per-turn runaway guard applied
+  identically to both models. Score = the highest milestone whose acceptance check passes, 0&ndash;5, each check scripted
+  in Playwright against <code>window.__raptor</code>; every rung's &#10003;/&#10007; is shown so a skipped rung is visible. n=1 (cost), stated plainly.</p>
 </div>
 <div class="section">
   <h2>Milestones</h2>
@@ -382,7 +383,7 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
   <h2>Per-model detail</h2>
   <div class="compare">
 <div class="modelcol a">
-  <div class="mhead"><div class="mname">DeepSeek V4 Flash</div><div class="meffort">reached M3/5</div></div>
+  <div class="mhead"><div class="mname">DeepSeek V4 Flash</div><div class="meffort">reached M4/5</div></div>
   <div class="rep">
     <dl class="kv">
       <dt>tokens</dt><dd>— / —</dd>

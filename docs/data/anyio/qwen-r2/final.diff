@@ -49,10 +49,10 @@ index bc7e6ab..615d4d7 100644
  
                  raise
 diff --git a/tests/test_synchronization.py b/tests/test_synchronization.py
-index 3ead3c2..cdeee76 100644
+index 3ead3c2..c8a3023 100644
 --- a/tests/test_synchronization.py
 +++ b/tests/test_synchronization.py
-@@ -993,3 +993,64 @@ class TestCapacityLimiter:
+@@ -993,3 +993,130 @@ class TestCapacityLimiter:
          limiter.acquire_on_behalf_of_nowait(borrower1)
          with pytest.raises(WouldBlock):
              limiter.acquire_on_behalf_of_nowait(borrower2)
@@ -117,3 +117,69 @@ index 3ead3c2..cdeee76 100644
 +        limiter.release_on_behalf_of("C")
 +        assert limiter.borrowed_tokens == 0
 +        assert limiter.available_tokens == 2
++
++    async def test_increase_tokens_exceeding_waiters_nowait_race(self) -> None:
++        """
++        Test against a race condition: when increasing total_tokens by more than the
++        number of waiting tasks, every woken task's token must be reserved at notify
++        time, so before the woken tasks resume a non-blocking acquire may only claim
++        a genuinely free token, and a second one must raise WouldBlock.
++
++        """
++        limiter = CapacityLimiter(1)
++
++        async def borrow(name: str) -> None:
++            await limiter.acquire_on_behalf_of(name)
++
++        limiter.acquire_on_behalf_of_nowait("A")
++        async with create_task_group() as tg:
++            tg.start_soon(borrow, "B")
++            tg.start_soon(borrow, "C")
++            await wait_all_tasks_blocked()
++            # Wakes both waiters, and one token is still free
++            limiter.total_tokens = 4
++            # B's and C's tokens are reserved at notify time
++            assert limiter.borrowed_tokens == 3
++            assert limiter.available_tokens == 1
++            assert limiter.statistics().tasks_waiting == 0
++            # X may claim the one genuinely free token...
++            limiter.acquire_on_behalf_of_nowait("X")
++            # ...but Y must be rejected: capacity is fully reserved
++            with pytest.raises(WouldBlock):
++                limiter.acquire_on_behalf_of_nowait("Y")
++
++        limiter.release_on_behalf_of("A")
++        limiter.release_on_behalf_of("B")
++        limiter.release_on_behalf_of("C")
++        limiter.release_on_behalf_of("X")
++        assert limiter.borrowed_tokens == 0
++        assert limiter.available_tokens == 4
++
++    async def test_increase_tokens_to_infinity_nowait_race(self) -> None:
++        """
++        Test against a race condition: when increasing total_tokens to infinity
++        wakes all waiting tasks, every token must be reserved at notify time and no
++        waiter may be left stranded in the wait queue.
++
++        """
++        limiter = CapacityLimiter(1)
++
++        async def borrow(name: str) -> None:
++            await limiter.acquire_on_behalf_of(name)
++
++        limiter.acquire_on_behalf_of_nowait("A")
++        async with create_task_group() as tg:
++            tg.start_soon(borrow, "B")
++            tg.start_soon(borrow, "C")
++            await wait_all_tasks_blocked()
++            limiter.total_tokens = math.inf
++            # B's and C's tokens are reserved at notify time
++            assert limiter.borrowed_tokens == 3
++            assert limiter.available_tokens == math.inf
++            assert limiter.statistics().tasks_waiting == 0
++
++        limiter.release_on_behalf_of("A")
++        limiter.release_on_behalf_of("B")
++        limiter.release_on_behalf_of("C")
++        assert limiter.borrowed_tokens == 0
++        assert limiter.available_tokens == math.inf

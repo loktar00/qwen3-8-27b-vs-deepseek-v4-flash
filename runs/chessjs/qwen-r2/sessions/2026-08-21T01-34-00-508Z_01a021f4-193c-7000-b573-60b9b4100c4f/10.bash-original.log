@@ -1,0 +1,26 @@
+__tests__/regression.test.ts 58ms
+diff --git a/__tests__/regression.test.ts b/__tests__/regression.test.ts
+index e77035a..d7c966e 100644
+--- a/__tests__/regression.test.ts
++++ b/__tests__/regression.test.ts
+@@ -308,4 +308,20 @@ describe('Regression Tests', () => {
+     const chess = new Chess('kb4r1/p2n3P/1PP5/1P6/8/8/6p1/R3KR2 b KQkq - 0 19')
+     expect(chess.isGameOver()).toBe(false) // this was crashing due to invalid castling moves being generated
+   })
++
++  it('Github Issue #577 - BigInt error when generating moves for pawns on edge ranks', () => {
++    const chess = new Chess()
++    chess.put({ type: 'p', color: 'w' }, 'h8')
++    expect(chess.moves({ square: 'h8', verbose: true })).toEqual([])
++    expect(chess.moves({ square: 'h8' })).toEqual([])
++    expect(chess.moves({ verbose: true })).toHaveLength(20)
++
++    const black = new Chess(
++      'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1',
++    )
++    black.put({ type: 'p', color: 'b' }, 'a1')
++    expect(black.moves({ square: 'a1', verbose: true })).toEqual([])
++    expect(black.moves({ square: 'a1' })).toEqual([])
++    expect(black.moves({ verbose: true })).toHaveLength(20)
++  })
+ })

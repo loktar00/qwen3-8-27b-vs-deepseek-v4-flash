@@ -412,58 +412,6 @@ chess.moves({ square: &#x27;h8&#x27;, verbose: true }))</code></pre>
   <h2>Lane A &middot; OMP harness</h2>
   <p class="lede">the model uses real dev tools (read/edit/run) — all tasks</p>
   <div class="compare">
-<div class="modelcol a">
-  <div class="mhead"><div class="mname">DeepSeek V4 Flash</div><div class="meffort">server default</div></div>
-  
-<div class="rep">
-  <div class="rep-label">
-    <span class="badge mono" title="raw run label on disk: dsv4-r1">OMP harness, run 1 (dsv4-r1)</span>
-  </div>
-  <div><span class="chip fail">FAIL</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip fail" title="P1">✕</span><span>Fix verified</span></div><div class="check-reason">[2m   Duration [22m 965ms[2m (transform 93ms, setup 0ms, collect 145ms, tests 7ms, environment 0ms, prepare 459ms)[22m</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip fail" title="P2">✕</span><span>Nothing broke</span></div><div class="check-reason">[2m   Duration [22m 1.95s[2m (transform 1.73s, setup 0ms, collect 7.87s, tests 1.81s, environment 7ms, prepare 9.48s)[22m</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip fail" title="P3">✕</span><span>Honest test</span></div><div class="check-reason">model&#x27;s own test does not pass in the model&#x27;s worktree — model&#x27;s test: does not pass on the model worktree; fails as expected on the base commit.</div></div>
-  <h4>Process</h4>
-  
-<dl class="kv">
-  <dt>wall-clock</dt><dd>6.2m</dd>
-  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
-  <dt>tool calls</dt><dd>177</dd>
-  <dt>test runs</dt><dd>32</dd>
-  <dt>reproduced before editing</dt><dd>no</dd>
-  <dt>diff</dt><dd>+12 / -0, 1 file</dd>
-  <dt>files touched</dt><dd>outside upstream&#x27;s fix</dd>
-</dl>
-<div class="toolcalls"><span class="tc">read &times;4</span><span class="tc">bash &times;168</span><span class="tc">edit &times;5</span></div>
-
-  
-  
-  <div class="linkrow"><a class="filelink" href="data/chessjs/dsv4-r1/final.diff" target="_blank">diff</a><a class="filelink" href="data/chessjs/dsv4-r1/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/chessjs/dsv4-r1/driver.log" target="_blank">driver log</a><a class="filelink" href="data/chessjs/dsv4-r1/install.log" target="_blank">install log</a><a class="filelink" href="data/chessjs/dsv4-r1/transcript-rendered.html" target="_blank">transcript</a></div>
-  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/__tests__/moves.test.ts b/__tests__/moves.test.ts</span><span class="diffline ">index e96a2da..d8ec8cd 100644</span><span class="diffline d-hdr">--- a/__tests__/moves.test.ts</span><span class="diffline d-hdr">+++ b/__tests__/moves.test.ts</span><span class="diffline d-hunk">@@ -311,3 +311,15 @@ test(&#x27;isStalemate - no kings (starting position minus kings)&#x27;, () =&gt; {</span><span class="diffline "> </span><span class="diffline ">   expect(noKings.isStalemate()).toEqual(false)</span><span class="diffline "> })</span><span class="diffline d-add">+</span><span class="diffline d-add">+test(&#x27;moves - single square - pawn on last rank (no push off the board)&#x27;, () =&gt; {</span><span class="diffline d-add">+  const chess = new Chess()</span><span class="diffline d-add">+  chess.put({ type: &#x27;p&#x27;, color: &#x27;w&#x27; }, &#x27;h8&#x27;)</span><span class="diffline d-add">+  expect(chess.moves({ square: &#x27;h8&#x27; })).toEqual([])</span><span class="diffline d-add">+  expect(chess.moves({ square: &#x27;h8&#x27;, verbose: true })).toEqual([])</span><span class="diffline d-add">+</span><span class="diffline d-add">+  const chess2 = new Chess()</span><span class="diffline d-add">+  chess2.put({ type: &#x27;p&#x27;, color: &#x27;b&#x27; }, &#x27;a1&#x27;)</span><span class="diffline d-add">+  expect(chess2.moves({ square: &#x27;a1&#x27; })).toEqual([])</span><span class="diffline d-add">+  expect(chess2.moves({ square: &#x27;a1&#x27;, verbose: true })).toEqual([])</span><span class="diffline d-add">+})</span><span class="diffline "></span></pre></details>
-</div>
-
-<div class="rep">
-  <div class="rep-label">
-    <span class="badge mono" title="raw run label on disk: dsv4-r2">OMP harness, run 2 (dsv4-r2)</span>
-  </div>
-  <div><span class="chip fail">FAIL</span></div><div style="margin-top:.6em"><div class="check-row" title="The bug&#x27;s own test now passes."><span class="clabel">P1</span><span class="pip fail" title="P1">✕</span><span>Fix verified</span></div><div class="check-reason">[2m   Duration [22m 541ms[2m (transform 81ms, setup 0ms, collect 124ms, tests 7ms, environment 0ms, prepare 152ms)[22m</div><div class="check-row" title="The project&#x27;s test suite still passes."><span class="clabel">P2</span><span class="pip fail" title="P2">✕</span><span>Nothing broke</span></div><div class="check-reason">[2m   Duration [22m 2.35s[2m (transform 2.98s, setup 0ms, collect 10.63s, tests 1.97s, environment 8ms, prepare 12.29s)[22m</div><div class="check-row" title="The model&#x27;s own new test fails on the old code and passes on the new."><span class="clabel">P3</span><span class="pip fail" title="P3">✕</span><span>Honest test</span></div><div class="check-reason">model&#x27;s own test does not pass in the model&#x27;s worktree — model&#x27;s test: does not pass on the model worktree; fails as expected on the base commit.</div></div>
-  <h4>Process</h4>
-  
-<dl class="kv">
-  <dt>wall-clock</dt><dd>15.9m</dd>
-  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
-  <dt>tool calls</dt><dd>70</dd>
-  <dt>test runs</dt><dd>6</dd>
-  <dt>reproduced before editing</dt><dd>—</dd>
-  <dt>diff</dt><dd>+9 / -0, 1 file</dd>
-  <dt>files touched</dt><dd>outside upstream&#x27;s fix</dd>
-</dl>
-<div class="toolcalls"><span class="tc">bash &times;28</span><span class="tc">glob &times;3</span><span class="tc">read &times;30</span><span class="tc">grep &times;9</span></div>
-
-  
-  
-  <div class="linkrow"><a class="filelink" href="data/chessjs/dsv4-r2/final.diff" target="_blank">diff</a><a class="filelink" href="data/chessjs/dsv4-r2/final-tests.log" target="_blank">tests log</a><a class="filelink" href="data/chessjs/dsv4-r2/driver.log" target="_blank">driver log</a><a class="filelink" href="data/chessjs/dsv4-r2/install.log" target="_blank">install log</a><a class="filelink" href="data/chessjs/dsv4-r2/transcript-rendered.html" target="_blank">transcript</a></div>
-  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">diff --git a/__tests__/repro.test.ts b/__tests__/repro.test.ts</span><span class="diffline ">new file mode 100644</span><span class="diffline ">index 0000000..16af6df</span><span class="diffline d-hdr">--- /dev/null</span><span class="diffline d-hdr">+++ b/__tests__/repro.test.ts</span><span class="diffline d-hunk">@@ -0,0 +1,9 @@</span><span class="diffline d-add">+import { Chess } from &#x27;../src/chess&#x27;</span><span class="diffline d-add">+import { expect, test } from &#x27;vitest&#x27;</span><span class="diffline d-add">+</span><span class="diffline d-add">+test(&#x27;repro: pawn on edge rank&#x27;, () =&gt; {</span><span class="diffline d-add">+  const chess = new Chess()</span><span class="diffline d-add">+  chess.put({ type: &#x27;p&#x27;, color: &#x27;w&#x27; }, &#x27;h8&#x27;)</span><span class="diffline d-add">+  const moves = chess.moves({ square: &#x27;h8&#x27;, verbose: true })</span><span class="diffline d-add">+  expect(moves).toEqual([])</span><span class="diffline d-add">+})</span><span class="diffline "></span></pre></details>
-</div>
-
-</div>
 <div class="modelcol b">
   <div class="mhead"><div class="mname">Qwen3.8 (xhigh thinking)</div><div class="meffort">xhigh effort (shipped default)</div></div>
   
@@ -516,7 +464,7 @@ chess.moves({ square: &#x27;h8&#x27;, verbose: true }))</code></pre>
 </div>
 
 </div></div>
-  <h3>Session transcript</h3><div class="transcripts"><div class="tpane"><div class="thead">DeepSeek V4 Flash</div><iframe src="../data/chessjs/dsv4-r1/transcript-rendered.html" loading="lazy"></iframe></div><div class="tpane"><div class="thead">DeepSeek V4 Flash</div><iframe src="../data/chessjs/dsv4-r2/transcript-rendered.html" loading="lazy"></iframe></div></div>
+  <h3>Session transcript</h3><div class="transcripts"><div class="tpane"><div class="thead">Qwen3.8 (xhigh thinking)</div><iframe src="../data/chessjs/qwen-r1/transcript-rendered.html" loading="lazy"></iframe></div><div class="tpane"><div class="thead">Qwen3.8 (xhigh thinking)</div><iframe src="../data/chessjs/qwen-r2/transcript-rendered.html" loading="lazy"></iframe></div></div>
 </div>
 <div class="section">
   <h2>Lane C &middot; Plain chat (no tools)</h2>

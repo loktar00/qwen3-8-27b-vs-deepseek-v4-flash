@@ -114,7 +114,7 @@ pre { background: var(--surface); border: 1px solid var(--line); border-radius: 
 pre code { background: none; padding: 0; }
 hr { border: none; border-top: 1px solid var(--line); margin: 2em 0; }
 
-.shell { max-width: 1180px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+.shell { max-width: 1440px; margin: 0 auto; padding: 0 1.25rem 4rem; }
 .stick-top { position: sticky; top: 0; z-index: 50; }
 .top-banner {
   background: var(--warn-bg); color: var(--warn); border-bottom: 1px solid color-mix(in srgb, var(--warn) 55%, transparent);
@@ -125,7 +125,7 @@ hr { border: none; border-top: 1px solid var(--line); margin: 2em 0; }
   background: var(--page);
   border-bottom: 1px solid var(--line); backdrop-filter: blur(6px);
 }
-.topbar-inner { max-width: 1180px; margin: 0 auto; padding: .8rem 1.25rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.topbar-inner { max-width: 1440px; margin: 0 auto; padding: .8rem 1.25rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
 .brand { font-family: var(--mono); font-weight: 700; font-size: .95rem; letter-spacing: -0.01em; white-space: nowrap; }
 .brand small { display:block; font-weight: 400; color: var(--ink-muted); font-size: .72rem; letter-spacing: 0; }
 .nav { display: flex; gap: 1.1rem; flex-wrap: wrap; margin-left: auto; font-family: var(--mono); font-size: .82rem; }
@@ -201,18 +201,19 @@ blockquote.rule { margin: .8rem 0 0; padding: .7rem 1rem; border-left: 3px solid
 
 /* ---- dead-simple ✓/✗ table (primary scoreboard view) ---- */
 .stbl { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface); margin-top: 1.2rem; }
-.stbl-head { display: grid; grid-template-columns: 1fr repeat(3, 200px); gap: .5em; padding: .55em 1.1em; background: var(--surface-2);
+.stbl-head { display: grid; grid-template-columns: 1fr repeat(3, minmax(220px, 260px)); gap: .5em; padding: .55em 1.1em; background: var(--surface-2);
   font-family: var(--mono); font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-muted);
   border-bottom: 1px solid var(--line-strong); }
 .stbl-head span:not(:first-child) { text-align: center; }
+.stbl-head > *, details.strow > summary > * { min-width: 0; }
 details.strow { border-bottom: 1px solid var(--line); }
 details.strow:last-child { border-bottom: none; }
-details.strow > summary { display: grid; grid-template-columns: 1fr repeat(3, 200px); gap: .5em; align-items: center;
+details.strow > summary { display: grid; grid-template-columns: 1fr repeat(3, minmax(220px, 260px)); gap: .5em; align-items: center;
   padding: .7em 1.1em; cursor: pointer; list-style: none; }
 details.strow > summary::-webkit-details-marker { display: none; }
 details.strow > summary:hover { background: var(--surface-2); }
 details.strow > summary:focus-visible { outline: 2px solid var(--accent-a); outline-offset: -2px; }
-.st-title { display: flex; align-items: center; gap: .55em; font-weight: 600; }
+.st-title { display: flex; align-items: center; gap: .55em; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .st-title::before { content: "▸"; color: var(--ink-muted); display: inline-block; transition: transform .15s; }
 details.strow[open] .st-title::before { transform: rotate(90deg); }
 .st-glyph { display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; font-family: var(--mono); }

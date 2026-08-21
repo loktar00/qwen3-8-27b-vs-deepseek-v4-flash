@@ -1,0 +1,1084 @@
+=== git diff 1f680c659..HEAD --stat ===
+ .../src/utils/__tests__/pinnedChannel.test.ts      |  80 +++++++++++++++
+ apps/called-chat/src/utils/pinnedChannel.ts        |  33 ++++++
+ .../Community/Chat/ChannelMenu/ChannelMenu.tsx     |   7 +-
+ .../ChannelMenu/__tests__/ChannelMenu.test.tsx     |  85 ++++++++++++++-
+ .../Community/Chat/ContactList/ChannelList.tsx     | 114 +++++++++++++++++----
+ .../Community/Chat/ContactList/ContactList.scss    |  33 ++++++
+ .../Chat/ContactList/PinnedEditHeading.tsx         |  27 +++++
+ .../Chat/ContactList/PinnedEditRow.module.scss     |  67 ++++++++++++
+ .../Community/Chat/ContactList/PinnedEditRow.tsx   |  79 ++++++++++++++
+ .../ContactList/__tests__/PinnedEditRow.test.tsx   |  60 +++++++++++
+ .../__tests__/usePinnedEditMode.test.ts            |  99 ++++++++++++++++++
+ .../src/views/Community/Chat/ContactList/index.tsx |  80 ++++++++++++---
+ .../Chat/ContactList/usePinnedEditMode.ts          |  64 ++++++++++++
+ 13 files changed, 791 insertions(+), 37 deletions(-)
+
+=== full diff ===
+diff --git a/apps/called-chat/src/utils/__tests__/pinnedChannel.test.ts b/apps/called-chat/src/utils/__tests__/pinnedChannel.test.ts
+new file mode 100644
+index 000000000..5f1b75e7b
+--- /dev/null
++++ b/apps/called-chat/src/utils/__tests__/pinnedChannel.test.ts
+@@ -0,0 +1,80 @@
++import { describe, it, expect } from 'vitest';
++import type { PinnedChannel } from 'called-api/src/openApi/calledApiSchemas';
++import { addPinnedChannel, movePinnedChannel, removePinnedChannel, renumberPinnedChannels } from '../pinnedChannel';
++
++const pins = (urls: string[], orders: number[] = urls.map((_, i) => i)): PinnedChannel[] =>
++    urls.map((url, i) => ({ channel: url, order: orders[i] }));
++
++describe('pinnedChannel ordering helpers', () => {
++    describe('renumberPinnedChannels', () => {
++        it('reassigns order = index, fixing gaps left by unpinning', () => {
++            // Unpinning A and C from orders 0..3 leaves D at 3 — a gap.
++            const result = renumberPinnedChannels(pins(['B', 'D'], [1, 3]));
++            expect(result).toEqual(pins(['B', 'D']));
++        });
++
++        it('reassigns order = index, fixing collisions left by pinning', () => {
++            // Pinning twice without renumbering gives two pins with order 2.
++            const result = renumberPinnedChannels(pins(['C', 'E'], [2, 2]));
++            expect(result).toEqual(pins(['C', 'E']));
++        });
++
++        it('keeps an already dense array unchanged', () => {
++            const input = pins(['A', 'B', 'C']);
++            expect(renumberPinnedChannels(input)).toEqual(input);
++        });
++
++        it('handles an empty array', () => {
++            expect(renumberPinnedChannels([])).toEqual([]);
++        });
++    });
++
++    describe('addPinnedChannel', () => {
++        it('appends a new pin to the end and renumbers', () => {
++            // D was pinned first but left at order 3 after unpins; a new pin
++            // must sort below it, not collide with orders 1 and 2.
++            const result = addPinnedChannel(pins(['D'], [3]), 'E');
++            expect(result).toEqual(pins(['D', 'E']));
++        });
++
++        it('appends to an empty list as order 0', () => {
++            expect(addPinnedChannel([], 'A')).toEqual([{ channel: 'A', order: 0 }]);
++        });
++    });
++
++    describe('removePinnedChannel', () => {
++        it('removes the pin and closes the gap', () => {
++            expect(removePinnedChannel(pins(['A', 'B', 'C', 'D']), 'B'))
++                .toEqual(pins(['A', 'C', 'D']));
++        });
++
++        it('is a no-op when the channel is not pinned', () => {
++            const input = pins(['A', 'B']);
++            expect(removePinnedChannel(input, 'Z')).toEqual(input);
++        });
++    });
++
++    describe('movePinnedChannel', () => {
++        it('moves a pin down and renumbers', () => {
++            // A,B,C,D -> drag A onto C => B,C,A,D
++            expect(movePinnedChannel(pins(['A', 'B', 'C', 'D']), 'A', 'C'))
++                .toEqual(pins(['B', 'C', 'A', 'D']));
++        });
++
++        it('moves a pin up and renumbers', () => {
++            expect(movePinnedChannel(pins(['A', 'B', 'C', 'D']), 'C', 'B'))
++                .toEqual(pins(['A', 'C', 'B', 'D']));
++        });
++
++        it('is a no-op when dropped on itself', () => {
++            const input = pins(['A', 'B', 'C']);
++            expect(movePinnedChannel(input, 'B', 'B')).toEqual(input);
++        });
++
++        it('is a no-op for unknown urls', () => {
++            const input = pins(['A', 'B']);
++            expect(movePinnedChannel(input, 'Z', 'A')).toEqual(input);
++            expect(movePinnedChannel(input, 'A', 'Z')).toEqual(input);
++        });
++    });
++});
+diff --git a/apps/called-chat/src/utils/pinnedChannel.ts b/apps/called-chat/src/utils/pinnedChannel.ts
+new file mode 100644
+index 000000000..ff6108b67
+--- /dev/null
++++ b/apps/called-chat/src/utils/pinnedChannel.ts
+@@ -0,0 +1,33 @@
++import type { PinnedChannel } from 'called-api/src/openApi/calledApiSchemas';
++
++// The backend stores an explicit order per pinned channel and replaces the whole
++// array on PATCH /v1/account/settings. Renumbering densely (order === index)
++// on every write keeps the sequence gapless and collision-free so pins render in
++// the stored order. A new pin must always land below every existing one, which
++// appending does.
++export const renumberPinnedChannels = (pins: PinnedChannel[]): PinnedChannel[] =>
++    pins.map((pin, index) => ({ channel: pin.channel, order: index }));
++
++// Appends a pin to the end and renumbers. Pinning via the menu (the first
++// pin, or a later one) is the only entry point that adds — edit mode reuses it
++// too — so "add to end" is always correct.
++export const addPinnedChannel = (pins: PinnedChannel[], channelUrl: string): PinnedChannel[] =>
++    renumberPinnedChannels([...pins, { channel: channelUrl, order: pins.length }]);
++
++export const removePinnedChannel = (pins: PinnedChannel[], channelUrl: string): PinnedChannel[] =>
++    renumberPinnedChannels(pins.filter((pin) => pin.channel !== channelUrl));
++
++// Drag reorder: move the active pin into the over pin's slot, then renumber.
++export const movePinnedChannel = (pins: PinnedChannel[], activeUrl: string, overUrl: string): PinnedChannel[] => {
++    const from = pins.findIndex((pin) => pin.channel === activeUrl);
++    const to = pins.findIndex((pin) => pin.channel === overUrl);
++    if (from < 0 || to < 0) {
++        return pins;
++    }
++
++    const reordered = [...pins];
++    const [active] = reordered.splice(from, 1);
++    reordered.splice(to, 0, active);
++
++    return renumberPinnedChannels(reordered);
++};
+diff --git a/apps/called-chat/src/views/Community/Chat/ChannelMenu/ChannelMenu.tsx b/apps/called-chat/src/views/Community/Chat/ChannelMenu/ChannelMenu.tsx
+index 07a58d2f9..2db3d8244 100644
+--- a/apps/called-chat/src/views/Community/Chat/ChannelMenu/ChannelMenu.tsx
++++ b/apps/called-chat/src/views/Community/Chat/ChannelMenu/ChannelMenu.tsx
+@@ -10,6 +10,7 @@ import type { ChannelSchema, EntitySchema } from 'called-api/src/openApi/calledA
+ import { useChannelsList } from '@/hooks/useChannelsList';
+ import { useCopyInviteLink } from '@/hooks/useCopyInviteLink';
+ import { useIsCustomerSuccessStaff } from '@/hooks/useIsCustomerSuccessStaff';
++import { addPinnedChannel, removePinnedChannel } from '@/utils/pinnedChannel';
+ import { useModalStore } from '@/stores/ModalStore';
+ import { isCustomerSuccessChannel } from '@/utils/channel';
+ import { hasLeaderOrAdminPermission } from '@/utils/user';
+@@ -320,11 +321,13 @@ export const ChannelMenu = memo((props: ChannelMenuProps) => {
+     const pinnedChannels = settings?.pinnedChannels || [];
+     const isChannelPinned = pinnedChannels.some((pinnedChannel) => pinnedChannel.channel === channel.url);
+     const handlePinChannel = () => {
++        // Renumber densely on every write: unpin must not leave gaps and pin must
++        // append below every existing pin, never colliding with an older order.
+         if (isChannelPinned) {
+             void patchSettings(
+                 {
+                     body: {
+-                        pinnedChannels: pinnedChannels.filter((pinnedChannel) => pinnedChannel.channel !== channel.url),
++                        pinnedChannels: removePinnedChannel(pinnedChannels, channel.url),
+                     },
+                 },
+                 {
+@@ -337,7 +340,7 @@ export const ChannelMenu = memo((props: ChannelMenuProps) => {
+             void patchSettings(
+                 {
+                     body: {
+-                        pinnedChannels: [...pinnedChannels, { order: pinnedChannels.length, channel: channel.url }],
++                        pinnedChannels: addPinnedChannel(pinnedChannels, channel.url),
+                     },
+                 },
+                 {
+diff --git a/apps/called-chat/src/views/Community/Chat/ChannelMenu/__tests__/ChannelMenu.test.tsx b/apps/called-chat/src/views/Community/Chat/ChannelMenu/__tests__/ChannelMenu.test.tsx
+index 1b7c5e709..7cbb703f9 100644
+--- a/apps/called-chat/src/views/Community/Chat/ChannelMenu/__tests__/ChannelMenu.test.tsx
++++ b/apps/called-chat/src/views/Community/Chat/ChannelMenu/__tests__/ChannelMenu.test.tsx
+@@ -10,6 +10,8 @@ const mocks = vi.hoisted(() => ({
+     invalidateQueries: vi.fn(),
+     isCustomerSuccessStaff: true,
+     leaveChannel: vi.fn(),
++    patchSettings: vi.fn(),
++    settings: { pinnedChannels: [] } as { pinnedChannels: { order: number, channel: string }[] },
+ }));
+ 
+ vi.mock('@tanstack/react-query', () => ({
+@@ -60,10 +62,10 @@ vi.mock('called-api/src/openApi/calledApiComponents', () => ({
+             }],
+         },
+     }),
+-    useGetSettings: () => ({ data: { pinnedChannels: [] } }),
++    useGetSettings: () => ({ data: mocks.settings }),
+     useLeaveChannel: () => ({ mutate: mocks.leaveChannel }),
+     useLeaveEntity: () => ({ mutate: vi.fn() }),
+-    usePatchSettings: () => ({ mutate: vi.fn() }),
++    usePatchSettings: () => ({ mutate: mocks.patchSettings }),
+ }));
+ 
+ vi.mock('@/hooks/useChannelsList', () => ({
+@@ -117,6 +119,8 @@ const createCustomerSupportChannel = (createdAt = Date.now() - (29 * DAY_MS)) =>
+     url: 'support-channel-url',
+ }) as unknown as GroupChannel;
+ 
++const createChannel = (url: string) => ({ url }) as unknown as GroupChannel;
++
+ const renderMenu = (channel = createCustomerSupportChannel()) => render(
+     <ChannelMenu
+         menuAnchorEl={document.createElement('button')}
+@@ -131,6 +135,8 @@ describe('ChannelMenu customer support leave action', () => {
+         mocks.invalidateQueries.mockReset();
+         mocks.isCustomerSuccessStaff = true;
+         mocks.leaveChannel.mockReset();
++        mocks.patchSettings.mockReset();
++        mocks.settings = { pinnedChannels: [] };
+         sendbirdLeave.mockReset();
+     });
+ 
+@@ -206,3 +212,78 @@ describe('ChannelMenu customer support leave action', () => {
+         expect(screen.queryByRole('button', { name: /Leave Customer Support Chat/i })).not.toBeInTheDocument();
+     });
+ });
++
++describe('ChannelMenu pin channel writes', () => {
++    beforeEach(() => {
++        mocks.patchSettings.mockReset();
++        mocks.settings = { pinnedChannels: [] };
++    });
++
++    it('pins a channel by appending to the end and renumbering', () => {
++        // D was pinned first but left at order 3 after earlier unpins; the new
++        // pin must sort below it, so it gets order 2, not the old collision-y
++        // "pinnedChannels.length" that would place it above D.
++        mocks.settings = {
++            pinnedChannels: [
++                { channel: 'ch-a', order: 0 },
++                { channel: 'ch-d', order: 3 },
++            ],
++        };
++        renderMenu(createChannel('ch-new'));
++
++        fireEvent.click(screen.getByRole('button', { name: 'Pin Channel' }));
++
++        expect(mocks.patchSettings).toHaveBeenCalledWith(
++            expect.objectContaining({
++                body: {
++                    pinnedChannels: [
++                        { channel: 'ch-a', order: 0 },
++                        { channel: 'ch-d', order: 1 },
++                        { channel: 'ch-new', order: 2 },
++                    ],
++                },
++            }),
++            expect.anything()
++        );
++    });
++
++    it('unpins a channel and renumbers the remaining pins', () => {
++        mocks.settings = {
++            pinnedChannels: [
++                { channel: 'ch-a', order: 0 },
++                { channel: 'ch-b', order: 1 },
++                { channel: 'ch-d', order: 3 },
++            ],
++        };
++        renderMenu(createChannel('ch-b'));
++
++        fireEvent.click(screen.getByRole('button', { name: 'Unpin Channel' }));
++
++        expect(mocks.patchSettings).toHaveBeenCalledWith(
++            expect.objectContaining({
++                body: {
++                    pinnedChannels: [
++                        { channel: 'ch-a', order: 0 },
++                        { channel: 'ch-d', order: 1 },
++                    ],
++                },
++            }),
++            expect.anything()
++        );
++    });
++
++    it('pins a channel to an empty list as order 0', () => {
++        renderMenu(createChannel('ch-first'));
++
++        fireEvent.click(screen.getByRole('button', { name: 'Pin Channel' }));
++
++        expect(mocks.patchSettings).toHaveBeenCalledWith(
++            expect.objectContaining({
++                body: {
++                    pinnedChannels: [{ channel: 'ch-first', order: 0 }],
++                },
++            }),
++            expect.anything()
++        );
++    });
++});
+diff --git a/apps/called-chat/src/views/Community/Chat/ContactList/ChannelList.tsx b/apps/called-chat/src/views/Community/Chat/ContactList/ChannelList.tsx
+index 8dba02d0b..5c9f92095 100644
+--- a/apps/called-chat/src/views/Community/Chat/ContactList/ChannelList.tsx
++++ b/apps/called-chat/src/views/Community/Chat/ContactList/ChannelList.tsx
+@@ -1,4 +1,14 @@
+-import { useEffect, useRef } from 'react';
++import { useEffect, useRef, useState } from 'react';
++import {
++    DndContext,
++    DragEndEvent,
++    KeyboardSensor,
++    PointerSensor,
++    closestCenter,
++    useSensor,
++    useSensors,
++} from '@dnd-kit/core';
++import { arrayMove, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+ import { PushTriggerOption } from '@sendbird/chat';
+ import { BaseMessage } from '@sendbird/chat/message';
+ import { useSendbirdStateContext } from '@sendbird/uikit-react';
+@@ -10,7 +20,9 @@ import { log } from 'called-common/src/utils/logger';
+ import { useChannelNotificationStatus } from '@/hooks/useChannelNotificationStatus';
+ import { useServiceWorker } from '@/hooks/useServiceWorker';
+ import { useDetailsPanel } from '@/components/DetailsPanel';
++import { getChannelName } from '@/utils/channel';
+ import { ContactPreview } from './ContactPreview';
++import { PinnedEditRow } from './PinnedEditRow';
+ 
+ // Extend the SendBird message type... the sendbird types are wrong.
+ interface ExtendedMessage extends BaseMessage {
+@@ -25,13 +37,24 @@ type ChannelListProps = {
+     channels: GroupChannel[];
+     pinnedChannels: string[];
+     isSearchActive?: boolean;
++    isEditMode?: boolean;
++    onTogglePin: (url: string, isPinned: boolean) => void;
++    onReorderPinned: (activeUrl: string, overUrl: string) => void;
+ }
+ 
+ const REFRESH_INTERVAL = 5000;
+ const HIDDEN_REFRESH_INTERVAL = 2000;
+ 
+-export const ChannelList = ({ channels, pinnedChannels, isSearchActive = false }: ChannelListProps) => {
++export const ChannelList = ({
++    channels,
++    pinnedChannels,
++    isSearchActive = false,
++    isEditMode = false,
++    onTogglePin,
++    onReorderPinned,
++}: ChannelListProps) => {
+     const channelListRef = useRef<HTMLDivElement>(null);
++    const [liveAnnouncement, setLiveAnnouncement] = useState('');
+     const { channelUrl } = useParams();
+     const initialScrollRef = useRef(false);
+     const prevShowPanelRef = useRef(false);
+@@ -149,28 +172,77 @@ export const ChannelList = ({ channels, pinnedChannels, isSearchActive = false }
+         return () => clearInterval(intervalId);
+     }, [channels, currentUserId]);
+ 
++    const sensors = useSensors(
++        useSensor(PointerSensor, {
++            activationConstraint: { distance: 5 },
++        }),
++        useSensor(KeyboardSensor, {
++            coordinateGetter: sortableKeyboardCoordinates,
++        })
++    );
++
++    const handleDragEnd = (event: DragEndEvent) => {
++        const { active, over } = event;
++        if (!over || active.id === over.id) {
++            return;
++        }
++
++        const activeUrl = String(active.id);
++        const overUrl = String(over.id);
++        onReorderPinned(activeUrl, overUrl);
++
++        // Screen reader announcement of the row's new spot after a drag.
++        const oldIndex = pinnedChannels.indexOf(activeUrl);
++        const overIndex = pinnedChannels.indexOf(overUrl);
++        const movedChannel = channels.find(ch => ch.url === activeUrl);
++        if (oldIndex >= 0 && overIndex >= 0 && movedChannel) {
++            const reordered = arrayMove(pinnedChannels, oldIndex, overIndex);
++            const pos = reordered.indexOf(activeUrl) + 1;
++            const name = getChannelName(movedChannel, currentUserId);
++            setLiveAnnouncement(`Moved ${name} to position ${pos} of ${reordered.length} pinned chats`);
++        }
++    };
++
++    const rows = channels.map((channel, index) => {
++        const isPinned = pinnedChannels.includes(channel.url);
++        const showAllChatsHeading = !isSearchActive && !isPinned && (
++            index === 0 || pinnedChannels.includes(channels[index - 1]?.url)
++        );
++
++        return (
++            <div key={channel.url}>
++                {showAllChatsHeading && (
++                    <div className='contact_list__section_heading contact_list__all_chats_heading'>
++                        <span>ALL CHATS</span>
++                    </div>
++                )}
++                {isEditMode ? (
++                    <PinnedEditRow
++                        channel={channel}
++                        isPinned={isPinned}
++                        onTogglePin={onTogglePin} />
++                ) : (
++                    <ContactPreview
++                        channel={channel}
++                        dataChannelUrl={channel.url} />
++                )}
++            </div>
++        );
++    });
++
+     return (
+         <div className="contact_list__wrapper">
+             <div className="contact_list_groups" ref={channelListRef}>
+-                {channels.map((channel, index) => {
+-                    const isPinned = pinnedChannels.includes(channel.url);
+-                    const showAllChatsHeading = !isSearchActive && !isPinned && (
+-                        index === 0 || pinnedChannels.includes(channels[index - 1]?.url)
+-                    );
+-
+-                    return (
+-                        <div key={channel.url}>
+-                            {showAllChatsHeading && (
+-                                <div className='contact_list__section_heading contact_list__all_chats_heading'>
+-                                    <span>ALL CHATS</span>
+-                                </div>
+-                            )}
+-                            <ContactPreview
+-                                channel={channel}
+-                                dataChannelUrl={channel.url} />
+-                        </div>
+-                    );
+-                })}
++                {isEditMode ? (
++                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
++                        <SortableContext items={pinnedChannels}>
++                            {rows}
++                        </SortableContext>
++                    </DndContext>
++                ) : (
++                    rows
++                )}
++                <p className="sr_only" role="status" aria-live="polite">{liveAnnouncement}</p>
+             </div>
+         </div>
+     );
+diff --git a/apps/called-chat/src/views/Community/Chat/ContactList/ContactList.scss b/apps/called-chat/src/views/Community/Chat/ContactList/ContactList.scss
+index 1e24a612a..dcd7735d5 100644
+--- a/apps/called-chat/src/views/Community/Chat/ContactList/ContactList.scss
++++ b/apps/called-chat/src/views/Community/Chat/ContactList/ContactList.scss
+@@ -44,6 +44,39 @@
+         gap: 4px;
+         align-items: center;
+     }
++
++    &__edit_button {
++        padding: 0;
++        border: none;
++        background: none;
++        color: var(--text-weak);
++        font: var(--web-sm-semibold);
++        text-transform: uppercase;
++        cursor: pointer;
++
++        @media (hover: hover) and (pointer: fine) {
++            &:hover {
++                color: var(--text-default);
++            }
++        }
++    }
++
++    &__edit_actions {
++        display: flex;
++        gap: 8px;
++    }
++}
++
++.sr_only {
++    position: absolute;
++    width: 1px;
++    height: 1px;
++    margin: -1px;
++    padding: 0;
++    overflow: hidden;
++    clip: rect(0, 0, 0, 0);
++    border: 0;
++    white-space: nowrap;
+ }
+ 
+ @media (width < $md) {
+diff --git a/apps/called-chat/src/views/Community/Chat/ContactList/PinnedEditHeading.tsx b/apps/called-chat/src/views/Community/Chat/ContactList/PinnedEditHeading.tsx
+new file mode 100644
+index 000000000..9898f4b36
+--- /dev/null
++++ b/apps/called-chat/src/views/Community/Chat/ContactList/PinnedEditHeading.tsx
+@@ -0,0 +1,27 @@
++import { Button } from '@mui/material';
++
++type PinnedEditHeadingProps = {
++    isEditMode: boolean;
++    onStartEdit: () => void;
++    onSave: () => void;
++    onCancel: () => void;
++};
++
++// The right half of the PINNED heading: an Edit button that flips the section
++// into edit mode, then Save/Cancel once editing.
++export const PinnedEditHeading = ({ isEditMode, onStartEdit, onSave, onCancel }: PinnedEditHeadingProps) => {
++    if (!isEditMode) {
++        return (
++            <button type="button" className="contact_list__edit_button" onClick={onStartEdit}>
++                Edit
++            </button>
++        );
++    }
++
++    return (
++        <div className="contact_list__edit_actions">
++            <Button size="small" variant="text" onClick={onSave}>Save</Button>
++            <Button size="small" variant="text" onClick={onCancel}>Cancel</Button>
++        </div>
++    );
++};
+diff --git a/apps/called-chat/src/views/Community/Chat/ContactList/PinnedEditRow.module.scss b/apps/called-chat/src/views/Community/Chat/ContactList/PinnedEditRow.module.scss
+new file mode 100644
+index 000000000..31ea89446
+--- /dev/null
++++ b/apps/called-chat/src/views/Community/Chat/ContactList/PinnedEditRow.module.scss
+@@ -0,0 +1,67 @@
++.edit_row {
++    display: flex;
++    align-items: center;
++    height: 44px;
++    margin-bottom: 4px;
++    padding: 0 8px;
++    border-radius: 8px;
++    font: var(--web-base-medium);
++    gap: 10px;
++
++    // All edit rows share this height; on a pinned row the 44px drag handle
++    // is the touch target that sets the row height.
++    &_dragging {
++        opacity: 0.5;
++        background-color: var(--bg-strong);
++    }
++
++    .checkbox {
++        flex-shrink: 0;
++        width: 16px;
++        height: 16px;
++        margin: 0;
++        accent-color: var(--brand);
++        cursor: pointer;
++    }
++
++    .avatar_container {
++        flex-shrink: 0;
++        width: 40px;
++        height: 40px;
++    }
++
++    .name {
++        flex: 1;
++        min-width: 0;
++        overflow: hidden;
++        color: var(--text-default);
++        text-overflow: ellipsis;
++        white-space: nowrap;
++    }
++
++    .drag_handle {
++        display: flex;
++        flex-shrink: 0;
++        align-items: center;
++        justify-content: center;
++        width: 44px;
++        height: 44px;
++        border: none;
++        border-radius: 8px;
++        background: none;
++        color: var(--text-medium);
++        cursor: grab;
++        touch-action: none;
++
++        @media (hover: hover) and (pointer: fine) {
++            &:hover {
++                background-color: var(--bg-strong);
++                color: var(--text-default);
++            }
++        }
++
++        &:active {
++            cursor: grabbing;
++        }
++    }
++}
+diff --git a/apps/called-chat/src/views/Community/Chat/ContactList/PinnedEditRow.tsx b/apps/called-chat/src/views/Community/Chat/ContactList/PinnedEditRow.tsx
+new file mode 100644
+index 000000000..2005b23ea
+--- /dev/null
++++ b/apps/called-chat/src/views/Community/Chat/ContactList/PinnedEditRow.tsx
+@@ -0,0 +1,79 @@
++import { CSSProperties } from 'react';
++import { useSortable } from '@dnd-kit/sortable';
++import { CSS } from '@dnd-kit/utilities';
++import { DotsSixVertical } from '@phosphor-icons/react';
++import type { GroupChannel } from '@sendbird/chat/groupChannel';
++import { useSendbirdStateContext } from '@sendbird/uikit-react';
++import { useGetEntities } from 'called-api/src/openApi/calledApiComponents';
++import { useChannelsList } from '@/hooks/useChannelsList';
++import { useChannelAvatar } from '@/hooks/useChannelAvatar';
++import { getChannelName } from '@/utils/channel';
++import { ChannelAvatar } from '@/components/ChannelAvatar/ChannelAvatar';
++
++import styles from './PinnedEditRow.module.scss';
++
++type PinnedEditRowProps = {
++    channel: GroupChannel;
++    isPinned: boolean;
++    onTogglePin: (url: string, isPinned: boolean) => void;
++};
++
++export const PinnedEditRow = ({ channel, isPinned, onTogglePin }: PinnedEditRowProps) => {
++    // Only pinned rows are sortable; unpinned rows just get a checkbox.
++    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
++        id: channel.url,
++        disabled: !isPinned,
++    });
++
++    const { stores } = useSendbirdStateContext();
++    const currentUserId = stores.userStore.user.userId;
++    const { data: entitiesData } = useGetEntities({});
++    const { data: channelsData } = useChannelsList();
++
++    // Avatars stay on edit rows so near-identical names remain tellable apart
++    const avatarUrl = useChannelAvatar(channel, currentUserId);
++    const isPublicChannel = !entitiesData?.items?.some((entity) => entity.channelUrl === channel?.url);
++    const channelApiData = channelsData?.items?.find((ch) => ch.channelUrl === channel?.url);
++    const isPrivateChannel = channelApiData?.type === 'ENTITY_PRIVATE';
++    const name = getChannelName(channel, currentUserId);
++
++    const style: CSSProperties = {
++        transform: CSS.Translate.toString(transform),
++        transition,
++    };
++
++    const handleToggle = () => onTogglePin(channel.url, !isPinned);
++
++    return (
++        <div
++            ref={setNodeRef}
++            style={style}
++            className={`${styles.edit_row} ${isPinned ? styles.edit_row_pinned : ''} ${isDragging ? styles.edit_row_dragging : ''}`}>
++            <input
++                type="checkbox"
++                className={styles.checkbox}
++                checked={isPinned}
++                onChange={handleToggle}
++                aria-label={`${isPinned ? 'Unpin' : 'Pin'} ${name}`} />
++            <div className={styles.avatar_container}>
++                <ChannelAvatar
++                    imageGuid={avatarUrl}
++                    size={40}
++                    channel={channel}
++                    isPublicChannel={isPublicChannel}
++                    isPrivateChannel={isPrivateChannel} />
++            </div>
++            <span className={styles.name}>{name}</span>
++            {isPinned && (
++                <button
++                    type="button"
++                    className={styles.drag_handle}
++                    aria-label={`Reorder ${name} in pinned chats`}
++                    {...attributes}
++                    {...listeners}>
++                    <DotsSixVertical size={18} />
++                </button>
++            )}
++        </div>
++    );
++};
+diff --git a/apps/called-chat/src/views/Community/Chat/ContactList/__tests__/PinnedEditRow.test.tsx b/apps/called-chat/src/views/Community/Chat/ContactList/__tests__/PinnedEditRow.test.tsx
+new file mode 100644
+index 000000000..b98a0efc4
+--- /dev/null
++++ b/apps/called-chat/src/views/Community/Chat/ContactList/__tests__/PinnedEditRow.test.tsx
+@@ -0,0 +1,60 @@
++import { fireEvent, render, screen } from '@testing-library/react';
++import { describe, it, expect, vi } from 'vitest';
++import { GroupChannel } from '@sendbird/chat/groupChannel';
++import { SortableContext } from '@dnd-kit/sortable';
++import { PinnedEditRow } from '../PinnedEditRow';
++
++vi.mock('@sendbird/uikit-react', () => ({
++    useSendbirdStateContext: () => ({ stores: { userStore: { user: { userId: 'me' } } } }),
++}));
++
++vi.mock('called-api/src/openApi/calledApiComponents', () => ({
++    useGetEntities: () => ({ data: { items: [] } }),
++}));
++
++vi.mock('@/hooks/useChannelsList', () => ({
++    useChannelsList: () => ({ data: { items: [] } }),
++}));
++
++vi.mock('@/hooks/useChannelAvatar', () => ({
++    useChannelAvatar: () => 'avatar-url',
++}));
++
++vi.mock('@/components/ChannelAvatar/ChannelAvatar', () => ({
++    ChannelAvatar: () => <img alt="avatar" />,
++}));
++
++const createChannel = (url: string, name: string) => ({ url, name }) as unknown as GroupChannel;
++
++const renderRow = (channel: GroupChannel, isPinned: boolean, onTogglePin = vi.fn()) => render(
++    <SortableContext items={[channel.url]}>
++        <PinnedEditRow channel={channel} isPinned={isPinned} onTogglePin={onTogglePin} />
++    </SortableContext>
++);
++
++describe('PinnedEditRow', () => {
++    it('shows the name and a reorder handle for a pinned row', () => {
++        renderRow(createChannel('ch-a', 'Bethany University'), true);
++
++        expect(screen.getByText('Bethany University')).toBeInTheDocument();
++        expect(screen.getByRole('button', { name: 'Reorder Bethany University in pinned chats' })).toBeInTheDocument();
++        expect(screen.getByRole('checkbox')).toBeChecked();
++    });
++
++    it('does not show a drag handle for an unpinned row', () => {
++        renderRow(createChannel('ch-b', 'Agents'), false);
++
++        expect(screen.getByText('Agents')).toBeInTheDocument();
++        expect(screen.queryByRole('button', { name: /Reorder/i })).not.toBeInTheDocument();
++        expect(screen.getByRole('checkbox')).not.toBeChecked();
++    });
++
++    it('toggles pinning through the checkbox', () => {
++        const onTogglePin = vi.fn();
++        renderRow(createChannel('ch-a', 'Bethany University'), true, onTogglePin);
++
++        fireEvent.click(screen.getByRole('checkbox'));
++
++        expect(onTogglePin).toHaveBeenCalledWith('ch-a', false);
++    });
++});
+diff --git a/apps/called-chat/src/views/Community/Chat/ContactList/__tests__/usePinnedEditMode.test.ts b/apps/called-chat/src/views/Community/Chat/ContactList/__tests__/usePinnedEditMode.test.ts
+new file mode 100644
+index 000000000..13ed6fc00
+--- /dev/null
++++ b/apps/called-chat/src/views/Community/Chat/ContactList/__tests__/usePinnedEditMode.test.ts
+@@ -0,0 +1,99 @@
++import { renderHook, act } from '@testing-library/react';
++import { describe, it, expect } from 'vitest';
++import { usePinnedEditMode } from '../usePinnedEditMode';
++
++const renderEditMode = (pinnedChannels: string[]) => renderHook(() => usePinnedEditMode(pinnedChannels));
++
++describe('usePinnedEditMode', () => {
++    it('starts editing with a draft snapshot of the current order', () => {
++        const { result } = renderEditMode(['a', 'b', 'c']);
++
++        expect(result.current.isEditMode).toBe(false);
++
++        act(() => result.current.startEdit());
++
++        expect(result.current.isEditMode).toBe(true);
++        expect(result.current.draft).toEqual([
++            { channel: 'a', order: 0 },
++            { channel: 'b', order: 1 },
++            { channel: 'c', order: 2 },
++        ]);
++    });
++
++    it('pins an unpinned chat by appending to the end of the draft', () => {
++        const { result } = renderEditMode(['a', 'b']);
++        act(() => result.current.startEdit());
++
++        act(() => result.current.togglePin('c', true));
++
++        expect(result.current.draft).toEqual([
++            { channel: 'a', order: 0 },
++            { channel: 'b', order: 1 },
++            { channel: 'c', order: 2 },
++        ]);
++    });
++
++    it('unpins a chat and renumbers the remaining draft entries', () => {
++        const { result } = renderEditMode(['a', 'b', 'c']);
++        act(() => result.current.startEdit());
++
++        act(() => result.current.togglePin('b', false));
++
++        expect(result.current.draft).toEqual([
++            { channel: 'a', order: 0 },
++            { channel: 'c', order: 1 },
++        ]);
++    });
++
++    it('reorders the draft on drag', () => {
++        const { result } = renderEditMode(['a', 'b', 'c', 'd']);
++        act(() => result.current.startEdit());
++
++        act(() => result.current.reorderPinned('a', 'c'));
++
++        expect(result.current.draft?.map((pin) => pin.channel)).toEqual(['b', 'c', 'a', 'd']);
++        // dense renumbering after the move
++        expect(result.current.draft).toEqual([
++            { channel: 'b', order: 0 },
++            { channel: 'c', order: 1 },
++            { channel: 'a', order: 2 },
++            { channel: 'd', order: 3 },
++        ]);
++    });
++
++    it('save returns the renumbered array, closes edit mode, and drops the draft', () => {
++        const { result } = renderEditMode(['a', 'b']);
++        act(() => result.current.startEdit());
++        act(() => result.current.togglePin('c', true));
++
++        let saved: { channel: string, order: number }[] | undefined;
++        act(() => { saved = result.current.saveEdit(); });
++
++        expect(saved).toEqual([
++            { channel: 'a', order: 0 },
++            { channel: 'b', order: 1 },
++            { channel: 'c', order: 2 },
++        ]);
++        expect(result.current.isEditMode).toBe(false);
++        expect(result.current.draft).toBeNull();
++    });
++
++    it('save does nothing when not editing', () => {
++        const { result } = renderEditMode(['a', 'b']);
++
++        expect(result.current.saveEdit()).toBeUndefined();
++        expect(result.current.isEditMode).toBe(false);
++    });
++
++    it('cancel discards the draft and closes edit mode', () => {
++        const { result } = renderEditMode(['a', 'b', 'c']);
++        act(() => result.current.startEdit());
++        act(() => result.current.togglePin('a', false));
++        act(() => result.current.reorderPinned('b', 'c'));
++
++        act(() => result.current.cancelEdit());
++
++        expect(result.current.isEditMode).toBe(false);
++        expect(result.current.draft).toBeNull();
++    });
++});
+diff --git a/apps/called-chat/src/views/Community/Chat/ContactList/index.tsx b/apps/called-chat/src/views/Community/Chat/ContactList/index.tsx
+index 5465209d9..a07210b19 100644
+--- a/apps/called-chat/src/views/Community/Chat/ContactList/index.tsx
++++ b/apps/called-chat/src/views/Community/Chat/ContactList/index.tsx
+@@ -1,4 +1,5 @@
+ import { useEffect, useState, useCallback, useMemo } from 'react';
++import { useQueryClient } from '@tanstack/react-query';
+ import { useSendbirdStateContext } from '@sendbird/uikit-react';
+ import { BaseChannel } from '@sendbird/chat';
+ 
+@@ -24,7 +25,10 @@ import { ChannelFilter, filterChannels, getChannelName, getEmptyFilterMessage, i
+ import { usePullToRefreshAddHandler } from '@/hooks/usePullToRefreshAddHandler';
+ import { useIsCustomerSuccessStaff } from '@/hooks/useIsCustomerSuccessStaff';
+ import { useSendbirdConnectionStore } from '@/stores/SendbirdConnectionState';
++import { removePinnedChannel } from '@/utils/pinnedChannel';
+ import { ChannelList } from './ChannelList';
++import { PinnedEditHeading } from './PinnedEditHeading';
++import { usePinnedEditMode } from './usePinnedEditMode';
+ import { CalledTeamSection } from './CalledTeamSection';
+ import { ContactListLoading } from './ContactListLoading';
+ import { ContactHeader } from './ContactHeader';
+@@ -49,6 +53,16 @@ export const ContactList = () => {
+     const { data: profileSettings } = useGetSettings({});
+     const [isInitialized, setIsInitialized] = useState(false);
+     const { mutate: patchSettings } = usePatchSettings();
++    const queryClient = useQueryClient();
++    const {
++        isEditMode: isPinnedEditMode,
++        draftUrls: pinnedEditDraftUrls,
++        startEdit: startPinnedEditMode,
++        cancelEdit: cancelPinnedEditMode,
++        togglePin: togglePinInEdit,
++        reorderPinned: reorderPinnedInEdit,
++        saveEdit: savePinnedEdit,
++    } = usePinnedEditMode(pinnedChannels);
+     const { isMobile } = useResponsive();
+     const [activeFilter, setActiveFilter] = useState<ChannelFilter>('all');
+     const isCustomerSuccessStaff = useIsCustomerSuccessStaff();
+@@ -246,16 +260,30 @@ export const ContactList = () => {
+         // Remove from local state
+         setPinnedChannels(prev => prev.filter(url => url !== channelToRemove));
+ 
+-        // Update server settings
++        // Update server settings, renumbering densely so the remaining pins
++        // keep their existing order (unpinning must not leave gaps).
+         void patchSettings({
+             body: {
+-                pinnedChannels: profileSettings?.pinnedChannels?.filter(
+-                    pinnedChannel => pinnedChannel.channel !== channelToRemove
+-                ) || [],
++                pinnedChannels: removePinnedChannel(profileSettings?.pinnedChannels || [], channelToRemove),
+             },
+         });
+     }, [profileSettings?.pinnedChannels, patchSettings]);
+ 
++    // Save the edit-mode draft in one request, then reconcile with the server.
++    const handleSavePinnedEdit = useCallback(() => {
++        const pins = savePinnedEdit();
++        if (!pins) {
++            return;
++        }
++        void patchSettings({
++            body: { pinnedChannels: pins },
++        }, {
++            onSuccess: () => {
++                void queryClient.invalidateQueries({ queryKey: ['v1', 'account', 'settings'] });
++            },
++        });
++    }, [savePinnedEdit, patchSettings, queryClient]);
++
+     useEffect(() => {
+         if (!sb.groupChannel) {
+             return () => {};
+@@ -312,10 +340,14 @@ export const ContactList = () => {
+                         const joinChannelExists = prevChannels.some(ch => ch.url === channel.url);
+ 
+                         if (!joinChannelExists) {
+-                            // Only reorder for new channels
+-                            const lastPinnedIndex = pinnedChannels.length > 0
+-                                ? prevChannels.findIndex(ch => ch.url === pinnedChannels[pinnedChannels.length - 1])
+-                                : -1;
++                            // Only reorder for new channels. Anchor on the last
++                            // pinned channel that is actually loaded, so a fresh
++                            // join can never land above the pinned block even when
++                            // the last pinned channel hasn't loaded yet.
++                            const lastPinnedIndex = pinnedChannels
++                                .map(url => prevChannels.findIndex(ch => ch.url === url))
++                                .filter(index => index >= 0)
++                                .reduce((max, index) => Math.max(max, index), -1);
+ 
+                             return [
+                                 ...prevChannels.slice(0, lastPinnedIndex + 1),
+@@ -498,6 +530,14 @@ export const ContactList = () => {
+         [pinnedChannels, searchFilteredChannels]
+     );
+ 
++    // During edit mode the draft order drives the list: checking/unchecking moves
++    // rows between PINNED and ALL CHATS and dragging reorders them immediately,
++    // without touching the server until Save. Outside edit mode it is the server order.
++    const effectivePinnedUrls = useMemo(
++        () => (isPinnedEditMode ? pinnedEditDraftUrls : filteredPinnedChannels),
++        [isPinnedEditMode, pinnedEditDraftUrls, filteredPinnedChannels]
++    );
++
+     const { searchTerm: globalSearchTerm, isSearchActive: isGlobalSearchActive } = useGlobalSearchStore((state) => ({
+         searchTerm: state.searchTerm,
+         isSearchActive: state.isSearchActive,
+@@ -512,6 +552,14 @@ export const ContactList = () => {
+ 
+     const hasActiveSearch = debouncedSearchTerm !== '' || isGlobalSearchActive;
+ 
++    // Editing hides the pinned section behind search, so drop any in-progress
++    // edit rather than leaving a stale draft open when a search starts.
++    useEffect(() => {
++        if (hasActiveSearch) {
++            cancelPinnedEditMode();
++        }
++    }, [hasActiveSearch, cancelPinnedEditMode]);
++
+     // The Called Team pin is hidden under DMs (it's a group), and under Unread
+     // only when there's nothing unread to surface. Suppressed during search so
+     // results stay focused.
+@@ -552,9 +600,12 @@ export const ContactList = () => {
+         }
+ 
+         return <ChannelList
+-            channels={searchFilteredChannels}
+-            pinnedChannels={filteredPinnedChannels}
+-            isSearchActive={hasActiveSearch} />;
++            channels={sortChannels(searchFilteredChannels, effectivePinnedUrls)}
++            pinnedChannels={effectivePinnedUrls}
++            isSearchActive={hasActiveSearch}
++            isEditMode={isPinnedEditMode}
++            onTogglePin={togglePinInEdit}
++            onReorderPinned={reorderPinnedInEdit} />;
+     };
+ 
+     return (
+@@ -571,9 +622,14 @@ export const ContactList = () => {
+                 <div className="contact_list__wrapper" data-clarity-mask="true">
+                     <div className="contact_list__content">
+                         {showCalledTeamSection && <CalledTeamSection channels={customerSuccessChannels} />}
+-                        {!hasActiveSearch && filteredPinnedChannels.length > 0 && !listLoading && (
++                        {!hasActiveSearch && (filteredPinnedChannels.length > 0 || isPinnedEditMode) && !listLoading && (
+                             <div className='contact_list__section_heading contact_list__all_chats_heading'>
+                                 <span className='contact_list__pinned'><PushPin size={16} /> PINNED</span>
++                                <PinnedEditHeading
++                                    isEditMode={isPinnedEditMode}
++                                    onStartEdit={startPinnedEditMode}
++                                    onSave={handleSavePinnedEdit}
++                                    onCancel={cancelPinnedEditMode} />
+                             </div>
+                         )}
+                         {renderResults()}
+diff --git a/apps/called-chat/src/views/Community/Chat/ContactList/usePinnedEditMode.ts b/apps/called-chat/src/views/Community/Chat/ContactList/usePinnedEditMode.ts
+new file mode 100644
+index 000000000..dfe3ade09
+--- /dev/null
++++ b/apps/called-chat/src/views/Community/Chat/ContactList/usePinnedEditMode.ts
+@@ -0,0 +1,64 @@
++import { useState, useCallback } from 'react';
++import type { PinnedChannel } from 'called-api/src/openApi/calledApiSchemas';
++import { addPinnedChannel, movePinnedChannel, removePinnedChannel, renumberPinnedChannels } from '@/utils/pinnedChannel';
++
++/**
++ * Owns the "Edit" mode for the pinned chat section: the working draft, toggling
++ * pins, drag reordering, and Save/Cancel.
++ *
++ * - startEdit snapshots the current pinned order into a draft.
++ * - togglePin / reorderPinned mutate only the draft — nothing touches the server,
++ *   so Cancel is free.
++ * - saveEdit returns the fully renumbered array for the caller to PATCH in one
++ *   request, then closes edit mode. Cancel just drops the draft.
++ */
++export const usePinnedEditMode = (pinnedChannels: string[]) => {
++    const [isEditMode, setIsEditMode] = useState(false);
++    const [draft, setDraft] = useState<PinnedChannel[] | null>(null);
++
++    const startEdit = useCallback(() => {
++        setIsEditMode(true);
++        setDraft(pinnedChannels.map((url, index) => ({ channel: url, order: index })));
++    }, [pinnedChannels]);
++
++    const cancelEdit = useCallback(() => {
++        setIsEditMode(false);
++        setDraft(null);
++    }, []);
++
++    const togglePin = useCallback((url: string, pin: boolean) => {
++        setDraft((prev) => {
++            if (!prev) {
++                return prev;
++            }
++            return pin ? addPinnedChannel(prev, url) : removePinnedChannel(prev, url);
++        });
++    }, []);
++
++    const reorderPinned = useCallback((activeUrl: string, overUrl: string) => {
++        setDraft((prev) => (prev ? movePinnedChannel(prev, activeUrl, overUrl) : prev));
++    }, []);
++
++    const saveEdit = useCallback(() => {
++        if (!draft) {
++            return undefined;
++        }
++        const renumbered = renumberPinnedChannels(draft);
++        setIsEditMode(false);
++        setDraft(null);
++        return renumbered;
++    }, [draft]);
++
++    return {
++        isEditMode,
++        draft,
++        // Channel urls in draft order (or [] outside edit mode) — what the list
++        // should render as pinned while editing.
++        draftUrls: draft?.map((pin) => pin.channel) ?? [],
++        startEdit,
++        cancelEdit,
++        togglePin,
++        reorderPinned,
++        saveEdit,
++    };
++};

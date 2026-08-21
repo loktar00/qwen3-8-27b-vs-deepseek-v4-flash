@@ -1,0 +1,139 @@
+diff --git a/src/chessground.ts b/src/chessground.ts
+index bece308..1a955e6 100644
+--- a/src/chessground.ts
++++ b/src/chessground.ts
+@@ -4,6 +4,7 @@ import { type Config, configure } from './config.js';
+ import * as events from './events.js';
+ import { render, renderResized, updateBounds } from './render.js';
+ import { defaults, type HeadlessState, type State } from './state.js';
++import type * as cg from './types.js';
+ import * as svg from './svg.js';
+ import * as util from './util.js';
+ import { renderWrap } from './wrap.js';
+@@ -17,8 +18,12 @@ export function Chessground(element: HTMLElement, config?: Config): Api {
+ 
+   configure(maybeState, config || {});
+ 
++  let boardUnbind: cg.Unbind | undefined;
++
+   function redrawAll(): State {
+     const prevUnbind = 'dom' in maybeState ? maybeState.dom.unbind : undefined;
++    // the wrap element is being replaced, so disconnect the previous board bindings
++    boardUnbind?.();
+     // compute bounds from existing board element if possible
+     // this allows non-square boards from CSS to be handled (for 3D)
+     const elements = renderWrap(element, maybeState),
+@@ -44,8 +49,14 @@ export function Chessground(element: HTMLElement, config?: Config): Api {
+     state.drawable.prevSvgHash = '';
+     updateBounds(state);
+     redrawNow(false);
+-    events.bindBoard(state, onResize);
+-    if (!prevUnbind) state.dom.unbind = events.bindDocument(state, onResize);
++    boardUnbind = events.bindBoard(state, onResize);
++    if (!prevUnbind) {
++      const documentUnbind = events.bindDocument(state, onResize);
++      state.dom.unbind = () => {
++        documentUnbind();
++        boardUnbind?.();
++      };
++    }
+     state.events.insert?.(elements);
+     return state;
+   }
+diff --git a/src/events.ts b/src/events.ts
+index 756dd50..c7b3412 100644
+--- a/src/events.ts
++++ b/src/events.ts
+@@ -8,16 +8,21 @@ import { isRightButton } from './util.js';
+ type MouchBind = (e: cg.MouchEvent) => void;
+ type StateMouchBind = (d: State, e: cg.MouchEvent) => void;
+ 
+-export function bindBoard(s: State, onResize: () => void): void {
++export function bindBoard(s: State, onResize: () => void): cg.Unbind {
+   const boardEl = s.dom.elements.board;
+ 
+-  if ('ResizeObserver' in window) new ResizeObserver(onResize).observe(s.dom.elements.wrap);
++  let observer: ResizeObserver | undefined;
++  if ('ResizeObserver' in window) {
++    observer = new ResizeObserver(onResize);
++    observer.observe(s.dom.elements.wrap);
++  }
+ 
+   if (s.disableContextMenu || s.drawable.enabled) {
+     boardEl.addEventListener('contextmenu', e => e.preventDefault());
+   }
+ 
+-  if (s.viewOnly) return;
++  const unbind = () => observer?.disconnect();
++  if (s.viewOnly) return unbind;
+ 
+   // Cannot be passive, because we prevent touch scrolling and dragging of
+   // selected elements.
+@@ -28,6 +33,7 @@ export function bindBoard(s: State, onResize: () => void): void {
+   boardEl.addEventListener('mousedown', onStart as EventListener, {
+     passive: false,
+   });
++  return unbind;
+ }
+ 
+ // returns the unbind function
+diff --git a/tests/resize-observer.test.ts b/tests/resize-observer.test.ts
+new file mode 100644
+index 0000000..4319a25
+--- /dev/null
++++ b/tests/resize-observer.test.ts
+@@ -0,0 +1,54 @@
++import { Chessground } from '../src/chessground';
++
++// jsdom does not implement ResizeObserver. This fake tracks live instances so
++// tests can assert that chessground disconnects its observers.
++class FakeResizeObserver {
++  static instances = new Set<FakeResizeObserver>();
++
++  constructor(private readonly callback: ResizeObserverCallback) {
++    FakeResizeObserver.instances.add(this);
++  }
++
++  observe(): void {}
++  unobserve(): void {}
++  disconnect(): void {
++    FakeResizeObserver.instances.delete(this);
++  }
++}
++
++beforeEach(() => {
++  FakeResizeObserver.instances.clear();
++  (window as any).ResizeObserver = FakeResizeObserver;
++});
++
++afterEach(() => {
++  delete (window as any).ResizeObserver;
++});
++
++const makeWrap = (): HTMLDivElement => {
++  const wrap = document.createElement('div');
++  wrap.style.cssText = 'width:200px;height:200px';
++  document.body.appendChild(wrap);
++  return wrap;
++};
++
++test('destroy disconnects the ResizeObserver', () => {
++  const wrap = makeWrap();
++  const cg = Chessground(wrap, { viewOnly: true });
++  expect(FakeResizeObserver.instances.size).toBe(1);
++  cg.destroy();
++  expect(FakeResizeObserver.instances.size).toBe(0);
++  wrap.remove();
++});
++
++test('redraw disconnects the previous ResizeObserver', () => {
++  const wrap = makeWrap();
++  const cg = Chessground(wrap, { viewOnly: true });
++  expect(FakeResizeObserver.instances.size).toBe(1);
++  // a config change that rebuilds the board DOM
++  cg.set({ orientation: 'black' });
++  expect(FakeResizeObserver.instances.size).toBe(1);
++  cg.destroy();
++  expect(FakeResizeObserver.instances.size).toBe(0);
++  wrap.remove();
++});

@@ -114,7 +114,7 @@ pre { background: var(--surface); border: 1px solid var(--line); border-radius: 
 pre code { background: none; padding: 0; }
 hr { border: none; border-top: 1px solid var(--line); margin: 2em 0; }
 
-.shell { max-width: 1180px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+.shell { max-width: 1440px; margin: 0 auto; padding: 0 1.25rem 4rem; }
 .stick-top { position: sticky; top: 0; z-index: 50; }
 .top-banner {
   background: var(--warn-bg); color: var(--warn); border-bottom: 1px solid color-mix(in srgb, var(--warn) 55%, transparent);
@@ -125,7 +125,7 @@ hr { border: none; border-top: 1px solid var(--line); margin: 2em 0; }
   background: var(--page);
   border-bottom: 1px solid var(--line); backdrop-filter: blur(6px);
 }
-.topbar-inner { max-width: 1180px; margin: 0 auto; padding: .8rem 1.25rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.topbar-inner { max-width: 1440px; margin: 0 auto; padding: .8rem 1.25rem; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
 .brand { font-family: var(--mono); font-weight: 700; font-size: .95rem; letter-spacing: -0.01em; white-space: nowrap; }
 .brand small { display:block; font-weight: 400; color: var(--ink-muted); font-size: .72rem; letter-spacing: 0; }
 .nav { display: flex; gap: 1.1rem; flex-wrap: wrap; margin-left: auto; font-family: var(--mono); font-size: .82rem; }
@@ -201,18 +201,19 @@ blockquote.rule { margin: .8rem 0 0; padding: .7rem 1rem; border-left: 3px solid
 
 /* ---- dead-simple ✓/✗ table (primary scoreboard view) ---- */
 .stbl { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--surface); margin-top: 1.2rem; }
-.stbl-head { display: grid; grid-template-columns: 1fr repeat(3, 200px); gap: .5em; padding: .55em 1.1em; background: var(--surface-2);
+.stbl-head { display: grid; grid-template-columns: 1fr repeat(3, minmax(220px, 260px)); gap: .5em; padding: .55em 1.1em; background: var(--surface-2);
   font-family: var(--mono); font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-muted);
   border-bottom: 1px solid var(--line-strong); }
 .stbl-head span:not(:first-child) { text-align: center; }
+.stbl-head > *, details.strow > summary > * { min-width: 0; }
 details.strow { border-bottom: 1px solid var(--line); }
 details.strow:last-child { border-bottom: none; }
-details.strow > summary { display: grid; grid-template-columns: 1fr repeat(3, 200px); gap: .5em; align-items: center;
+details.strow > summary { display: grid; grid-template-columns: 1fr repeat(3, minmax(220px, 260px)); gap: .5em; align-items: center;
   padding: .7em 1.1em; cursor: pointer; list-style: none; }
 details.strow > summary::-webkit-details-marker { display: none; }
 details.strow > summary:hover { background: var(--surface-2); }
 details.strow > summary:focus-visible { outline: 2px solid var(--accent-a); outline-offset: -2px; }
-.st-title { display: flex; align-items: center; gap: .55em; font-weight: 600; }
+.st-title { display: flex; align-items: center; gap: .55em; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .st-title::before { content: "▸"; color: var(--ink-muted); display: inline-block; transition: transform .15s; }
 details.strow[open] .st-title::before { transform: rotate(90deg); }
 .st-glyph { display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; font-family: var(--mono); }
@@ -429,13 +430,42 @@ footer.sitefoot { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid v
 
   
   
-  <div class="linkrow"><a class="filelink" href="data/deeweb/dsv4/transcript-rendered.html" target="_blank">transcript</a></div>
+  <div class="linkrow"><a class="filelink" href="data/deeweb/dsv4/final.diff" target="_blank">diff</a><a class="filelink" href="data/deeweb/dsv4/transcript.html" target="_blank">transcript</a></div>
+  <details style="margin-top:.8em"><summary style="cursor:pointer;font-family:var(--mono);font-size:.78rem;color:var(--ink-2)">diff preview</summary><pre><span class="diffline ">=== git diff 1f680c659..HEAD --stat ===</span><span class="diffline "> .../src/utils/__tests__/pinnedChannel.test.ts      |  80 +++++++++++++++</span><span class="diffline "> apps/called-chat/src/utils/pinnedChannel.ts        |  33 ++++++</span><span class="diffline "> .../Community/Chat/ChannelMenu/ChannelMenu.tsx     |   7 +-</span><span class="diffline "> .../ChannelMenu/__tests__/ChannelMenu.test.tsx     |  85 ++++++++++++++-</span><span class="diffline "> .../Community/Chat/ContactList/ChannelList.tsx     | 114 +++++++++++++++++----</span><span class="diffline "> .../Community/Chat/ContactList/ContactList.scss    |  33 ++++++</span><span class="diffline "> .../Chat/ContactList/PinnedEditHeading.tsx         |  27 +++++</span><span class="diffline "> .../Chat/ContactList/PinnedEditRow.module.scss     |  67 ++++++++++++</span><span class="diffline "> .../Community/Chat/ContactList/PinnedEditRow.tsx   |  79 ++++++++++++++</span><span class="diffline "> .../ContactList/__tests__/PinnedEditRow.test.tsx   |  60 +++++++++++</span><span class="diffline "> .../__tests__/usePinnedEditMode.test.ts            |  99 ++++++++++++++++++</span><span class="diffline "> .../src/views/Community/Chat/ContactList/index.tsx |  80 ++++++++++++---</span><span class="diffline "> .../Chat/ContactList/usePinnedEditMode.ts          |  64 ++++++++++++</span><span class="diffline "> 13 files changed, 791 insertions(+), 37 deletions(-)</span><span class="diffline "></span><span class="diffline ">=== full diff ===</span><span class="diffline ">diff --git a/apps/called-chat/src/utils/__tests__/pinnedChannel.test.ts b/apps/called-chat/src/utils/__tests__/pinnedChannel.test.ts</span><span class="diffline ">new file mode 100644</span><span class="diffline ">index 000000000..5f1b75e7b</span><span class="diffline d-hdr">--- /dev/null</span><span class="diffline d-hdr">+++ b/apps/called-chat/src/utils/__tests__/pinnedChannel.test.ts</span><span class="diffline d-hunk">@@ -0,0 +1,80 @@</span><span class="diffline d-add">+import { describe, it, expect } from &#x27;vitest&#x27;;</span><span class="diffline d-add">+import type { PinnedChannel } from &#x27;called-api/src/openApi/calledApiSchemas&#x27;;</span><span class="diffline d-add">+import { addPinnedChannel, movePinnedChannel, removePinnedChannel, renumberPinnedChannels } from &#x27;../pinnedChannel&#x27;;</span><span class="diffline d-add">+</span><span class="diffline d-add">+const pins = (urls: string[], orders: number[] = urls.map((_, i) =&gt; i)): PinnedChannel[] =&gt;</span><span class="diffline d-add">+    urls.map((url, i) =&gt; ({ channel: url, order: orders[i] }));</span><span class="diffline d-add">+</span><span class="diffline d-add">+describe(&#x27;pinnedChannel ordering helpers&#x27;, () =&gt; {</span><span class="diffline d-add">+    describe(&#x27;renumberPinnedChannels&#x27;, () =&gt; {</span><span class="diffline d-add">+        it(&#x27;reassigns order = index, fixing gaps left by unpinning&#x27;, () =&gt; {</span><span class="diffline d-add">+            // Unpinning A and C from orders 0..3 leaves D at 3 — a gap.</span><span class="diffline d-add">+            const result = renumberPinnedChannels(pins([&#x27;B&#x27;, &#x27;D&#x27;], [1, 3]));</span><span class="diffline d-add">+            expect(result).toEqual(pins([&#x27;B&#x27;, &#x27;D&#x27;]));</span><span class="diffline d-add">+        });</span><span class="diffline d-add">+</span><span class="diffline d-add">+        it(&#x27;reassigns order = index, fixing collisions left by pinning&#x27;, () =&gt; {</span><span class="diffline d-add">+            // Pinning twice without renumbering gives two pins with order 2.</span><span class="diffline d-add">+            const result = renumberPinnedChannels(pins([&#x27;C&#x27;, &#x27;E&#x27;], [2, 2]));</span><span class="diffline d-add">+            expect(result).toEqual(pins([&#x27;C&#x27;, &#x27;E&#x27;]));</span><span class="diffline d-add">+        });</span><span class="diffline d-add">+</span><span class="diffline d-add">+        it(&#x27;keeps an already dense array unchanged&#x27;, () =&gt; {</span><span class="diffline d-add">+            const input = pins([&#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;]);</span><span class="diffline d-add">+            expect(renumberPinnedChannels(input)).toEqual(input);</span><span class="diffline d-add">+        });</span><span class="diffline d-add">+</span><span class="diffline d-add">+        it(&#x27;handles an empty array&#x27;, () =&gt; {</span><span class="diffline d-add">+            expect(renumberPinnedChannels([])).toEqual([]);</span><span class="diffline d-add">+        });</span><span class="diffline d-add">+    });</span><span class="diffline d-add">+</span><span class="diffline d-add">+    describe(&#x27;addPinnedChannel&#x27;, () =&gt; {</span><span class="diffline d-add">+        it(&#x27;appends a new pin to the end and renumbers&#x27;, () =&gt; {</span><span class="diffline d-add">+            // D was pinned first but left at order 3 after unpins; a new pin</span><span class="diffline d-add">+            // must sort below it, not collide with orders 1 and 2.</span><span class="diffline d-add">+            const result = addPinnedChannel(pins([&#x27;D&#x27;], [3]), &#x27;E&#x27;);</span><span class="diffline d-add">+            expect(result).toEqual(pins([&#x27;D&#x27;, &#x27;E&#x27;]));</span><span class="diffline d-add">+        });</span><span class="diffline d-add">+</span><span class="diffline d-add">+        it(&#x27;appends to an empty list as order 0&#x27;, () =&gt; {</span><span class="diffline d-add">+            expect(addPinnedChannel([], &#x27;A&#x27;)).toEqual([{ channel: &#x27;A&#x27;, order: 0 }]);</span><span class="diffline d-add">+        });</span><span class="diffline d-add">+    });</span><span class="diffline d-add">+</span><span class="diffline d-add">+    describe(&#x27;removePinnedChannel&#x27;, () =&gt; {</span><span class="diffline d-add">+        it(&#x27;removes the pin and closes the gap&#x27;, () =&gt; {</span><span class="diffline d-add">+            expect(removePinnedChannel(pins([&#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;, &#x27;D&#x27;]), &#x27;B&#x27;))</span><span class="diffline d-add">+                .toEqual(pins([&#x27;A&#x27;, &#x27;C&#x27;, &#x27;D&#x27;]));</span><span class="diffline d-add">+        });</span><span class="diffline d-add">+</span><span class="diffline d-add">+        it(&#x27;is a no-op when the channel is not pinned&#x27;, () =&gt; {</span><span class="diffline d-add">+            const input = pins([&#x27;A&#x27;, &#x27;B&#x27;]);</span><span class="diffline d-add">+            expect(removePinnedChannel(input, &#x27;Z&#x27;)).toEqual(input);</span><span class="diffline d-add">+        });</span><span class="diffline d-add">+    });</span><span class="diffline d-add">+</span><span class="diffline d-add">+    describe(&#x27;movePinnedChannel&#x27;, () =&gt; {</span><span class="diffline d-add">+        it(&#x27;moves a pin down and renumbers&#x27;, () =&gt; {</span><span class="diffline d-add">+            // A,B,C,D -&gt; drag A onto C =&gt; B,C,A,D</span><span class="diffline d-add">+            expect(movePinnedChannel(pins([&#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;, &#x27;D&#x27;]), &#x27;A&#x27;, &#x27;C&#x27;))</span><span class="diffline d-add">+                .toEqual(pins([&#x27;B&#x27;, &#x27;C&#x27;, &#x27;A&#x27;, &#x27;D&#x27;]));</span><span class="diffline d-add">+        });</span><span class="diffline d-add">+</span><span class="diffline d-add">+        it(&#x27;moves a pin up and renumbers&#x27;, () =&gt; {</span><span class="diffline d-add">+            expect(movePinnedChannel(pins([&#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;, &#x27;D&#x27;]), &#x27;C&#x27;, &#x27;B&#x27;))</span><span class="diffline d-add">+                .toEqual(pins([&#x27;A&#x27;, &#x27;C&#x27;, &#x27;B&#x27;, &#x27;D&#x27;]));</span><span class="diffline d-add">+        });</span><span class="diffline d-add">+</span><span class="diffline d-add">+        it(&#x27;is a no-op when dropped on itself&#x27;, () =&gt; {</span><span class="diffline d-add">+            const input = pins([&#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;]);</span><span class="diffline d-add">+            expect(movePinnedChannel(input, &#x27;B&#x27;, &#x27;B&#x27;)).toEqual(input);</span><span class="diffline d-add">+        });</span><span class="diffline d-add">+</span><span class="diffline d-add">+        it(&#x27;is a no-op for unknown urls&#x27;, () =&gt; {</span><span class="diffline d-add">+            const input = pins([&#x27;A&#x27;, &#x27;B&#x27;]);</span><span class="diffline d-add">+            expect(movePinnedChannel(input, &#x27;Z&#x27;, &#x27;A&#x27;)).toEqual(input);</span><span class="diffline d-add">+            expect(movePinnedChannel(input, &#x27;A&#x27;, &#x27;Z&#x27;)).toEqual(input);</span><span class="diffline d-add">+        });</span><span class="diffline d-add">+    });</span><span class="diffline d-add">+});</span><span class="diffline ">diff --git a/apps/called-chat/src/utils/pinnedChannel.ts b/apps/called-chat/src/utils/pinnedChannel.ts</span><span class="diffline ">new file mode 100644</span><span class="diffline ">index 000000000..ff6108b67</span><span class="diffline d-hdr">--- /dev/null</span><span class="diffline d-hdr">+++ b/apps/called-chat/src/utils/pinnedChannel.ts</span><span class="diffline d-hunk">@@ -0,0 +1,33 @@</span><span class="diffline d-add">+import type { PinnedChannel } from &#x27;called-api/src/openApi/calledApiSchemas&#x27;;</span><span class="diffline d-add">+</span><span class="diffline d-add">+// The backend stores an explicit order per pinned channel and replaces the whole</span><span class="diffline d-add">+// array on PATCH /v1/account/settings. Renumbering densely (order === index)</span><span class="diffline d-add">+// on every write keeps the sequence gapless and collision-free so pins render in</span><span class="diffline d-add">+// the stored order. A new pin must always land below every existing one, which</span><span class="diffline d-add">+// appending does.</span><span class="diffline d-add">+export const renumberPinnedChannels = (pins: PinnedChannel[]): PinnedChannel[] =&gt;</span><span class="diffline d-add">+    pins.map((pin, index) =&gt; ({ channel: pin.channel, order: index }));</span><span class="diffline d-add">+</span><span class="diffline d-add">+// Appends a pin to the end and renumbers. Pinning via the menu (the first</span><span class="diffline d-add">+// pin, or a later one) is the only entry point that adds — edit mode reuses it</span><span class="diffline d-add">+// too — so &quot;add to end&quot; is always correct.</span><span class="diffline d-add">+export const addPinnedChannel = (pins: PinnedChannel[], channelUrl: string): PinnedChannel[] =&gt;</span><span class="diffline d-add">+    renumberPinnedChannels([...pins, { channel: channelUrl, order: pins.length }]);</span><span class="diffline d-add">+</span><span class="diffline d-add">+export const removePinnedChannel = (pins: PinnedChannel[], channelUrl: string): P</span><span class="diffline "></span><span class="diffline ">... [truncated, 39232 more characters -- see the full file]</span></pre></details>
+</div>
+
+</div>
+<div class="modelcol b">
+  <div class="mhead"><div class="mname">Qwen3.8 (xhigh thinking)</div><div class="meffort">xhigh effort (shipped default)</div></div>
+  
+<div class="rep">
+  <div class="rep-label">
+    <span class="badge mono" title="raw run label on disk: qwen">OMP harness, run 1 (qwen)</span>
+  </div>
+  <div><span class="chip unknown">pending</span></div>
+  <h4>Process</h4>
+  
+<dl class="kv">
+  <dt>wall-clock</dt><dd>—</dd>
+  <dt>tokens (p/c/r)</dt><dd>— / — / —</dd>
+  <dt>tool calls</dt><dd>—</dd>
+  <dt>test runs</dt><dd>—</dd>
+  <dt>reproduced before editing</dt><dd>—</dd>
+  <dt>diff</dt><dd>+— / -—, 0 files</dd>
+  <dt>files touched</dt><dd>—</dd>
+</dl>
+
+
+  
+  
+  <div class="linkrow"><span class="na">no artifacts published yet</span></div>
   
 </div>
 
 </div></div>
   
 </div>
+
 
 <footer class="sitefoot">Every run, diff, log, transcript and calibration result on this site is published as generated &mdash;
 including harness re-runs. No cherry-picking. See the <a href="../method.html">Method</a> page for the full pre-registered spec.</footer>

@@ -201,9 +201,10 @@ Qwen-medium) is reported as exactly that, not resolved into a single headline ve
   `_invalid-infra-20260820/` and re-run when the server is restored — an infra failure is never scored as a model
   result; raptor/dsv4 (ended 20:32) is checked for a clean final turn. The lane-B radix/dsv4-oc re-run (started 20:56
   against the dead server) is archived as a harness/infra stall and re-run. While DeepSeek is down and all its other
-  lane-A work is complete, its two GPUs serve two additional Qwen replicas (qwen-b, qwen-c; byte-identical vLLM launch
-  to the original Qwen server except GPU/port; same weights, same generation-config override, MTP, vision) so queued
-  Qwen jobs can run ~3× wider. This is a serving-capacity change only: no model, sampling, or context change; which
+  lane-A work is complete, once its remaining jobs are finished its two GPUs serve a second Qwen instance (qwen-b: byte-identical vLLM launch
+  to the original Qwen server except `--tensor-parallel-size 2` on those two GPUs and the port; same weights, same
+  generation-config override, MTP, vision) so queued Qwen jobs run on a faster per-stream server in addition to the
+  original one. This is a serving-capacity change only: no model, sampling, or context change; which
   replica served a run is recorded in its driver.log (model ref). DeepSeek is restored with its original launch script
   for its remaining jobs (chessjs re-runs, lane-B radix, deeweb) before the matrix is declared complete.
   Audit outcome (transcripts, read-only): chessjs/dsv4-r1 — first error 20:33:08.876, its final scripted turn (turn 3) ran
